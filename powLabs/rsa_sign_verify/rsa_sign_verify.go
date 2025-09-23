@@ -38,7 +38,7 @@ func countLeadingZeroHex(hex string) int {
 	return n
 }
 
-// mineWithZeros 寻找满足 SHA-256 哈希前导 zeros 个 '0' 的昵称+nonce。
+// mineWithZeros 寻找满足 SHA-256 哈希前导N个 '0' 的昵称+nonce。
 // 返回：命中的 nonce、命中哈希、尝试次数、耗时（秒）。
 func mineWithZeros(nickname string, startNonce uint64, zeros int) (foundNonce uint64, hash string, tried uint64, elapsedSec float64) {
 	start := time.Now()
