@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PoW 动画演示（SHA-256，昵称 + nonce）</title>
+  <style>
+    :root{
+      --bg:#0f172a; /* slate-900 */
+      --panel:#111827; /* gray-900 */
+      --text:#e5e7eb; /* gray-200 */
+      --muted:#9ca3af; /* gray-400 */
+      --accent:#22d3ee; /* cyan-400 */
+      --ok:#22c55e; /* green-500 */
+      --warn:#f59e0b; /* amber-500 */
+      --err:#ef4444; /* red-500 */
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";background:linear-gradient(180deg,#0b1220,#0f172a 40%);color:var(--text)}
+    .container{max-width:980px;margin:32px auto;padding:16px}
+    header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+    header h1{font-size:22px;margin:0;font-weight:700}
+    .badge{font-size:12px;color:#0b1220;background:var(--accent);padding:2px 8px;border-radius:999px;font-weight:700}
+
+    .panel{background:rgba(17,24,39,.7);border:1px solid rgba(255,255,255,.08);backdrop-filter: blur(6px);border-radius:12px;padding:16px;margin-bottom:16px}
+
+    .row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input[type="text"], input[type="number"]{background:#0b1020;border:1px solid rgba(255,255,255,.08);color:var(--text);padding:10px 12px;border-radius:10px;outline:none;min-width:200px}
+    input[type="number"]{width:140px}
+    .buttons{display:flex;gap:10px;flex-wrap:wrap}
+    button{background:#0b1020;border:1px solid rgba(255,255,255,.12);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer}
+    button:hover{border-color:var(--accent);color:var(--accent)}
+    button.primary{background:linear-gradient(135deg,#0ea5e9,#22d3ee);border:none;color:#08252a;font-weight:700}
+    button.danger{background:linear-gradient(135deg,#ef4444,#f59e0b);border:none;color:#2a0a08;font-weight:700}
+
+    .status{display:flex;align-items:center;gap:10px;color:var(--muted)}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);position:relative;}
+    .dot.spin:before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid transparent;border-top-color:var(--accent);border-left-color:var(--accent);animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+    .kv{background:#0b1020;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px}
+    .kv .k{font-size:12px;color:var(--muted)}
+    .kv .v{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:14px;margin-top:6px}
+
+    .hashbox{margin-top:10px;background:#0b1020;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+    .zero{color:var(--ok);font-weight:700}
+
+    .progress{height:10px;background:#0b1020;border:1px solid rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#22d3ee);transition:width .2s ease}
+
+    .results{margin-top:16px}
+    .res-item{padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:#0b1020;margin-bottom:10px}
+    .dim{color:var(--muted)}
+    /* Light theme overrides */
+    :root{
+      --bg:#ffffff;
+      --panel:#ffffff;
+      --border:#e5e7eb;
+      --text:#0f172a;
+      --muted:#64748b;
+      --accent:#3b82f6;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --err:#ef4444;
+    }
+    body{background:#f7f9fc;color:var(--text)}
+    header h1{color:var(--text)}
+    .badge{color:#0f172a;background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.22)}
+    .panel{background:var(--panel);border:1px solid var(--border);backdrop-filter:none;box-shadow:0 8px 24px rgba(15,23,42,.06);border-radius:14px}
+    label{color:var(--muted)}
+    input[type="text"], input[type="number"]{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;outline:none;min-width:200px;box-shadow:0 1px 0 rgba(15,23,42,.02)}
+    input[type="text"]:focus, input[type="number"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+    button{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer;transition:.2s ease}
+    button:hover{border-color:var(--accent);color:var(--accent)}
+    button.primary{background:linear-gradient(135deg,#3b82f6,#60a5fa);border:none;color:#fff;font-weight:700}
+    button.danger{background:linear-gradient(135deg,#ef4444,#f59e0b);border:none;color:#fff;font-weight:700}
+    .grid{gap:14px}
+    .kv{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:12px}
+    .kv .k{color:var(--muted)}
+    .kv .v{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .hashbox{margin-top:10px;background:#ffffff;border:1px solid var(--border);border-radius:10px;padding:12px;font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+    .progress{height:10px;background:#eef2f7;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#3b82f6);transition:width .2s ease}
+    .dim{color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>工作量证明 PoW 动画演示（SHA-256）</h1>
+      <span class="badge">昵称 + nonce</span>
+      <a href="pow_explained.html" style="margin-left:auto;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:8px 12px;border-radius:10px;">前往 PoW 解释页 →</a>
+    </header>
+
+    <section class="panel">
+      <div class="row">
+        <div>
+          <label for="nickname">昵称</label>
+          <input id="nickname" type="text" placeholder="请输入你的昵称" />
+        </div>
+        <div>
+          <label for="startNonce">起始 nonce（可选）</label>
+          <input id="startNonce" type="number" value="0" min="0" />
+        </div>
+        <div class="buttons">
+          <button id="start4" class="primary">开始（4 个 0）</button>
+          <button id="start5" class="primary">开始（5 个 0）</button>
+          <button id="slowStart4" class="primary" style="background:linear-gradient(135deg,#f59e0b,#eab308)">慢速模式（4 个 0）</button>
+          <button id="slowStart5" class="primary" style="background:linear-gradient(135deg,#f59e0b,#eab308)">慢速模式（5 个 0）</button>
+          <button id="stop" class="danger">停止</button>
+        </div>
+      </div>
+      <div class="status" style="margin-top:12px;">
+        <div id="statusDot" class="dot"></div>
+        <div id="statusText">空闲</div>
+      </div>
+
+      <div class="grid">
+        <div class="kv"><div class="k">当前难度</div><div id="kvDifficulty" class="v">-</div></div>
+        <div class="kv"><div class="k">当前 nonce</div><div id="kvNonce" class="v">-</div></div>
+        <div class="kv"><div class="k">已尝试次数</div><div id="kvTried" class="v">-</div></div>
+        <div class="kv"><div class="k">耗时</div><div id="kvElapsed" class="v">-</div></div>
+        <div class="kv"><div class="k">速度</div><div id="kvSpeed" class="v">-</div></div>
+        <div class="kv"><div class="k">当前匹配前缀 0 的个数</div><div id="kvBestZeros" class="v">-</div></div>
+      </div>
+
+      <div class="hashbox" id="hashBox">Hash 尚未开始</div>
+      <div class="progress" title="匹配 0 的进度（相对目标）">
+        <div id="bar" class="bar"></div>
+      </div>
+    </section>
+
+    <section class="panel results">
+      <h3 style="margin-top:0">找到的结果</h3>
+      <div id="results"></div>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id)=>document.getElementById(id);
+
+    const nicknameInput = $("nickname");
+    const startNonceInput = $("startNonce");
+    const statusDot = $("statusDot");
+    const statusText = $("statusText");
+    const kvDifficulty = $("kvDifficulty");
+    const kvNonce = $("kvNonce");
+    const kvTried = $("kvTried");
+    const kvElapsed = $("kvElapsed");
+    const kvSpeed = $("kvSpeed");
+    const kvBestZeros = $("kvBestZeros");
+    const hashBox = $("hashBox");
+    const bar = $("bar");
+    const results = $("results");
+
+    // 记住上次昵称
+    nicknameInput.value = localStorage.getItem('pow_nickname') || '';
+    nicknameInput.addEventListener('change', ()=> localStorage.setItem('pow_nickname', nicknameInput.value));
+
+    const textEncoder = new TextEncoder();
+
+    async function sha256Hex(s){
+      const buf = await crypto.subtle.digest('SHA-256', textEncoder.encode(s));
+      const arr = Array.from(new Uint8Array(buf));
+      return arr.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function countLeadingZeroHex(hex){
+      let n = 0; for (let i=0;i<hex.length;i++){ if(hex[i]==='0') n++; else break; } return n;
+    }
+
+    let mining = false;
+    let abortCtrl = {aborted:false};
+    let slowMode = false;
+
+    // 解释性提示文本
+    const explain = document.createElement('div');
+    explain.className = 'dim';
+    explain.style.marginTop = '8px';
+    explain.innerHTML = '说明：慢速模式会一轮一轮展示“昵称 + nonce → SHA-256 → 检查前缀 0”的过程，方便理解每一步。';
+    document.querySelector('.panel').appendChild(explain);
+
+    function setStatusIdle(){
+      statusDot.classList.remove('spin');
+      statusText.textContent = '空闲';
+    }
+    function setStatusRunning(){
+      statusDot.classList.add('spin');
+      statusText.textContent = slowMode ? '慢速演示中...' : '正在计算...';
+    }
+
+    function formatNum(n){
+      return Intl.NumberFormat('zh-CN').format(n);
+    }
+
+    function highlightHash(hex, zeros){
+      const safe = hex.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const prefix = safe.slice(0, zeros);
+      const rest = safe.slice(zeros);
+      return `<span class="zero">${prefix}</span>${rest}`;
+    }
+
+    function updateProgress(bestZeros, targetZeros){
+      const pct = Math.min(100, (bestZeros/Math.max(1,targetZeros))*100);
+      bar.style.width = pct + '%';
+    }
+
+    function appendResult({nickname, nonce, difficulty, hash, elapsed, tried}){
+      const div = document.createElement('div');
+      div.className = 'res-item';
+      div.innerHTML = `
+        <div class="dim"><strong>难度</strong>: 前缀 ${difficulty} 个 0</div>
+        <div class="dim">昵称 + nonce</div>
+        <div class="dim" style="font-family:ui-monospace,Consolas,monospace">${nickname}+${nonce}</div>
+        <div class="dim" style="margin-top:6px">Hash</div>
+        <div class="dim" style="font-family:ui-monospace,Consolas,monospace">${highlightHash(hash, difficulty)}</div>
+        <div class="dim" style="margin-top:6px">耗时 / 尝试次数 / 速度</div>
+        <div class="dim">${elapsed.toFixed(3)} 秒 · ${formatNum(tried)} 次 · ${(tried/elapsed).toFixed(0)} H/s</div>
+      `;
+      results.prepend(div);
+    }
+
+    async function mine({nickname, targetZeros, startNonce=0, batchSize=128}){
+      if(!nickname){ alert('请先输入昵称'); return; }
+      if(mining) return; // 正在运行则忽略
+      mining = true; abortCtrl = {aborted:false};
+
+      setStatusRunning();
+      const targetPrefix = '0'.repeat(targetZeros);
+      kvDifficulty.textContent = `前缀 ${targetZeros} 个 0`;
+
+      let nonce = Number(startNonce) || 0;
+      let tried = 0;
+      let bestZeros = 0;
+      let currentHash = '';
+      const startTime = performance.now();
+
+      const tick = async()=>{
+        if(abortCtrl.aborted){ mining=false; setStatusIdle(); return; }
+
+        if(slowMode){
+          // 慢速模式：一次只计算一个，并展示细节
+          const content = nickname + nonce;
+          const h = await sha256Hex(content);
+          const z = countLeadingZeroHex(h);
+          currentHash = h;
+          if(z > bestZeros) bestZeros = z;
+          tried += 1;
+          nonce += 1;
+          const elapsed = (performance.now()-startTime)/1000;
+          kvNonce.textContent = String(nonce);
+          kvTried.textContent = formatNum(tried);
+          kvElapsed.textContent = `${elapsed.toFixed(3)} 秒`;
+          kvSpeed.textContent = `${(tried/elapsed).toFixed(0)} H/s`;
+          kvBestZeros.textContent = String(bestZeros);
+          hashBox.innerHTML = `${nickname}+${nonce-1} → SHA-256 → ${highlightHash(h, Math.min(z,targetZeros))}`;
+          updateProgress(bestZeros, targetZeros);
+
+          if(h.startsWith(targetPrefix)){
+            appendResult({nickname, nonce: nonce-1, difficulty: targetZeros, hash: h, elapsed, tried});
+            mining=false; setStatusIdle(); return;
+          }
+          // 慢速：每步停顿 300ms
+          setTimeout(tick, 300);
+          return;
+        }
+
+        // 快速模式：批量计算
+        const contents = new Array(batchSize);
+        for(let i=0;i<batchSize;i++) contents[i] = nickname + (nonce + i);
+        const hashes = await Promise.all(contents.map(c => sha256Hex(c)));
+        for(let i=0;i<hashes.length;i++){
+          const h = hashes[i];
+          const z = countLeadingZeroHex(h);
+          if(z > bestZeros){ bestZeros = z; }
+          currentHash = h;
+          if(h.startsWith(targetPrefix)){
+            tried += (i+1);
+            nonce += (i+1);
+            const elapsed = (performance.now() - startTime)/1000;
+            kvNonce.textContent = String(nonce);
+            kvTried.textContent = formatNum(tried);
+            kvElapsed.textContent = `${elapsed.toFixed(3)} 秒`;
+            kvSpeed.textContent = `${(tried/elapsed).toFixed(0)} H/s`;
+            kvBestZeros.textContent = String(bestZeros);
+            hashBox.innerHTML = highlightHash(h, targetZeros);
+            updateProgress(bestZeros, targetZeros);
+            appendResult({nickname, nonce, difficulty: targetZeros, hash: h, elapsed, tried});
+            mining=false; setStatusIdle();
+            return;
+          }
+        }
+        tried += hashes.length;
+        nonce += hashes.length;
+        const elapsed = (performance.now()-startTime)/1000;
+        kvNonce.textContent = String(nonce);
+        kvTried.textContent = formatNum(tried);
+        kvElapsed.textContent = `${elapsed.toFixed(3)} 秒`;
+        kvSpeed.textContent = `${(tried/elapsed).toFixed(0)} H/s`;
+        kvBestZeros.textContent = String(bestZeros);
+        hashBox.innerHTML = highlightHash(currentHash, bestZeros);
+        updateProgress(bestZeros, targetZeros);
+        setTimeout(tick, 0);
+      };
+
+      kvNonce.textContent = String(nonce);
+      kvTried.textContent = '0';
+      kvElapsed.textContent = '0.000 秒';
+      kvSpeed.textContent = '-';
+      kvBestZeros.textContent = '0';
+      hashBox.textContent = '正在计算...';
+      updateProgress(0, targetZeros);
+      tick();
+    }
+
+    function stop(){ abortCtrl.aborted = true; }
+
+    document.getElementById('slowStart4').addEventListener('click', ()=>{
+      slowMode = true;
+      mine({ nickname: nicknameInput.value.trim(), targetZeros: 4, startNonce: startNonceInput.value, batchSize: 1 });
+    });
+    document.getElementById('slowStart5').addEventListener('click', ()=>{
+      slowMode = true;
+      mine({ nickname: nicknameInput.value.trim(), targetZeros: 5, startNonce: startNonceInput.value, batchSize: 1 });
+    });
+    document.getElementById('start4').addEventListener('click', ()=>{
+      slowMode = false;
+      mine({ nickname: nicknameInput.value.trim(), targetZeros: 4, startNonce: startNonceInput.value, batchSize: 128 });
+    });
+    document.getElementById('start5').addEventListener('click', ()=>{
+      slowMode = false;
+      mine({ nickname: nicknameInput.value.trim(), targetZeros: 5, startNonce: startNonceInput.value, batchSize: 256 });
+    });
+    document.getElementById('stop').addEventListener('click', ()=>{ slowMode=false; stop(); });
+
+  </script>
+</body>
+</html>

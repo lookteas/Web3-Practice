@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>区块链工作量证明（PoW）小白可视化讲解</title>
+  <style>
+    :root{--bg:#ffffff;--panel:#ffffff;--text:#0b1220;--muted:#64748b;--accent:#3b82f6;--ok:#16a34a;--warn:#f59e0b;--err:#ef4444}
+    *{box-sizing:border-box}body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;background:#ffffff;color:var(--text)}
+    .container{max-width:980px;margin:32px auto;padding:16px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    h1{font-size:28px;margin:0;font-weight:800}
+    a.link{color:var(--accent);text-decoration:none;border-bottom:1px dashed rgba(59,130,246,.5)} a.link:hover{opacity:.85}
+    .panel{background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 6px 24px rgba(2,6,23,.06);padding:20px;margin-bottom:18px}
+    h2{margin:0 0 10px 0;font-size:20px}
+    p{color:#334155;line-height:1.6;margin:8px 0}
+    ul{margin:8px 0 0 18px;color:#334155;line-height:1.7}
+    code{font-family:ui-monospace,Consolas,monospace;background:#f1f5f9;border:1px solid #e2e8f0;padding:2px 6px;border-radius:6px;color:#0b1220}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    .kv{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:12px}
+    .muted{color:var(--muted)} .badge{font-size:12px;background:var(--accent);color:#ffffff;border-radius:999px;padding:2px 8px;font-weight:700}
+    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+    input,button{background:#ffffff;border:1px solid #e2e8f0;color:var(--text);padding:10px 12px;border-radius:10px;outline:none}
+    button{cursor:pointer}button.primary{background:linear-gradient(135deg,#3b82f6,#60a5fa);border:none;color:#ffffff;font-weight:700}
+    .hash{font-family:ui-monospace,Consolas,monospace;word-break:break-all;font-variant-numeric:tabular-nums}
+    .zero{color:var(--ok);font-weight:800}
+    .progress{height:8px;background:#f1f5f9;border:1px solid #e5e7eb;border-radius:999px;overflow:hidden}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#3b82f6);transition:width .2s ease}
+    .svgwrap{display:flex;justify-content:center;padding:6px 0}
+    /* 关键数字变化动效 */
+    .pulse{animation:pulseIn .28s ease}
+    @keyframes pulseIn{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+    /* 动画条的渐变光晕扫过效果 */
+    #aniSpace{position:relative}
+    #aniSpace::after{content:"";position:absolute;left:-40%;top:0;height:100%;width:40%;background:linear-gradient(90deg,rgba(59,130,246,0) 0%,rgba(59,130,246,.12) 50%,rgba(59,130,246,0) 100%);animation:sweep 3.2s linear infinite;pointer-events:none}
+    @keyframes sweep{0%{left:-40%}100%{left:100%}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>区块链工作量证明（PoW）可视化详解</h1>
+      <a class="link" href="./index.html">返回PoW工作量证明页  ▶</a>
+    </header>
+
+    <section class="panel">
+      <h2>1. 哈希函数是啥？</h2>
+      <p>把任意输入丢进“密码学搅拌机”，输出一串固定长度、看上去随机的十六进制字符串。例如 SHA‑256。</p>
+      <ul>
+        <li>相同输入 → 相同输出</li>
+        <li>输入改一点点 → 输出面目全非（雪崩效应）</li>
+        <li>不能反推原文，也很难预测结果</li>
+      </ul>
+      <div class="svgwrap">
+        <svg width="520" height="90" viewBox="0 0 520 90" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="20" width="150" height="50" rx="8" fill="#0b1020" stroke="#22d3ee"/>
+          <text x="85" y="50" fill="#e5e7eb" font-size="12" text-anchor="middle">输入：昵称 + nonce</text>
+          <polygon points="180,45 210,30 210,60" fill="#22d3ee"/>
+          <rect x="220" y="10" width="90" height="70" rx="12" fill="#111827" stroke="#22d3ee"/>
+          <text x="265" y="52" fill="#e5e7eb" font-size="12" text-anchor="middle">SHA-256</text>
+          <polygon points="320,45 350,30 350,60" fill="#22d3ee"/>
+          <rect x="360" y="20" width="150" height="50" rx="8" fill="#0b1020" stroke="#22d3ee"/>
+          <text x="435" y="50" fill="#e5e7eb" font-size="12" text-anchor="middle">输出：哈希值</text>
+        </svg>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>2. 我们在做什么？</h2>
+      <p>目标：找到一个 <strong>nonce</strong>（一次性数字），让 <code>SHA-256(昵称 + nonce)</code> 的十六进制哈希以 <strong>N 个 0 开头</strong>。</p>
+      <p>为什么需要 nonce？相同昵称会得到相同哈希，我们通过不断改变数字 nonce 来“换一张新彩票号码”，直到抽中“前缀有很多 0”的那张。</p>
+    </section>
+
+    <section class="panel">
+      <h2>3. 难度与概率（越多 0 越难）</h2>
+      <div class="row">
+        <label>前缀 0 个数 N：<input id="diffN" type="number" min="1" max="6" value="4" style="width:80px"/></label>
+        <label>估计算力（H/s）：<input id="hashrate" type="number" min="1" value="50000" style="width:120px"/></label>
+        <button id="calc" class="primary">计算期望尝试与时间</button>
+      </div>
+      <div class="grid" style="margin-top:10px">
+        <div class="kv"><div class="muted">期望尝试次数 ≈ 16^N</div><div id="expTries" class="hash">-</div></div>
+        <div class="kv"><div class="muted">按你的算力预计用时</div><div id="expTime" class="hash">-</div></div>
+      </div>
+      <p class="muted">十六进制每一位命中“0”的概率是 1/16，所以多一个 0，难度大约 ×16 倍。</p>
+    </section>
+
+    <section class="panel">
+      <h2>4. 一步步演示（慢速）</h2>
+      <div class="row">
+        <label>昵称：<input id="nick" type="text" placeholder="例如：Alice"/></label>
+        <label>起始 nonce：<input id="nonce0" type="number" value="0" style="width:100px"/></label>
+        <label>目标 N：<input id="targetN" type="number" min="1" max="5" value="3" style="width:80px"/></label>
+        <label>速度：<input id="stepDelay" type="number" min="100" max="1000" value="350" style="width:100px"/> ms</label>
+        <button id="start" class="primary">开始演示</button>
+        <button id="stop" style="background:linear-gradient(135deg,#ef4444,#f59e0b);border:none;color:#ffffff;font-weight:700">停止</button>
+        <button id="teach45" class="primary" title="一键教学：先 4 个 0，再 5 个 0">一键教学 4→5</button>
+        <button id="compareMode" class="primary" title="对比模式：慢速演示 vs 快速批量">对比模式</button>
+      </div>
+      <div class="grid" style="margin-top:10px">
+        <div class="kv"><div class="muted">当前内容</div><div id="curContent" class="hash">-</div></div>
+        <div class="kv"><div class="muted">当前哈希</div><div id="curHash" class="hash" title="鼠标悬停每个字符可了解为何 0 更难">-</div></div>
+        <div class="kv"><div class="muted">匹配到的前缀 0 个数</div><div id="curZeros" class="hash">-</div></div>
+        <div class="kv"><div class="muted">已尝试次数</div><div id="curTried" class="hash">0</div></div>
+        <div class="kv"><div class="muted">耗时</div><div id="curElapsed" class="hash">0.000 秒</div></div>
+        <div class="kv"><div class="muted">模式</div><div id="curMode" class="hash">慢速</div></div>
+        <div class="kv"><div class="muted">快速批量速度（估算）</div><div id="curHps" class="hash">-</div></div>
+      </div>
+      <div class="progress" style="margin-top:10px"><div id="bar" class="bar"></div></div>
+      <p class="muted" style="margin-top:10px">每一步都做了三件事：1）把昵称和 nonce 拼起来；2）算 SHA‑256；3）检查开头有几个 0，直到达到目标 N。</p>
+    </section>
+
+    <section class="panel">
+      <h2>4+. 动画：特定哈希值怎么来</h2>
+      <p>网络不会先给一个具体哈希值，它给的是“目标阈值（target）”。矿工通过改变 nonce（等字段），不断生成新的哈希；只要某次哈希落在“hash ≤ target”的集合里，那次的输出就成为区块的哈希。</p>
+      <div class="row">
+        <label><input type="radio" name="aniRule" id="rulePrefix" checked/> 教学规则：前缀 0</label>
+        <label><input type="radio" name="aniRule" id="ruleReal"/> 真实规则：Hash ≤ Target</label>
+        <label id="aniNWrap">N：<input id="aniN" type="number" min="1" max="6" value="4" style="width:80px"/></label>
+        <label id="aniPctWrap" style="display:none">目标比例：<input id="aniTargetPct" type="range" min="0.1" max="50" step="0.1" value="2" style="width:180px"/> <span id="aniTargetLabel" class="muted">约 2.00%</span></label>
+        <label id="aniBitsWrap" style="display:none">nBits（十六进制，比特币风格）：<input id="aniBits" type="text" value="1d00ffff" style="width:120px"/></label>
+        <!-- 新增：哈希模式与输入来源 -->
+        <label><input type="radio" name="aniHashMode" id="aniHash1" checked/> SHA-256 ×1</label>
+        <label><input type="radio" name="aniHashMode" id="aniHash2"/> SHA-256 ×2（比特币）</label>
+        <label><input type="checkbox" id="aniUseSharedInput"/> 使用上方输入（昵称/区块头）</label>
+        <button id="aniStart" class="primary">开始动画</button>
+        <button id="aniStop" style="background:linear-gradient(135deg,#ef4444,#f59e0b);border:none;color:#ffffff;font-weight:700">停止</button>
+      </div>
+      <div class="kv" style="margin-top:10px">
+        <div class="muted">哈希空间与目标阈值</div>
+        <div id="aniSpace" style="position:relative;height:18px;background:#f1f5f9;border:1px solid #e5e7eb;border-radius:999px;overflow:hidden">
+          <div id="aniAccept" style="position:absolute;left:0;top:0;height:100%;width:10%;background:linear-gradient(50deg,#04eb59,#07ac12);opacity:.25;transition:width .25s ease"></div>
+          <div id="aniThreshold" style="position:absolute;left:10%;top:-2px;height:22px;width:2px;background:#10b981;box-shadow:0 0 0 2px rgba(16,185,129,.15)"></div>
+          <div id="aniDot" style="position:absolute;left:50%;top:-4px;height:26px;width:26px;border:2px solid #3b82f6;border-radius:50%;background:#f3fc00;box-shadow:0 6px 20px rgba(2,6,23,.12);transition:left .25s ease"></div>
+        </div>
+        <p class="muted" style="margin-top:6px">左侧绿色区域代表“满足目标的哈希集合”（hash ≤ target）。黄色圆点是本次尝试的哈希位置；落在绿色区域即成功。</p>
+      </div>
+      <div class="grid" style="margin-top:10px">
+        <div class="kv"><div class="muted">当前内容</div><div id="aniContent" class="hash">-</div></div>
+        <div class="kv"><div class="muted">当前哈希</div><div id="aniHash" class="hash">-</div></div>
+        <div class="kv"><div class="muted">前缀 0 个数</div><div id="aniZeros" class="hash">-</div></div>
+        <div class="kv"><div class="muted">比较（hash ≤ target）</div><div id="aniCompare" class="hash">-</div></div>
+        <div class="kv"><div class="muted">尝试次数</div><div id="aniTried" class="hash">0</div></div>
+        <div class="kv"><div class="muted">耗时</div><div id="aniElapsed" class="hash">0.000 秒</div></div>
+        <!-- 新增：真实规则显示 -->
+        <div class="kv"><div class="muted">nBits</div><div id="aniBitsShow" class="hash">-</div></div>
+        <div class="kv"><div class="muted">目标（target，十六进制）</div><div id="aniTargetHex" class="hash">-</div></div>
+        <div class="kv"><div class="muted">目标占比（target/MAX）</div><div id="aniTargetPctText" class="hash">-</div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>5+. 真实区块头（简化）</h2>
+      <p>真实挖矿不是“昵称+nonce”，而是对“区块头”做哈希。下方是一个简化示意，你可以切换输入模式：</p>
+      <div class="row">
+        <label><input type="radio" name="inputMode" id="modeNick" checked/> 昵称 + nonce</label>
+        <label><input type="radio" name="inputMode" id="modeBlock"/> 区块头（简化）</label>
+      </div>
+      <div id="blockFields" style="display:none;margin-top:10px">
+        <div class="row">
+          <label>前一区块哈希（prevHash）：<input id="prevHash" type="text" placeholder="例如：0000abc..." style="width:260px"/></label>
+          <label>时间戳（timestamp）：<input id="timestamp" type="text" placeholder="ISO 或秒" style="width:180px"/></label>
+          <label>交易摘要（merkleRoot）：<input id="merkleRoot" type="text" placeholder="例如：merkle..." style="width:220px"/></label>
+          <label>nonce：<input id="blockNonce" type="number" value="0" style="width:100px"/></label>
+        </div>
+        <p class="muted">拼接（简化示意）：prevHash | timestamp | merkleRoot | nonce</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>5. 它和区块链有什么关系？</h2>
+      <p>区块链里，矿工把区块头（包含上一个区块的哈希、时间戳、交易摘要等）和一个 nonce 一起做哈希，目标是让结果满足“前缀很多 0”。谁先找到，谁就广播区块。</p>
+      <ul>
+        <li>找解很难：只能不停试 nonce，像抽奖，N 越大越难。</li>
+        <li>验证很容易：拿到候选区块，大家再算一遍哈希，立刻就能验证是否满足前缀 0。</li>
+      </ul>
+      <div class="svgwrap">
+        <svg width="560" height="110" viewBox="0 0 560 110" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="20" width="140" height="70" rx="10" fill="#0b1020" stroke="#22d3ee"/>
+          <text x="90" y="46" fill="#e5e7eb" font-size="12" text-anchor="middle">区块 i</text>
+          <text x="90" y="64" fill="#9ca3af" font-size="10" text-anchor="middle">哈希 Hi</text>
+          <polygon points="170,55 200,40 200,70" fill="#22d3ee"/>
+          <rect x="210" y="20" width="140" height="70" rx="10" fill="#0b1020" stroke="#22c55e"/>
+          <text x="280" y="40" fill="#e5e7eb" font-size="12" text-anchor="middle">区块 i+1</text>
+          <text x="280" y="58" fill="#9ca3af" font-size="10" text-anchor="middle">含上一个哈希 Hi</text>
+          <text x="280" y="75" fill="#22c55e" font-size="10" text-anchor="middle">找到满足前缀 0 的哈希</text>
+          <polygon points="360,55 390,40 390,70" fill="#22d3ee"/>
+          <rect x="400" y="20" width="140" height="70" rx="10" fill="#0b1020" stroke="#22d3ee"/>
+          <text x="470" y="46" fill="#e5e7eb" font-size="12" text-anchor="middle">区块 i+2</text>
+        </svg>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>6. 一句话总结</h2>
+      <p><strong>PoW 就是“用算力买彩票”</strong>：不停改变 nonce 去试哈希，直到“中了”一个前缀有很多 0 的结果；而别人只需再算一遍就能快速验证你确实中奖了。</p>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id)=>document.getElementById(id);const te=new TextEncoder();
+    async function sha256Hex(s){const buf=await crypto.subtle.digest('SHA-256',te.encode(s));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+    // 双重 SHA-256（比特币规则）
+    async function sha256dHex(s){
+      const first = await crypto.subtle.digest('SHA-256', te.encode(s));
+      const second = await crypto.subtle.digest('SHA-256', first);
+      return Array.from(new Uint8Array(second)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    function countZeros(hex){let n=0;for(let i=0;i<hex.length;i++){if(hex[i]==='0')n++;else break}return n}
+    function humanTime(sec){if(!isFinite(sec))return '∞';if(sec<60)return sec.toFixed(2)+' 秒';const m=sec/60;if(m<60)return m.toFixed(2)+' 分钟';const h=m/60;if(h<24)return h.toFixed(2)+' 小时';const d=h/24;return d.toFixed(2)+' 天'}
+    function fmtInt(n){return Intl.NumberFormat('zh-CN').format(n)}
+
+    // 概念计算
+    $('calc').addEventListener('click',()=>{const N=Number($('diffN').value)||1;const hps=Number($('hashrate').value)||1;const tries=Math.pow(16,N);$('expTries').textContent=fmtInt(tries);$('expTime').textContent=humanTime(tries/hps)});
+
+    // 慢速演示
+    let playing=false, abort=false; let startT=0; let tried=0; let nonce=0; let targetN=3; let nick=''; let delayMs=350; let fastMode=false; let batchSize=2000; let measuredHps=null;
+    function setBar(z){const pct=Math.min(100,(z/Math.max(1,targetN))*100);$('bar').style.width=pct+'%'}
+    function renderHashWithTips(h,z,goal){const container=document.createElement('span'); for(let i=0;i<h.length;i++){const ch=h[i]; const span=document.createElement('span'); span.textContent=ch; span.style.padding='0 1px'; span.title = ch==='0' ? '命中 0 的概率约为 1/16，连中多个更难' : '非 0：概率更高，但不满足目标前缀'; if(i<z){span.className='zero'} container.appendChild(span);} return container.outerHTML}
+    async function step(){if(abort) return; const content = getCurrentInputString(); const h=await sha256Hex(content); const z=countZeros(h); tried++; const elapsed=(performance.now()-startT)/1000; $('curContent').textContent=content.includes('|')? content : (nick+'+'+nonce); $('curHash').innerHTML=renderHashWithTips(h,Math.min(z,targetN),targetN); $('curZeros').textContent=String(z); $('curTried').textContent=fmtInt(tried); $('curElapsed').textContent=elapsed.toFixed(3)+' 秒'; $('curMode').textContent = fastMode? '快速批量' : '慢速'; if(measuredHps){$('curHps').textContent=fmtInt(Math.round(measuredHps))+' H/s'} setBar(z); if(z>=targetN){playing=false; return;} if(fastMode){ // 批量尝试以展示速度
+        const t0=performance.now(); let found=false; for(let i=0;i<batchSize;i++){const c = getCurrentInputString(); const hh = await sha256Hex(c); const zz = countZeros(hh); tried++; if(zz>=targetN){ $('curHash').innerHTML=renderHashWithTips(hh,Math.min(zz,targetN),targetN); $('curZeros').textContent=String(zz); found=true; break;} incrNonce(); }
+        const t1=performance.now(); const sec=(t1-t0)/1000; measuredHps = batchSize/sec; const elapsed2=(performance.now()-startT)/1000; $('curElapsed').textContent=elapsed2.toFixed(3)+' 秒'; if(found){playing=false; return;} if(!abort) setTimeout(step, 50);
+      } else { incrNonce(); if(!abort) setTimeout(step, delayMs);} }
+
+    function incrNonce(){ if(isBlockMode()) { const n = Number($('blockNonce').value)||0; $('blockNonce').value = String(n+1);} else { nonce++; } }
+    function isBlockMode(){ return $('modeBlock').checked; }
+    function getCurrentInputString(){ if(isBlockMode()){ const prev=$('prevHash').value.trim(); const ts=$('timestamp').value.trim(); const mr=$('merkleRoot').value.trim(); const n=$('blockNonce').value.trim(); return `${prev}|${ts}|${mr}|${n}` } return nick+nonce }
+
+    $('start').addEventListener('click',()=>{if(playing)return; nick=$('nick').value.trim(); if(isBlockMode()){ if(!$('prevHash').value.trim()||!$('timestamp').value.trim()||!$('merkleRoot').value.trim()){alert('请填写区块头字段');return} } else { if(!nick){alert('请先输入昵称');return} nonce=Number($('nonce0').value)||0; }
+      targetN=Number($('targetN').value)||3; delayMs=Math.max(100, Math.min(1000, Number($('stepDelay').value)||350)); tried=0; abort=false; fastMode=false; $('curMode').textContent='慢速'; playing=true; startT=performance.now(); $('curContent').textContent='-'; $('curHash').textContent='-'; $('curZeros').textContent='-'; $('curTried').textContent='0'; $('curElapsed').textContent='0.000 秒'; $('curHps').textContent='-'; setBar(0); step()});
+
+    $('stop').addEventListener('click',()=>{abort=true; playing=false});
+
+    // 一键教学：先 4 再 5
+    $('teach45').addEventListener('click', async ()=>{ if(playing) return; abort=false; fastMode=false; $('curMode').textContent='慢速'; nick=$('nick').value.trim(); if(!isBlockMode()){ if(!nick){alert('请先输入昵称');return} nonce=Number($('nonce0').value)||0; }
+      delayMs=Math.max(100, Math.min(1000, Number($('stepDelay').value)||350)); tried=0; playing=true; startT=performance.now(); $('curTried').textContent='0'; setBar(0); targetN=4; await runUntilFound(); if(abort){playing=false; return;} // 切换到 5
+      targetN=5; await runUntilFound(); playing=false; });
+
+    async function runUntilFound(){ while(!abort){ const content = getCurrentInputString(); const h=await sha256Hex(content); const z=countZeros(h); tried++; const elapsed=(performance.now()-startT)/1000; $('curContent').textContent=content.includes('|')? content : (nick+'+'+nonce); $('curHash').innerHTML=renderHashWithTips(h,Math.min(z,targetN),targetN); $('curZeros').textContent=String(z); $('curTried').textContent=fmtInt(tried); $('curElapsed').textContent=elapsed.toFixed(3)+' 秒'; setBar(z); if(z>=targetN){ break;} incrNonce(); await new Promise(r=>setTimeout(r, delayMs)); } }
+
+    // 对比模式：切换快速批量
+    $('compareMode').addEventListener('click',()=>{ if(playing){ alert('请先停止当前演示'); return; } fastMode = !fastMode; $('curMode').textContent = fastMode? '快速批量' : '慢速'; });
+
+    // 输入模式切换：昵称+nonce / 区块头
+    $('modeNick').addEventListener('change',()=>{ if($('modeNick').checked){ $('blockFields').style.display='none'; }});
+    $('modeBlock').addEventListener('change',()=>{ if($('modeBlock').checked){ $('blockFields').style.display='block'; }});
+
+    // ====== 4+. 动画：特定哈希值怎么来 ======
+    let aniPlaying = false, aniAbort = false; let aniStartT = 0; let aniTried = 0; let aniNonce = 0; let aniTimer = null; let aniSpeed = 350;
+    function setAniAcceptWidth(pct){ const w = Math.max(0, Math.min(100, pct)); const acc = $('aniAccept'); const thr = $('aniThreshold'); if(acc){acc.style.width = w+'%';} if(thr){thr.style.left = w+'%';} }
+    function setAniDotLeft(pct){ const dot = $('aniDot'); if(!dot) return; const w = Math.max(0, Math.min(100, pct)); dot.style.left = w+'%'; }
+    function hashPercent(hex){ try{ const hv = BigInt('0x'+hex); const MAX = (1n<<256n) - 1n; const scaled = Number((hv * 100000n) / MAX); return scaled / 1000; }catch(e){ return Math.random()*100; } }
+    function acceptPctByRule(){ if($('rulePrefix') && $('rulePrefix').checked){ const N = Math.max(1, Math.min(6, Number($('aniN').value)||4)); return 100 / Math.pow(16, N); } else { return Number($('aniTargetPct').value)||2; } }
+    function updateTargetUI(){ const usingPrefix = $('rulePrefix').checked; const usingSlider = $('ruleReal').checked; const usingNBits = $('ruleNBits')?.checked; $('aniNWrap').style.display = usingPrefix ? 'inline-block' : 'none'; $('aniPctWrap').style.display = usingSlider ? 'inline-block' : 'none'; $('aniBitsWrap').style.display = usingNBits ? 'inline-block' : 'none';
+      if(usingPrefix){ const pct = 100 / Math.pow(16, Math.max(1, Math.min(6, Number($('aniN').value)||4))); setAniAcceptWidth(pct); $('aniTargetLabel').textContent = `约 ${pct.toFixed(2)}%`; $('aniCompare').textContent = '-'; $('aniBitsShow').textContent='-'; $('aniTargetHex').textContent='-'; $('aniTargetPctText').textContent=pct.toFixed(2)+'%'; gentlyPulse($('aniTargetPctText')); }
+      else if(usingSlider){ const pct = Number($('aniTargetPct').value)||2; setAniAcceptWidth(pct); $('aniTargetLabel').textContent = `约 ${pct.toFixed(2)}%`; $('aniCompare').textContent = '-'; $('aniBitsShow').textContent='-'; $('aniTargetHex').textContent='-'; $('aniTargetPctText').textContent=pct.toFixed(2)+'%'; gentlyPulse($('aniTargetPctText')); }
+      else { // nBits
+        const bits = ($('aniBits').value||'').trim(); const info = nBitsToTarget(bits); const pct = info.pct; setAniAcceptWidth(pct); $('aniBitsShow').textContent = info.bitsNorm; $('aniTargetHex').textContent = info.targetHex; $('aniTargetPctText').textContent = pct.toFixed(8)+'%'; $('aniCompare').textContent='-'; gentlyPulse($('aniBitsShow')); gentlyPulse($('aniTargetHex')); gentlyPulse($('aniTargetPctText')); }
+    }
+    function gentlyPulse(el){ if(!el) return; el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
+
+    function nBitsToTarget(bitsStr){ let s=bitsStr.toLowerCase(); if(s.startsWith('0x')) s=s.slice(2); // expect 8 hex chars
+      const pad = s.padStart(8,'0').slice(0,8); const exp = parseInt(pad.slice(0,2),16); const mant = parseInt(pad.slice(2),16); let target = BigInt(mant) * (1n << BigInt(8*(exp-3))); const MAX = (1n<<256n)-1n; if(target>MAX) target=MAX; const pct = Number((target * 100000000n) / MAX) / 1000000; const targetHex = target.toString(16); return {bitsNorm: pad, target, targetHex: '0x'+targetHex, pct}; }
+
+    async function aniStep(){ if(aniAbort) return; const content = 'Demo+' + aniNonce; const h = await sha256Hex(content); const z = countZeros(h); aniTried++; const elapsed = (performance.now()-aniStartT)/1000; $('aniContent').textContent = content; $('aniHash').textContent = h; $('aniZeros').textContent = String(z); $('aniTried').textContent = fmtInt(aniTried); $('aniElapsed').textContent = elapsed.toFixed(3)+' 秒'; const pct = acceptPctByRule(); setAniAcceptWidth(pct);
+      const hp = hashPercent(h); setAniDotLeft(hp);
+      let passed = false; if($('rulePrefix').checked){ const N = Math.max(1, Math.min(6, Number($('aniN').value)||4)); passed = (z>=N); $('aniCompare').textContent = passed ? `命中：前缀 ≥ ${N}` : `未命中：仅 ${z}`; }
+      else if($('ruleReal').checked){ const pct = Number($('aniTargetPct').value)||2; passed = (hp <= pct); $('aniCompare').textContent = passed ? '通过：hash ≤ target(比例)' : '未通过：hash > target(比例)'; }
+      else if($('ruleNBits')?.checked){ try{ const hv = BigInt('0x'+h); const info = nBitsToTarget(($('aniBits').value||'').trim()); passed = (hv <= info.target); $('aniCompare').textContent = passed ? '通过：hash ≤ target(nBits)' : '未通过：hash > target(nBits)'; }catch(e){ $('aniCompare').textContent='nBits 解析失败'; passed=false; } }
+      aniNonce++; if(passed || aniAbort){ aniPlaying=false; return; } aniTimer = setTimeout(aniStep, aniSpeed); }
+    function aniNextInput(){
+      if($('aniUseSharedInput')?.checked){
+        if(isBlockMode()){
+          const prev=$('prevHash').value.trim(); const ts=$('timestamp').value.trim(); const mr=$('merkleRoot').value.trim();
+          const n=Number($('blockNonce').value)||0; const content=`${prev}|${ts}|${mr}|${n}`;
+          $('blockNonce').value = String(n+1);
+          return content;
+        } else {
+          const nk=$('nick').value.trim();
+          if(!nk){ return 'Demo+'+(aniNonce++); }
+          const n = (typeof nonce==='number'? nonce : 0);
+          const content = nk + n;
+          nonce = n + 1;
+          return content;
+        }
+      } else {
+        const c = 'Demo+' + aniNonce; aniNonce++; return c;
+      }
+    }
+
+    async function aniStep(){ if(aniAbort) return; const content = aniNextInput(); const useDouble = $('aniHash2')?.checked; const h = useDouble ? await sha256dHex(content) : await sha256Hex(content); const z = countZeros(h); aniTried++; const elapsed = (performance.now()-aniStartT)/1000; $('aniContent').textContent = content; $('aniHash').textContent = h; $('aniZeros').textContent = String(z); $('aniTried').textContent = fmtInt(aniTried); $('aniElapsed').textContent = elapsed.toFixed(3)+' 秒'; const pct = acceptPctByRule(); setAniAcceptWidth(pct);
+      const hp = hashPercent(h); setAniDotLeft(hp);
+      let passed = false; if($('rulePrefix').checked){ const N = Math.max(1, Math.min(6, Number($('aniN').value)||4)); passed = (z>=N); $('aniCompare').textContent = passed ? `命中：前缀 ≥ ${N}` : `未命中：仅 ${z}`; }
+      else if($('ruleReal').checked){ const pct = Number($('aniTargetPct').value)||2; passed = (hp <= pct); $('aniCompare').textContent = passed ? '通过：hash ≤ target(比例)' : '未通过：hash > target(比例)'; }
+      else if($('ruleNBits')?.checked){ try{ const hv = BigInt('0x'+h); const info = nBitsToTarget(($('aniBits').value||'').trim()); passed = (hv <= info.target); $('aniCompare').textContent = passed ? '通过：hash ≤ target(nBits)' : '未通过：hash > target(nBits)'; }catch(e){ $('aniCompare').textContent='nBits 解析失败'; passed=false; } }
+      aniNonce++; if(passed || aniAbort){ aniPlaying=false; return; } aniTimer = setTimeout(aniStep, aniSpeed); }
+    function validateAniInput(){
+      if($('aniUseSharedInput')?.checked){
+        if(isBlockMode()){
+          if(!$('prevHash').value.trim()||!$('timestamp').value.trim()||!$('merkleRoot').value.trim()){
+            alert('请先填写上方“区块头”字段'); return false;
+          }
+        } else {
+          if(!$('nick').value.trim()) { alert('请先在上方输入昵称'); return false; }
+        }
+      }
+      return true;
+    }
+    function aniStart(){ if(aniPlaying) return; if(!validateAniInput()) return; aniAbort=false; aniPlaying=true; aniTried=0; aniNonce=0; aniStartT=performance.now(); aniSpeed= Math.max(100, Math.min(1000, Number($('stepDelay')?.value)||350)); $('aniContent').textContent='-'; $('aniHash').textContent='-'; $('aniZeros').textContent='-'; $('aniTried').textContent='0'; $('aniElapsed').textContent='0.000 秒'; updateTargetUI(); aniStep(); }
+    function aniStop(){ aniAbort=true; aniPlaying=false; if(aniTimer){ clearTimeout(aniTimer); aniTimer=null; } }
+    if($('aniStart')) $('aniStart').addEventListener('click', aniStart);
+    if($('aniStop')) $('aniStop').addEventListener('click', aniStop);
+    if($('ruleNBits')) $('ruleNBits').addEventListener('change', updateTargetUI);
+    if($('aniBits')) $('aniBits').addEventListener('input', updateTargetUI);
+    if($('rulePrefix')) $('rulePrefix').addEventListener('change', updateTargetUI);
+    if($('ruleReal')) $('ruleReal').addEventListener('change', updateTargetUI);
+    if($('aniN')) $('aniN').addEventListener('input', updateTargetUI);
+    if($('aniTargetPct')) $('aniTargetPct').addEventListener('input', updateTargetUI);
+    if($('aniHash1')) $('aniHash1').addEventListener('change', updateTargetUI);
+    if($('aniHash2')) $('aniHash2').addEventListener('change', updateTargetUI);
+    if($('aniUseSharedInput')) $('aniUseSharedInput').addEventListener('change', updateTargetUI);
+    if($('aniSpace')) updateTargetUI();
+  </script>
+</body>
+</html>
