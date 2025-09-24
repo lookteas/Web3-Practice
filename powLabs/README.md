@@ -5,8 +5,8 @@
 # powLabs
 
 本目录包含两个独立的 Go 文件：
-- pow_sha256：工作量证明（PoW）- 使用 SHA-256 寻找满足前导若干个 0 的哈希  [点击查看源码文件](/pow_sha256/pow_sha256.go)
-- rsa_sign_verify：RSA 非对称加密：生成密钥对 + PoW + 签名 + 验签 [点击查看源码文件](/rsa_sign_verify/rsa_sign_verify.go)
+- pow_sha256：工作量证明（PoW）- 使用 SHA-256 寻找满足前导若干个 0 的哈希  [点击查看源码文件](/powLabs/pow_sha256/pow_sha256.go)
+- rsa_sign_verify：RSA 非对称加密：生成密钥对 + PoW + 签名 + 验签 [点击查看源码文件](/powLabs/rsa_sign_verify/rsa_sign_verify.go)
 
 ## 运行前准备
 - 已安装 Go 环境（建议 Go 1.20+）
