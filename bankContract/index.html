@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank 合约测试页面</title>
+    <script src="./web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .admin-only {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .top-depositors {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .depositor-item {
+            margin: 5px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 3px;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Bank 合约测试页面</h1>
+        
+        <!-- 连接状态 -->
+        <div class="section">
+            <h3>📱 连接状态</h3>
+            <p>合约地址: <input type="text" id="contractAddress" placeholder="请输入合约地址" value="0x417138ed773dd8a2701c94ded06b41ae50f22a73" style="width: 400px;"></p>
+            <button onclick="connectWallet()">连接 MetaMask</button>
+            <button onclick="initContract()">初始化合约</button>
+            <div id="connectionStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- 账户信息 -->
+        <div class="section">
+            <h3>👤 账户信息</h3>
+            <p>当前账户: <span id="currentAccount">未连接</span></p>
+            <p>是否为管理员: <span id="isAdmin">检查中...</span></p>
+            <button onclick="checkStatus()">刷新状态</button>
+        </div>
+
+        <!-- 存款功能 -->
+        <div class="section">
+            <h3>💰 存款功能</h3>
+            <p>
+                存款金额: <input type="number" id="depositAmount" placeholder="输入ETH数量" step="0.001" min="0">
+                <button onclick="deposit()">存款</button>
+            </p>
+            <p>
+                <button onclick="sendEther()">直接发送 ETH</button>
+                <small>（通过 receive 函数）</small>
+            </p>
+            <div id="depositStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- 查询功能 -->
+        <div class="section">
+            <h3>🔍 查询功能</h3>
+            <button onclick="getMyDeposit()">查询我的存款</button>
+            <button onclick="getContractBalance()">查询合约余额</button>
+            <button onclick="getTopDepositors()">查询前3名</button>
+            <div id="queryResults" class="info" style="display:none;"></div>
+            <div id="topDepositors" class="top-depositors" style="display:none;">
+                <h4>🏆 存款排行榜</h4>
+                <div id="topDepositorsContent"></div>
+            </div>
+        </div>
+
+        <!-- 管理员功能 -->
+        <div class="section admin-only">
+            <h3>⚙️ 管理员功能</h3>
+            <p>
+                提款金额: <input type="number" id="withdrawAmount" placeholder="输入ETH数量" step="0.001" min="0">
+                <button onclick="withdraw()">提款</button>
+            </p>
+            <p>
+                <button onclick="withdrawAll()">提取所有资金</button>
+            </p>
+            <div id="adminStatus" class="status" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let web3;
+        let contract;
+        let currentAccount;
+        
+        // Bank 合约 ABI
+        const BANK_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"depositor","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address[3]","name":"topDepositors","type":"address[3]"}],"name":"TopDepositorsUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"admin","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Withdrawal","type":"event"},{"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"deposits","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"depositors","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"depositor","type":"address"}],"name":"getDeposit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getDepositorsCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getTopDepositors","outputs":[{"internalType":"address[3]","name":"","type":"address[3]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getTopDepositorsWithAmounts","outputs":[{"internalType":"address[3]","name":"","type":"address[3]"},{"internalType":"uint256[3]","name":"","type":"uint256[3]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"topDepositors","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newAdmin","type":"address"}],"name":"transferAdmin","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"withdrawAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
+
+        // 连接钱包
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    web3 = new Web3(window.ethereum);
+                    const accounts = await window.ethereum.request({
+                        method: 'eth_requestAccounts'
+                    });
+                    currentAccount = accounts[0];
+                    document.getElementById('currentAccount').textContent = currentAccount;
+                    showStatus('connectionStatus', '钱包连接成功！', 'success');
+                } catch (error) {
+                    showStatus('connectionStatus', '连接钱包失败: ' + error.message, 'error');
+                }
+            } else {
+                showStatus('connectionStatus', '请安装 MetaMask!', 'error');
+            }
+        }
+
+        // 初始化合约
+        function initContract() {
+            const contractAddress = document.getElementById('contractAddress').value;
+            if (!contractAddress) {
+                showStatus('connectionStatus', '请输入合约地址', 'error');
+                return;
+            }
+            if (!web3) {
+                showStatus('connectionStatus', '请先连接钱包', 'error');
+                return;
+            }
+            
+            try {
+                contract = new web3.eth.Contract(BANK_ABI, contractAddress);
+                showStatus('connectionStatus', '合约初始化成功！', 'success');
+                checkStatus();
+            } catch (error) {
+                showStatus('connectionStatus', '合约初始化失败: ' + error.message, 'error');
+            }
+        }
+
+        // 检查状态
+        async function checkStatus() {
+            if (!contract) {
+                showStatus('connectionStatus', '请先初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                const admin = await contract.methods.admin().call();
+                const isAdmin = admin.toLowerCase() === currentAccount.toLowerCase();
+                document.getElementById('isAdmin').textContent = isAdmin ? '是' : '否';
+            } catch (error) {
+                console.error('检查状态失败:', error);
+            }
+        }
+
+        // 存款
+        async function deposit() {
+            const amount = document.getElementById('depositAmount').value;
+            if (!amount || amount <= 0) {
+                showStatus('depositStatus', '请输入有效的存款金额', 'error');
+                return;
+            }
+            
+            try {
+                const amountInWei = web3.utils.toWei(amount, 'ether');
+                const result = await contract.methods.deposit().send({
+                    from: currentAccount,
+                    value: amountInWei
+                });
+                showStatus('depositStatus', `存款成功！交易哈希: ${result.transactionHash}`, 'success');
+                document.getElementById('depositAmount').value = '';
+            } catch (error) {
+                showStatus('depositStatus', '存款失败: ' + error.message, 'error');
+            }
+        }
+
+        // 直接发送 ETH
+        async function sendEther() {
+            const amount = document.getElementById('depositAmount').value;
+            if (!amount || amount <= 0) {
+                showStatus('depositStatus', '请输入有效的金额', 'error');
+                return;
+            }
+            
+            try {
+                const amountInWei = web3.utils.toWei(amount, 'ether');
+                const result = await web3.eth.sendTransaction({
+                    from: currentAccount,
+                    to: contract.options.address,
+                    value: amountInWei
+                });
+                showStatus('depositStatus', `发送 ETH 成功！交易哈希: ${result.transactionHash}`, 'success');
+                document.getElementById('depositAmount').value = '';
+            } catch (error) {
+                showStatus('depositStatus', '发送 ETH 失败: ' + error.message, 'error');
+            }
+        }
+
+        // 查询我的存款
+        async function getMyDeposit() {
+            try {
+                const deposit = await contract.methods.getDeposit(currentAccount).call();
+                const depositInEther = web3.utils.fromWei(deposit, 'ether');
+                showStatus('queryResults', `我的存款余额: ${depositInEther} ETH`, 'info');
+            } catch (error) {
+                showStatus('queryResults', '查询失败: ' + error.message, 'error');
+            }
+        }
+
+        // 查询合约余额
+        async function getContractBalance() {
+            try {
+                const balance = await contract.methods.getContractBalance().call();
+                const balanceInEther = web3.utils.fromWei(balance, 'ether');
+                showStatus('queryResults', `合约余额: ${balanceInEther} ETH`, 'info');
+            } catch (error) {
+                showStatus('queryResults', '查询失败: ' + error.message, 'error');
+            }
+        }
+
+        // 查询前3名
+        async function getTopDepositors() {
+            try {
+                const result = await contract.methods.getTopDepositorsWithAmounts().call();
+                console.log('查询结果:', result); // 调试信息
+                
+                // 处理不同的返回格式
+                let addresses, amounts;
+                if (Array.isArray(result)) {
+                    // 如果 result 是数组，直接解构
+                    [addresses, amounts] = result;
+                } else if (result && typeof result === 'object') {
+                    // 如果 result 是对象，尝试通过索引访问
+                    addresses = result[0] || result['0'];
+                    amounts = result[1] || result['1'];
+                } else {
+                    throw new Error('无法解析合约返回的数据格式');
+                }
+                
+                // 确保 addresses 和 amounts 都是数组
+                if (!addresses || !amounts) {
+                    throw new Error('合约返回的数据不完整');
+                }
+                
+                let content = '';
+                for (let i = 0; i < 3; i++) {
+                    if (addresses[i] && addresses[i] !== '0x0000000000000000000000000000000000000000') {
+                        const amountInEther = web3.utils.fromWei(amounts[i].toString(), 'ether');
+                        content += `<div class="depositor-item">
+                            <strong>第${i + 1}名:</strong> ${addresses[i]}<br>
+                            <strong>存款金额:</strong> ${amountInEther} ETH
+                        </div>`;
+                    }
+                }
+                
+                if (content) {
+                    document.getElementById('topDepositorsContent').innerHTML = content;
+                    document.getElementById('topDepositors').style.display = 'block';
+                } else {
+                    showStatus('queryResults', '暂无存款用户', 'info');
+                }
+            } catch (error) {
+                console.error('查询前3名详细错误:', error); // 详细错误信息
+                showStatus('queryResults', '查询前3名失败: ' + error.message, 'error');
+            }
+        }
+
+        // 提款
+        async function withdraw() {
+            const amount = document.getElementById('withdrawAmount').value;
+            if (!amount || amount <= 0) {
+                showStatus('adminStatus', '请输入有效的提款金额', 'error');
+                return;
+            }
+            
+            try {
+                const amountInWei = web3.utils.toWei(amount, 'ether');
+                const result = await contract.methods.withdraw(amountInWei).send({
+                    from: currentAccount
+                });
+                showStatus('adminStatus', `提款成功！交易哈希: ${result.transactionHash}`, 'success');
+                document.getElementById('withdrawAmount').value = '';
+            } catch (error) {
+                showStatus('adminStatus', '提款失败: ' + error.message, 'error');
+            }
+        }
+
+        // 提取所有资金
+        async function withdrawAll() {
+            if (!confirm('确定要提取所有资金吗？')) {
+                return;
+            }
+            
+            try {
+                const result = await contract.methods.withdrawAll().send({
+                    from: currentAccount
+                });
+                showStatus('adminStatus', `提取所有资金成功！交易哈希: ${result.transactionHash}`, 'success');
+            } catch (error) {
+                showStatus('adminStatus', '提取所有资金失败: ' + error.message, 'error');
+            }
+        }
+
+        // 显示状态信息
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+            element.style.display = 'block';
+            
+            // 3秒后隐藏成功信息
+            if (type === 'success') {
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // 页面加载时检查 MetaMask
+        window.addEventListener('load', () => {
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('MetaMask 已安装');
+            } else {
+                showStatus('connectionStatus', '请安装 MetaMask 钱包', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
