@@ -1,9 +1,15 @@
 # Web3-Practice
 web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI）， 去中心化金融（DEFI），协议数据分析，Layer2 开发等等
 
-## 
+## 目录
+- [day1 ：POW 与 RSA 相关练习](#day1-pow-与-rsa-相关练习)
+- [day2 ：solidity 基础 合约测试](#day2-solidity-基础-合约测试)
+- [day3 ：solidity 基础 合约继承和接口](#day3-solidity-基础-合约继承和接口)
+- [新增目录说明](#新增目录说明)
 
-[TOC]
+
+  ------
+  
 
 ### **day1 ：POW 与 RSA 相关练习**
 
@@ -29,9 +35,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - 位置：bigBankContract/README.md
 - 包含bank基础合约，管理员合约，银行合约接口文件，实现存款、提款、余额查询和转移管理员权限功能
 
-  ------
-
-
+  -------
 
 
 ### 新增目录说明

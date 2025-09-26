@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigBank & Admin 合约测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        
+        .section h3 {
+            color: #555;
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+        
+        input, button, select {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .balance-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #28a745;
+            margin: 10px 0;
+        }
+        
+        .top-depositors {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .depositor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .depositor-item:last-child {
+            border-bottom: none;
+        }
+        
+        .address {
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .amount {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 BigBank & Admin 合约测试</h1>
+        
+        <!-- 连接状态 -->
+        <div class="section">
+            <h3>📱 连接状态</h3>
+            <p>BigBank 合约地址: <input type="text" id="bigBankAddress" placeholder="请输入 BigBank 合约地址" style="width: 400px;"></p>
+            <p>Admin 合约地址: <input type="text" id="adminAddress" placeholder="请输入 Admin 合约地址" style="width: 400px;"></p>
+            <button onclick="connectWallet()">连接 MetaMask</button>
+            <button onclick="initContracts()">初始化合约</button>
+            <div id="connectionStatus" class="status info">请先连接钱包并初始化合约</div>
+        </div>
+
+        <div class="grid">
+            <!-- BigBank 操作 -->
+            <div class="section">
+                <h3>🏦 BigBank 操作</h3>
+                
+                <div>
+                    <h4>💰 存款操作</h4>
+                    <input type="number" id="depositAmount" placeholder="存款金额 (ETH)" step="0.001" min="0.001">
+                    <button onclick="deposit()">存款</button>
+                    <p style="font-size: 0.9em; color: #666;">⚠️ 最小存款金额: 0.001 ETH</p>
+                </div>
+                
+                <div>
+                    <h4>📊 合约信息</h4>
+                    <button onclick="getContractBalance()">查询合约余额</button>
+                    <button onclick="getTopDepositors()">查询前3名存款用户</button>
+                    <button onclick="getMyDeposit()">查询我的存款</button>
+                    <div class="balance-display" id="contractBalance">合约余额: -- ETH</div>
+                    <div class="balance-display" id="myDeposit">我的存款: -- ETH</div>
+                </div>
+                
+                <div class="top-depositors" id="topDepositors">
+                    <h4>🏆 前3名存款用户</h4>
+                    <div id="topDepositorsList">暂无数据</div>
+                </div>
+            </div>
+
+            <!-- Admin 操作 -->
+            <div class="section">
+                <h3>👑 Admin 操作</h3>
+                
+                <div>
+                    <h4>💸 资金管理</h4>
+                    <button onclick="adminWithdrawAll()">提取 BigBank 所有资金</button>
+                    <button onclick="getAdminBalance()">查询 Admin 合约余额</button>
+                    <button onclick="withdrawToOwner()">提取到 Owner 地址</button>
+                    <div class="balance-display" id="adminBalance">Admin 余额: -- ETH</div>
+                </div>
+                
+                <div>
+                    <h4>🔧 管理功能</h4>
+                    <button onclick="checkAdminStatus()">检查管理员状态</button>
+                    <button onclick="transferBankAdmin()">转移 BigBank 管理员权限</button>
+                    <input type="text" id="newAdminAddress" placeholder="新管理员地址" style="width: 300px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作日志 -->
+        <div class="section">
+            <h3>📝 操作日志</h3>
+            <button onclick="clearLog()">清空日志</button>
+            <div id="operationLog" class="log">等待操作...</div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let provider;
+        let signer;
+        let bigBankContract;
+        let adminContract;
+        let userAddress;
+
+        // BigBank 合约 ABI（简化版，实际使用时需要完整 ABI）
+        const BIGBANK_ABI = [
+            "function deposit() external payable",
+            "function getContractBalance() external view returns (uint256)",
+            "function getDeposit(address depositor) external view returns (uint256)",
+            "function getTopDepositorsWithAmounts() external view returns (address[3] memory, uint256[3] memory)",
+            "function admin() external view returns (address)",
+            "function transferAdmin(address newAdmin) external",
+            "function getMinDeposit() external pure returns (uint256)",
+            "event Deposit(address indexed depositor, uint256 amount)"
+        ];
+
+        // Admin 合约 ABI（简化版，实际使用时需要完整 ABI）
+        const ADMIN_ABI = [
+            "function adminWithdraw(address bank) external",
+            "function getContractBalance() external view returns (uint256)",
+            "function withdrawAllToOwner() external",
+            "function owner() external view returns (address)",
+            "event AdminWithdraw(address indexed bank, uint256 amount)"
+        ];
+
+        // 日志函数
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('operationLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            logDiv.textContent += logEntry;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('operationLog').textContent = '';
+        }
+
+        // 连接钱包
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum !== 'undefined') {
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    signer = await provider.getSigner();
+                    userAddress = await signer.getAddress();
+                    
+                    document.getElementById('connectionStatus').innerHTML = 
+                        `<span class="success">✅ 已连接钱包: ${userAddress}</span>`;
+                    log(`钱包连接成功: ${userAddress}`, 'success');
+                } else {
+                    throw new Error('请安装 MetaMask');
+                }
+            } catch (error) {
+                document.getElementById('connectionStatus').innerHTML = 
+                    `<span class="error">❌ 连接失败: ${error.message}</span>`;
+                log(`钱包连接失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 初始化合约
+        async function initContracts() {
+            try {
+                const bigBankAddr = document.getElementById('bigBankAddress').value;
+                const adminAddr = document.getElementById('adminAddress').value;
+                
+                if (!bigBankAddr || !adminAddr) {
+                    throw new Error('请输入合约地址');
+                }
+                
+                if (!signer) {
+                    throw new Error('请先连接钱包');
+                }
+                
+                bigBankContract = new ethers.Contract(bigBankAddr, BIGBANK_ABI, signer);
+                adminContract = new ethers.Contract(adminAddr, ADMIN_ABI, signer);
+                
+                document.getElementById('connectionStatus').innerHTML += 
+                    `<br><span class="success">✅ 合约初始化成功</span>`;
+                log('合约初始化成功', 'success');
+                
+                // 自动查询基本信息
+                await getContractBalance();
+                await getTopDepositors();
+                await getMyDeposit();
+                
+            } catch (error) {
+                document.getElementById('connectionStatus').innerHTML += 
+                    `<br><span class="error">❌ 合约初始化失败: ${error.message}</span>`;
+                log(`合约初始化失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 存款
+        async function deposit() {
+            try {
+                const amount = document.getElementById('depositAmount').value;
+                if (!amount || parseFloat(amount) < 0.001) {
+                    throw new Error('存款金额必须大于等于 0.001 ETH');
+                }
+                
+                log(`开始存款: ${amount} ETH`);
+                const tx = await bigBankContract.deposit({
+                    value: ethers.parseEther(amount)
+                });
+                
+                log(`交易已发送: ${tx.hash}`);
+                await tx.wait();
+                log(`存款成功: ${amount} ETH`, 'success');
+                
+                // 刷新显示
+                await getContractBalance();
+                await getTopDepositors();
+                await getMyDeposit();
+                
+            } catch (error) {
+                log(`存款失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 查询合约余额
+        async function getContractBalance() {
+            try {
+                const balance = await bigBankContract.getContractBalance();
+                const balanceEth = ethers.formatEther(balance);
+                document.getElementById('contractBalance').textContent = `合约余额: ${balanceEth} ETH`;
+                log(`BigBank 合约余额: ${balanceEth} ETH`);
+            } catch (error) {
+                log(`查询合约余额失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 查询我的存款
+        async function getMyDeposit() {
+            try {
+                if (!userAddress) return;
+                const deposit = await bigBankContract.getDeposit(userAddress);
+                const depositEth = ethers.formatEther(deposit);
+                document.getElementById('myDeposit').textContent = `我的存款: ${depositEth} ETH`;
+                log(`我的存款: ${depositEth} ETH`);
+            } catch (error) {
+                log(`查询我的存款失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 查询前3名存款用户
+        async function getTopDepositors() {
+            try {
+                const result = await bigBankContract.getTopDepositorsWithAmounts();
+                const addresses = result[0];
+                const amounts = result[1];
+                
+                let html = '';
+                for (let i = 0; i < 3; i++) {
+                    if (addresses[i] !== ethers.ZeroAddress) {
+                        const amountEth = ethers.formatEther(amounts[i]);
+                        html += `
+                            <div class="depositor-item">
+                                <span>🥇 第${i + 1}名</span>
+                                <span class="address">${addresses[i]}</span>
+                                <span class="amount">${amountEth} ETH</span>
+                            </div>
+                        `;
+                    }
+                }
+                
+                document.getElementById('topDepositorsList').innerHTML = html || '暂无数据';
+                log('前3名存款用户查询完成');
+            } catch (error) {
+                log(`查询前3名存款用户失败: ${error.message}`, 'error');
+            }
+        }
+
+        // Admin 提取所有资金
+        async function adminWithdrawAll() {
+            try {
+                log('Admin 开始提取 BigBank 所有资金...');
+                const tx = await adminContract.adminWithdraw(await bigBankContract.getAddress());
+                
+                log(`交易已发送: ${tx.hash}`);
+                await tx.wait();
+                log('Admin 提取资金成功', 'success');
+                
+                // 刷新显示
+                await getContractBalance();
+                await getAdminBalance();
+                
+            } catch (error) {
+                log(`Admin 提取资金失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 查询 Admin 合约余额
+        async function getAdminBalance() {
+            try {
+                const balance = await adminContract.getContractBalance();
+                const balanceEth = ethers.formatEther(balance);
+                document.getElementById('adminBalance').textContent = `Admin 余额: ${balanceEth} ETH`;
+                log(`Admin 合约余额: ${balanceEth} ETH`);
+            } catch (error) {
+                log(`查询 Admin 合约余额失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 提取到 Owner 地址
+        async function withdrawToOwner() {
+            try {
+                log('开始提取资金到 Owner 地址...');
+                const tx = await adminContract.withdrawAllToOwner();
+                
+                log(`交易已发送: ${tx.hash}`);
+                await tx.wait();
+                log('提取到 Owner 地址成功', 'success');
+                
+                await getAdminBalance();
+                
+            } catch (error) {
+                log(`提取到 Owner 地址失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 检查管理员状态
+        async function checkAdminStatus() {
+            try {
+                const bankAdmin = await bigBankContract.admin();
+                const adminOwner = await adminContract.owner();
+                const adminAddress = await adminContract.getAddress();
+                
+                log(`BigBank 管理员: ${bankAdmin}`);
+                log(`Admin 合约地址: ${adminAddress}`);
+                log(`Admin 合约 Owner: ${adminOwner}`);
+                log(`当前用户地址: ${userAddress}`);
+                
+                if (bankAdmin === adminAddress) {
+                    log('✅ BigBank 管理员权限已正确转移给 Admin 合约', 'success');
+                } else {
+                    log('⚠️ BigBank 管理员权限未转移给 Admin 合约', 'error');
+                }
+                
+                if (adminOwner === userAddress) {
+                    log('✅ 当前用户是 Admin 合约的 Owner', 'success');
+                } else {
+                    log('⚠️ 当前用户不是 Admin 合约的 Owner', 'error');
+                }
+                
+            } catch (error) {
+                log(`检查管理员状态失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 转移 BigBank 管理员权限
+        async function transferBankAdmin() {
+            try {
+                const newAdmin = document.getElementById('newAdminAddress').value;
+                if (!newAdmin) {
+                    throw new Error('请输入新管理员地址');
+                }
+                
+                log(`开始转移 BigBank 管理员权限到: ${newAdmin}`);
+                const tx = await bigBankContract.transferAdmin(newAdmin);
+                
+                log(`交易已发送: ${tx.hash}`);
+                await tx.wait();
+                log('管理员权限转移成功', 'success');
+                
+                await checkAdminStatus();
+                
+            } catch (error) {
+                log(`转移管理员权限失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载完成后的初始化
+        window.addEventListener('load', function() {
+            log('页面加载完成，请连接钱包并初始化合约');
+        });
+    </script>
+</body>
+</html>
