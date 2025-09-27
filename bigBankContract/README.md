@@ -126,9 +126,9 @@ node deploy.js
 
 ## 🌐 Web 测试界面
 
-使用 `test.html` 进行可视化测试：
+使用 `index.html` 进行可视化测试：
 
-1. 打开 `test.html` 文件
+1. 打开 `index.html` 文件
 2. 连接 MetaMask 钱包
 3. 输入合约地址并初始化
 4. 进行存款、查询、管理员操作等测试
