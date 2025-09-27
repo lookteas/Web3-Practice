@@ -16,11 +16,11 @@ class ContractDeployer {
     }
 
     async deployContracts() {
-        console.log('🚀 开始部署合约...');
+        console.log(' 开始部署合约...');
         
         try {
             // 部署 BigBank 合约
-            console.log('📦 部署 BigBank 合约...');
+            console.log('部署 BigBank 合约...');
             const BigBankFactory = new ethers.ContractFactory(
                 BIGBANK_ABI, 
                 BIGBANK_BYTECODE, 
@@ -28,10 +28,10 @@ class ContractDeployer {
             );
             this.bigBank = await BigBankFactory.deploy();
             await this.bigBank.waitForDeployment();
-            console.log(`✅ BigBank 合约部署成功: ${await this.bigBank.getAddress()}`);
+            console.log(`BigBank 合约部署成功: ${await this.bigBank.getAddress()}`);
 
             // 部署 Admin 合约
-            console.log('📦 部署 Admin 合约...');
+            console.log('部署 Admin 合约...');
             const AdminFactory = new ethers.ContractFactory(
                 ADMIN_ABI, 
                 ADMIN_BYTECODE, 
@@ -39,13 +39,13 @@ class ContractDeployer {
             );
             this.admin = await AdminFactory.deploy();
             await this.admin.waitForDeployment();
-            console.log(`✅ Admin 合约部署成功: ${await this.admin.getAddress()}`);
+            console.log(`Admin 合约部署成功: ${await this.admin.getAddress()}`);
 
             // 转移 BigBank 的管理员权限给 Admin 合约
-            console.log('🔄 转移 BigBank 管理员权限给 Admin 合约...');
+            console.log('转移 BigBank 管理员权限给 Admin 合约...');
             const transferTx = await this.bigBank.transferAdmin(await this.admin.getAddress());
             await transferTx.wait();
-            console.log('✅ 管理员权限转移成功');
+            console.log('管理员权限转移成功');
 
             return {
                 bigBank: await this.bigBank.getAddress(),
