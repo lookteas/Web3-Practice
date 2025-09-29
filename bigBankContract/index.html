@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BigBank & Admin 合约测试</title>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+    <script src="./ethers.umd.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -203,7 +203,7 @@
         <div class="section">
             <h3>📝 操作日志</h3>
             <button onclick="clearLog()">清空日志</button>
-            <div id="operationLog" class="log">等待操作...</div>
+            <div id="operationLog" class="log"><div style="color: #666;">等待操作...</div></div>
         </div>
     </div>
 
@@ -240,15 +240,15 @@
         function log(message, type = 'info') {
             const logDiv = document.getElementById('operationLog');
             const timestamp = new Date().toLocaleTimeString();
-            const logEntry = `[${timestamp}] ${message}\n`;
-            logDiv.textContent += logEntry;
+            const logEntry = `<div style="margin-bottom: 2px; padding: 2px 0;">[${timestamp}] ${message}</div>`;
+            logDiv.innerHTML += logEntry;
             logDiv.scrollTop = logDiv.scrollHeight;
             
             console.log(message);
         }
 
         function clearLog() {
-            document.getElementById('operationLog').textContent = '';
+            document.getElementById('operationLog').innerHTML = '<div style="color: #666;">等待操作...</div>';
         }
 
         // 连接钱包
