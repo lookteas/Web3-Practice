@@ -13,7 +13,7 @@ contract BigBank is Bank {
     
     // 修饰符：检查最小存款金额
     modifier minDepositRequired() {
-        require(msg.value >= MIN_DEPOSIT, "Deposit amount must be at least 0.001 ether");
+        require(msg.value >= MIN_DEPOSIT, "deposit amount must be at least 0.001 ether");
         _;
     }
     
@@ -36,7 +36,7 @@ contract BigBank is Bank {
      * @dev 重写 receive 函数，添加最小金额限制
      */
     receive() external payable override {
-        require(msg.value >= MIN_DEPOSIT, "Deposit amount must be at least 0.001 ether");
+        require(msg.value >= MIN_DEPOSIT, "deposit amount must be at least 0.001 ether");
         // 调用父合约的存款逻辑
         super.deposit();
     }

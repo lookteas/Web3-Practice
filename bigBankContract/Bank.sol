@@ -37,14 +37,14 @@ contract Bank is IBank {
      * @dev 存款函数，接收以太币存款
      * 用户可以通过 Metamask 等钱包直接向合约地址发送以太币
      */
-    receive() external payable {
+    receive() external payable virtual {
         deposit();
     }
     
     /**
      * @dev 存款函数
      */
-    function deposit() public payable override {
+    function deposit() public payable virtual override {
         require(msg.value > 0, "deposit amount must be greater than 0");
         
         // 如果是首次存款，添加到存款用户列表
