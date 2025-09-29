@@ -52,13 +52,13 @@ class ContractDeployer {
                 admin: await this.admin.getAddress()
             };
         } catch (error) {
-            console.error('❌ 部署失败:', error);
+            console.error('部署失败:', error);
             throw error;
         }
     }
 
     async simulateUserDeposits() {
-        console.log('\n💰 模拟用户存款...');
+        console.log('\n 模拟用户存款...');
         
         const deposits = [
             { user: 0, amount: '0.005' }, // 0.005 ETH
@@ -79,28 +79,28 @@ class ContractDeployer {
                 });
                 await tx.wait();
                 
-                console.log(`✅ 存款成功，交易哈希: ${tx.hash}`);
+                console.log(`存款成功，交易哈希: ${tx.hash}`);
                 
                 // 查询用户存款余额
                 const userBalance = await this.bigBank.getDeposit(userWallet.address);
-                console.log(`💳 用户当前存款余额: ${ethers.formatEther(userBalance)} ETH`);
+                console.log(`用户当前存款余额: ${ethers.formatEther(userBalance)} ETH`);
                 
             } catch (error) {
-                console.error(`❌ 用户 ${deposit.user + 1} 存款失败:`, error.message);
+                console.error(`用户 ${deposit.user + 1} 存款失败:`, error.message);
             }
         }
     }
 
     async checkContractStatus() {
-        console.log('\n📊 检查合约状态...');
+        console.log('\n 检查合约状态...');
         
         // 检查 BigBank 余额
         const bankBalance = await this.bigBank.getContractBalance();
-        console.log(`🏦 BigBank 合约余额: ${ethers.formatEther(bankBalance)} ETH`);
+        console.log(` BigBank 合约余额: ${ethers.formatEther(bankBalance)} ETH`);
         
         // 检查前3名存款用户
         const [topDepositors, amounts] = await this.bigBank.getTopDepositorsWithAmounts();
-        console.log('🏆 前3名存款用户:');
+        console.log(' 前3名存款用户:');
         for (let i = 0; i < 3; i++) {
             if (topDepositors[i] !== ethers.ZeroAddress) {
                 console.log(`  ${i + 1}. ${topDepositors[i]}: ${ethers.formatEther(amounts[i])} ETH`);
@@ -113,34 +113,34 @@ class ContractDeployer {
         
         // 检查 BigBank 的管理员
         const bankAdmin = await this.bigBank.admin();
-        console.log(`🔑 BigBank 当前管理员: ${bankAdmin}`);
-        console.log(`🔑 Admin 合约地址: ${await this.admin.getAddress()}`);
-        console.log(`✅ 管理员权限转移${bankAdmin === await this.admin.getAddress() ? '成功' : '失败'}`);
+        console.log(`BigBank 当前管理员: ${bankAdmin}`);
+        console.log(`Admin 合约地址: ${await this.admin.getAddress()}`);
+        console.log(`管理员权限转移${bankAdmin === await this.admin.getAddress() ? '成功' : '失败'}`);
     }
 
     async executeAdminWithdraw() {
-        console.log('\n💸 执行管理员提取资金...');
+        console.log('\n 执行管理员提取资金...');
         
         try {
             // Admin 合约的 owner 调用 adminWithdraw
             const adminWithOwner = this.admin.connect(this.deployer);
             
-            console.log('🔄 Admin 合约 Owner 调用 adminWithdraw...');
+            console.log('Admin 合约 Owner 调用 adminWithdraw...');
             const withdrawTx = await adminWithOwner.adminWithdraw(await this.bigBank.getAddress());
             await withdrawTx.wait();
             
-            console.log(`✅ 资金提取成功，交易哈希: ${withdrawTx.hash}`);
+            console.log(`资金提取成功，交易哈希: ${withdrawTx.hash}`);
             
             // 检查提取后的状态
             await this.checkContractStatus();
             
         } catch (error) {
-            console.error('❌ 管理员提取资金失败:', error.message);
+            console.error('管理员提取资金失败:', error.message);
         }
     }
 
     async runFullDemo() {
-        console.log('🎬 开始完整演示流程...\n');
+        console.log('开始完整演示流程...\n');
         
         try {
             // 1. 部署合约
@@ -155,13 +155,13 @@ class ContractDeployer {
             // 4. 执行管理员提取
             await this.executeAdminWithdraw();
             
-            console.log('\n🎉 演示完成！');
-            console.log('📋 合约地址汇总:');
-            console.log(`  BigBank: ${addresses.bigBank}`);
-            console.log(`  Admin: ${addresses.admin}`);
+            console.log('\n 演示完成！');
+            console.log('合约地址汇总:');
+            console.log(`BigBank: ${addresses.bigBank}`);
+            console.log(`Admin: ${addresses.admin}`);
             
         } catch (error) {
-            console.error('❌ 演示过程中出现错误:', error);
+            console.error('演示过程中出现错误:', error);
         }
     }
 }
@@ -199,9 +199,9 @@ const ADMIN_BYTECODE = "0x..."; // Admin 合约字节码
 // 主函数
 async function main() {
     if (CONFIG.PRIVATE_KEYS.some(key => key === '0x...')) {
-        console.log('⚠️  请先配置正确的私钥和 RPC URL');
-        console.log('📝 编辑 deploy.js 文件中的 CONFIG 对象');
-        console.log('🔧 编译合约并复制 ABI 和 Bytecode');
+        console.log('请先配置正确的私钥和 RPC URL');
+        console.log('编辑 deploy.js 文件中的 CONFIG 对象');
+        console.log('编译合约并复制 ABI 和 Bytecode');
         return;
     }
     
