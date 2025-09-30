@@ -22,7 +22,7 @@ contract TokenBank {
     function deposit(uint256 amount) external {
         require(amount > 0, "Deposit amount must be greater than 0");
         
-        // 从用户账户转移 token 到 TokenBank 合约
+        // 从用户账户转移 token 到 TokenBank 合约，请求token合约的transferFrom 成功返回true
         require(
             token.transferFrom(msg.sender, address(this), amount),
             "Transfer failed"
