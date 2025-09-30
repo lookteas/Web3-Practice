@@ -17,7 +17,7 @@ contract TokenBank {
 
     /**
      * 存款函数
-     * 用户需要先授权 TokenBank 合约，然后调用此函数
+     * 用户需要先 TokenBank 合约，然后调用此函数
      */
     function deposit(uint256 amount) external {
         require(amount > 0, "Deposit amount must be greater than 0");
@@ -43,7 +43,7 @@ contract TokenBank {
             "Insufficient deposit balance"
         );
         
-        // 更新用户的存款记录
+        // 更新用户的存款金额
         deposits[msg.sender] -= amount;
         
         // 将 token 转回给用户
