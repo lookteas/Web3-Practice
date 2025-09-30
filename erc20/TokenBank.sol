@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./BaseERC20.sol"; // 引入 BaseERC20 合约
+import "./ExpendERC20.sol"; // 引入 BaseERC20 合约
 
 contract TokenBank {
     BaseERC20 public token; // 引用 BaseERC20 合约实例

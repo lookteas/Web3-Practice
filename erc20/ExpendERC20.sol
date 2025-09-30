@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./ITokenReceiver.sol";
+
 /**
  * 扩展的 ERC20 合约，支持 transferWithCallback
  */
