@@ -5,6 +5,10 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [day1 ：POW 与 RSA 相关练习](#day1-pow-与-rsa-相关练习)
 - [day2 ：solidity 基础 合约测试](#day2-solidity-基础-合约测试)
 - [day3 ：solidity 基础 合约继承和接口](#day3-solidity-基础-合约继承和接口)
+- [day4 ：如何使用 ERC20 实现代币](#day4-如何使用-erc20-实现代币)
+- [day5 ：使用 ERC721 实现 NFT 和 NFT的交互](#day5-使用-erc721-实现-nft-和-nft的交互)
+- [day6 ：Foundry的工程化： 项目初始化、编译、测试、部署](#day6-foundry的工程化-项目初始化-编译-测试-部署)
+
 - [新增目录说明](#新增目录说明)
 
 
@@ -17,7 +21,9 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
 - 位置：powLabs/README.md
 
-- 包含两个 Go 演示程序的介绍与运行方式
+- 包含两个 go 程序的实现与运行方式
+  - POW 实验：[powLabs/pow.go](powLabs/pow.go)
+  - RSA 实验：[powLabs/rsa.go](powLabs/rsa.go)
 
   ------
   
@@ -37,6 +43,29 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
   -------
 
+
+### **day4 ：如何使用 ERC20 实现代币**
+- 用solidity 编写 ERC20 合约  详情请查看[erc20/README.md](erc20/README.md)
+- 位置：erc20/README.md
+- 包含ERC20合约，实现代币的基本功能：转账、查询余额、授权转账等。
+
+  -------
+
+
+### **day5 ：使用 ERC721 实现 NFT 和 NFT的交互**
+- 用solidity 编写 ERC721 合约  详情请查看[nft/README.md](nft/README.md)
+- 位置：nft/README.md
+- 包含ERC721合约，实现NFT的基本功能： mint、transfer、approve、balanceOf等。
+
+  -------
+
+
+  ### **day6 ：Foundry的工程化： 项目初始化、编译、测试、部署**
+- 用solidity 编写 Foundry 项目  详情请查看[foundryProject/README.md](foundryProject/README.md)
+- 位置：foundryProject/README.md
+- 包含Foundry项目的基本结构，以及如何初始化、编译、测试和部署智能合约。
+
+  -------
 
 ### 新增目录说明
 
