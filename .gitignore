@@ -1,0 +1,63 @@
+# 依赖文件
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 包含敏感信息的配置文件
+contract-config.json
+js/contract-config.js
+
+# 环境变量和配置文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 构建输出
+build/
+dist/
+
+# 缓存文件
+.cache/
+cache/
+*.tsbuildinfo
+
+# 日志文件
+logs/
+*.log
+
+# 操作系统生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE和编辑器文件
+.vscode/
+.idea/
+.deps/
+*.swp
+*.swo
+*~
+
+# Hardhat文件
+artifacts/
+build-info/
+.openzeppelin/
+
+# 测试覆盖率
+coverage/
+*.lcov
+
+# 临时文件
+*.tmp
+*.temp
+
+# 备份文件
+*.bak
+*.backup
