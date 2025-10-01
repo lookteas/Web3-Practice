@@ -1,7 +1,11 @@
+![](./letsgo.png)
+
+
 # Web3-Practice
+
 web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI）， 去中心化金融（DEFI），协议数据分析，Layer2 开发等等
 
-![](D:\code\web3\Web3-Practice\letsgo.png)
+
 
 ## 目录
 - [day1 ：POW 与 RSA 相关练习](#day1-pow-与-rsa-相关练习)
