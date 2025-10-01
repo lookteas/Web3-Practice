@@ -2,7 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "./ITokenReceiver.sol";
-import "./BaseERC20.sol";
+import "./ExpendERC20.sol";
+import "./TokenBank.sol";
 
 /**
  * TokenBankV2：继承基础银行功能，并支持自动回调存款

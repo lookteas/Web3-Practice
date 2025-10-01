@@ -1,28 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./BaseERC20.sol"; // 引入 BaseERC20 合约
+import "./ExpendERC20.sol"; // 引入 ExpendERC20 合约
 
 contract TokenBank {
-    BaseERC20 public token; // 引用 BaseERC20 合约实例
+    ExpendERC20 public token; // 引用 ExpendERC20 合约实例
     
     // 每个地址的存款余额
     mapping(address => uint256) public deposits;
 
-    // 构造函数，需要传入 BaseERC20 合约地址
+    // 构造函数，需要传入 ExpendERC20 合约地址
     constructor(address _tokenAddress) {
         require(_tokenAddress != address(0), "Token address cannot be zero");
-        token = BaseERC20(_tokenAddress);
+        token = ExpendERC20(_tokenAddress);
     }
 
     /**
      * 存款函数
-     * 用户需要先 TokenBank 合约，然后调用此函数
+     * 用户需要先授权 TokenBank 合约调用 ExpendERC20 合约的 transferFrom 函数，
+     * 然后调用此函数 把 token 存入到 TokenBank 合约      
      */
     function deposit(uint256 amount) external {
         require(amount > 0, "Deposit amount must be greater than 0");
         
-        // 从用户账户转移 token 到 TokenBank 合约，请求token合约的transferFrom 成功返回true
+        // 从用户账户转移 token 到 TokenBank 合约，请求ExpendERC20合约的transferFrom 成功返回true
         require(
             token.transferFrom(msg.sender, address(this), amount),
             "Transfer failed"
@@ -46,7 +47,7 @@ contract TokenBank {
         // 更新用户的存款金额
         deposits[msg.sender] -= amount;
         
-        // 将 token 转回给用户
+        // 将 token 转回给用户，调用token合约的transfer 成功返回true
         require(
             token.transfer(msg.sender, amount),
             "Transfer failed"
