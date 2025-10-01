@@ -67,18 +67,19 @@ contract ExpendERC20 {
 
     /**
      * 带回调的转账函数
-     * 如果 _to 是合约，则调用其 tokensReceived(from, to, value)
+     * 如果 _to 是合约，则调用 tokensReceived()方法
      */
     function transferWithCallback(address _to, uint256 _value) public returns (bool success) {
         require(_to != address(0), "ERC20: transfer to the zero address");
         require(_value <= balances[msg.sender], "ERC20: transfer amount exceeds balance");
 
+        //同上述方法一致，同步对应的钱包金额
         balances[msg.sender] -= _value;
         balances[_to] += _value;
 
         emit Transfer(msg.sender, _to, _value);
 
-        // 检查 _to 是否为合约地址
+        // 检查 _to 地址是否为合约地址
         if (_to.code.length > 0) {
             // 调用目标合约的 tokensReceived 函数
             ITokenReceiver(_to).tokensReceived(msg.sender, _to, _value);
