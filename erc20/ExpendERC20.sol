@@ -26,10 +26,16 @@ contract ExpendERC20 {
         balances[msg.sender] = totalSupply;  
     }
 
+    /**
+     * 查询地址余额
+     */
     function balanceOf(address _owner) public view returns (uint256 balance) {
         return balances[_owner];
     }
 
+    /**
+     * 转账
+     */
     function transfer(address _to, uint256 _value) public returns (bool success) {
         require(_to != address(0), "ERC20: transfer to the zero address");
         require(_value <= balances[msg.sender], "ERC20: transfer amount exceeds balance");
@@ -41,14 +47,19 @@ contract ExpendERC20 {
         return true;   
     }
 
+    /**
+     * 授权转账
+     */
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
         require(_to != address(0), "ERC20: transfer to the zero address");
         require(_value <= balances[_from], "ERC20: transfer amount exceeds balance");
         require(_value <= allowances[_from][msg.sender], "ERC20: transfer amount exceeds allowance");
 
+        // 更新授权金额
+        allowances[_from][msg.sender] -= _value;
+        // 更新对应账户的钱包金额
         balances[_from] -= _value;
         balances[_to] += _value;
-        allowances[_from][msg.sender] -= _value;
 
         emit Transfer(_from, _to, _value); 
         return true; 
