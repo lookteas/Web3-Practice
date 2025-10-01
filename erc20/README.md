@@ -1,13 +1,17 @@
 # ERC20 代币项目
 
-这是一个基于 ERC20 标准的代币合约项目，用于 DeFi 生态系统。
+这是一个完整的 ERC20 代币生态系统项目，包含基础代币实现、扩展功能和代币银行合约。
 
 ## 项目结构
 
 ```
 erc20/
-├── BaseERC20.sol   - ERC20 基础合约实现
-└── MyToken.sol     - 自定义代币合约
+├── BaseERC20.sol     - ERC20 基础合约实现
+├── ExpendERC20.sol   - ERC20 扩展功能合约
+├── ITokenReceiver.sol - 代币接收者接口
+├── MyToken.sol       - 自定义代币合约
+├── TokenBank.sol     - 银行合约
+└── TokenBankV2.sol   - 银行升级版合约
 ```
 
 ## 合约说明
@@ -23,104 +27,134 @@ erc20/
 - 授权和委托转账
 - 标准 ERC20 事件
 
+### ExpendERC20.sol
+
+ERC20 扩展功能合约，增加了高级特性：
+
+- 安全转账（SafeTransfer）
+- 智能合约代币接收回调
+- 批量转账优化
+- Gas 费用优化
+- 额外的安全检查
+
+### ITokenReceiver.sol
+
+代币接收者接口合约：
+
+- 定义了智能合约接收代币的标准接口
+- 支持代币接收回调功能
+- 允许合约对接收到的代币做出响应
+
 ### MyToken.sol
 
-自定义 ERC20 代币合约，继承自 BaseERC20，添加了以下特性：
+自定义 ERC20 代币合约，继承自 BaseERC20：
 
-- 可铸造（Mintable）：允许创建新代币
-- 可销毁（Burnable）：允许销毁代币
-- 权限控制：只有合约所有者可以铸造代币
+- 可铸造（Mintable）
+- 可销毁（Burnable）
+- 权限控制
 - DeFi 生态系统集成支持
+
+### TokenBank.sol
+
+代币银行合约，提供代币存储和管理功能：
+
+- 代币存款
+- 代币提现
+- 利息计算
+- 余额查询
+- 安全保障机制
+
+### TokenBankV2.sol
+
+代币银行升级版合约，增加了新特性：
+
+- 改进的利息模型
+- 更多的安全措施
+- 紧急提现功能
+- 管理员控制功能
+- 事件日志优化
 
 ## 主要功能
 
-1. **代币铸造**
-   - 合约所有者可以创建新代币
-   - 铸造事件通知
+1. **代币基础功能**
+   - 转账和授权
+   - 余额管理
+   - 铸造和销毁
 
-2. **代币转账**
-   - 直接转账
-   - 授权转账
-   - 批量转账
+2. **扩展功能**
+   - 安全转账
+   - 批量操作
+   - 智能合约交互
 
-3. **余额管理**
-   - 查询账户余额
-   - 查询授权额度
-   - 查询总供应量
+3. **银行功能**
+   - 存款和提现
+   - 利息管理
+   - 安全控制
 
-4. **权限控制**
-   - 所有者管理
-   - 铸造权限控制
-   - 合约升级权限（如果需要）
+## 安全特性
 
-## 使用方法
+1. **代码安全**
+   - 重入攻击防护
+   - 溢出检查
+   - 权限控制
 
-1. **部署合约**
-   ```solidity
-   // 部署 MyToken 合约
-   constructor(string memory name, string memory symbol) BaseERC20(name, symbol) {
-       // 初始化代币参数
-   }
-   ```
+2. **转账安全**
+   - 地址验证
+   - 余额检查
+   - 合约交互验证
 
-2. **铸造代币**
-   ```solidity
-   // 只有合约所有者可以调用
-   function mint(address to, uint256 amount) public onlyOwner {
-       _mint(to, amount);
-   }
-   ```
+3. **银行安全**
+   - 存款限额
+   - 提现控制
+   - 紧急暂停
 
-3. **转账代币**
-   ```solidity
-   // 直接转账
-   function transfer(address to, uint256 amount) public returns (bool)
+## 使用示例
 
-   // 授权转账
-   function transferFrom(address from, address to, uint256 amount) public returns (bool)
-   ```
+### 1. 部署基础代币
+```solidity
+// 部署 MyToken
+MyToken token = new MyToken("MyToken", "MTK");
+```
 
-4. **查询余额**
-   ```solidity
-   // 查询账户余额
-   function balanceOf(address account) public view returns (uint256)
+### 2. 使用扩展功能
+```solidity
+// 安全转账
+ExpendERC20 token = ExpendERC20(tokenAddress);
+token.safeTransfer(recipient, amount);
+```
 
-   // 查询授权额度
-   function allowance(address owner, address spender) public view returns (uint256)
-   ```
+### 3. 使用代币银行
+```solidity
+// 存款
+TokenBank bank = TokenBank(bankAddress);
+token.approve(bankAddress, amount);
+bank.deposit(amount);
+```
 
-## 安全性考虑
+## 部署流程
 
-1. **溢出保护**
-   - 使用 SafeMath 库防止数值溢出
-   - 严格的余额检查
+1. 部署基础代币合约
+2. 部署扩展功能合约（如需要）
+3. 部署代币银行合约
+4. 设置必要的权限和参数
+5. 进行功能测试
 
-2. **权限控制**
-   - 所有者权限管理
-   - 铸造权限限制
-   - 转账限制（如果需要）
+## 测试建议
 
-3. **重入攻击防护**
-   - 检查-生效-交互模式
-   - 状态变量保护
-
-## 测试
-
-建议在部署到主网之前进行以下测试：
-
-1. 单元测试
+1. **单元测试**
    - 基本功能测试
-   - 权限控制测试
    - 边界条件测试
-
-2. 集成测试
-   - DeFi 协议交互测试
-   - 多合约交互测试
-
-3. 安全测试
-   - 溢出测试
    - 权限测试
+
+2. **集成测试**
+   - 合约间交互测试
+   - 回调功能测试
+   - 银行功能测试
+
+3. **安全测试**
    - 重入攻击测试
+   - 权限控制测试
+   - 异常情况处理测试
 
 ## 部署检查清单
 
@@ -128,20 +162,31 @@ erc20/
 - [ ] 所有测试通过
 - [ ] 代码审计完成
 - [ ] Gas 优化检查
-- [ ] 文档更新完整
-- [ ] 部署脚本准备就绪
+- [ ] 权限设置正确
+- [ ] 紧急处理机制就绪
 
-## 注意事项
+## 最佳实践
 
-1. 确保理解 ERC20 标准的所有要求
-2. 部署前进行充分测试
-3. 考虑 Gas 优化
+1. 始终使用安全转账函数
+2. 实现紧急暂停机制
+3. 限制单次操作金额
 4. 保持合约简单性
-5. 做好文档记录
+5. 记录详细的事件日志
 
-## 贡献
+## 升级说明
 
-欢迎提交 Issue 和 Pull Request 来改进代码。
+从 TokenBank 升级到 TokenBankV2：
+1. 部署新版本合约
+2. 迁移用户数据
+3. 更新合约引用
+4. 验证新功能
+
+## 贡献指南
+
+1. Fork 项目
+2. 创建功能分支
+3. 提交更改
+4. 发起 Pull Request
 
 ## 许可证
 
