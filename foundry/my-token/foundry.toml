@@ -1,0 +1,23 @@
+# foundry.toml
+[profile.default]
+src = "src"                 # 合约源码目录
+out = "out"                 # 编译输出目录
+libs = ["lib"]              # 依赖库目录
+solc_version = "0.8.25"     # Solidity 编译器版本
+optimizer = true            # 启用优化器
+optimizer_runs = 200       # 优化器运行次数（影响 Gas）
+
+# === 网络 RPC 端点别名（方便切换）===
+[rpc_endpoints]
+anvil = "http://localhost:8545"
+sepolia = "https://sepolia.infura.io/v3/${INFURA_PROJECT_ID}"
+polygon = "https://polygon-rpc.com"
+
+# === 区块链浏览器 API Key（用于合约验证）===
+[etherscan]
+sepolia = { key = "${SEPOLIA_ETHERSCAN_KEY}" }
+polygon = { key = "${POLYGONSCAN_API_KEY}" }
+
+# === 依赖库文件 ===
+[dependencies]
+openzeppelin = "5.0.0"
