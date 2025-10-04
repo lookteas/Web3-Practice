@@ -66,9 +66,9 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-### **day6 ：Foundry的工程化： 项目初始化 编译 测试部署**
-- 用solidity 编写 Foundry 项目  详情请查看[foundryProject/README.md](foundryProject/README.md)
-- 位置：foundryProject/README.md
+### **day6 foundry的工程化 项目初始化 编译 测试 部署**
+- 用solidity 编写 Foundry 项目  详情请查看[foundry/README.md](foundry/README.md)
+- 位置：foundry/README.md
 - 包含Foundry项目的基本结构，以及如何初始化、编译、测试和部署智能合约。
 
   -------
