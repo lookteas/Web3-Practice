@@ -1,0 +1,23 @@
+{
+  "name": "cli-wallet",
+  "version": "1.0.0",
+  "description": "A command-line wallet for Ethereum with ERC20 support",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/cli.js interactive",
+    "cli": "node src/cli.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["ethereum", "wallet", "cli", "erc20", "sepolia"],
+  "author": "Web3 Developer",
+  "license": "MIT",
+  "dependencies": {
+    "viem": "^2.21.0",
+    "commander": "^12.0.0",
+    "inquirer": "^10.0.0",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.0",
+    "dotenv": "^16.4.0"
+  }
+}
