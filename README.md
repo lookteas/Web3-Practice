@@ -15,8 +15,10 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [day5 ：使用 ERC721 实现 NFT 和 NFT的交互](#day5-使用-erc721-实现-nft-和-nft的交互)
 - [day6  ：Foundry的工程化： 项目初始化、编译、测试、部署](#day6-foundry的工程化-项目初始化-编译-测试-部署)
 - [day7 ：nft合约部署](#day7-nft合约部署)
-- [day8 ： Solidity 实现用 Token 购买 NFT](#day8-solidity-实现用-token-购买-nft)
-- [day9 ： 使⽤ Viem.sh 监听 NFTMarket 的买卖记录](#day9-使⽤-viem.sh-监听-nftmarket-的买卖记录)
+- [day8 ：Solidity 实现用 Token 购买 NFT](#day8-solidity-实现用-token-购买-nft)
+- [day9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录](#day9-使⽤-viem.sh-监听-nftmarket-的买卖记录)
+
+
 
 - [新增目录说明](#新增目录说明)
 
