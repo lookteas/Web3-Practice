@@ -1,0 +1,7 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#f0f0f0" stroke="#ddd" stroke-width="2"/>
+  <text x="150" y="140" font-family="Arial, sans-serif" font-size="16" fill="#999" text-anchor="middle">NFT</text>
+  <text x="150" y="160" font-family="Arial, sans-serif" font-size="14" fill="#999" text-anchor="middle">图片加载中...</text>
+  <circle cx="150" cy="100" r="30" fill="none" stroke="#ccc" stroke-width="2"/>
+  <path d="M130 90 L150 110 L170 90" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
+</svg>

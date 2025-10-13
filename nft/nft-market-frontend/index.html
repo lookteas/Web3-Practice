@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT 市场 - Polygon 主网</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-gem"></i>
+                <span>NFT 市场</span>
+            </div>
+            <div class="nav-menu">
+                    <a href="#pinata-config" class="nav-link">IPFS配置</a>
+                    <a href="#mint" class="nav-link">铸造</a>
+                    <a href="#marketplace" class="nav-link">市场</a>
+                    <a href="#my-nfts" class="nav-link">我的NFT</a>
+                    <!-- 网络状态指示器 -->
+                    <div id="network-status-indicator" class="network-status-indicator" title="网络状态">
+                        <i class="fas fa-circle status-checking"></i>
+                        <span>检查中...</span>
+                    </div>
+                    <button id="connectWallet" class="connect-btn">
+                        <i class="fas fa-wallet"></i>
+                        连接钱包
+                    </button>
+                </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <!-- 钱包状态 -->
+        <div id="walletStatus" class="wallet-status hidden">
+            <div class="status-card">
+                <div class="status-info">
+                    <span class="status-label">已连接:</span>
+                    <span id="walletAddress" class="wallet-address"></span>
+                </div>
+                <div class="network-info">
+                    <span class="network-label">网络:</span>
+                    <span id="networkName" class="network-name">Polygon</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pinata配置部分 -->
+        <section id="pinata-config" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    IPFS 配置 (Pinata)
+                </h2>
+                <div class="config-card">
+                    <div class="config-status">
+                        <div class="status-indicator">
+                            <i id="pinataStatusIcon" class="fas fa-circle status-offline"></i>
+                            <span id="pinataStatusText">未配置</span>
+                        </div>
+                        <button id="testPinataConnection" class="btn btn-secondary btn-sm" disabled>
+                            <i class="fas fa-plug"></i>
+                            测试连接
+                        </button>
+                    </div>
+                    <div class="config-form">
+                        <div class="form-group">
+                            <label for="pinataJWT">Pinata JWT Token (推荐):</label>
+                            <input type="password" id="pinataJWT" placeholder="输入您的 Pinata JWT Token">
+                            <small class="form-hint">推荐使用JWT Token，更安全便捷</small>
+                        </div>
+                        <div class="config-divider">
+                            <span>或者使用 API Key</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pinataApiKey">API Key:</label>
+                                <input type="password" id="pinataApiKey" placeholder="输入您的 Pinata API Key">
+                            </div>
+                            <div class="form-group">
+                                <label for="pinataSecretKey">Secret Key:</label>
+                                <input type="password" id="pinataSecretKey" placeholder="输入您的 Pinata Secret Key">
+                            </div>
+                        </div>
+                        <div class="config-actions">
+                            <button id="savePinataConfig" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                保存配置
+                            </button>
+                            <button id="clearPinataConfig" class="btn btn-danger">
+                                <i class="fas fa-trash"></i>
+                                清除配置
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-help">
+                        <p><i class="fas fa-info-circle"></i> 如何获取 Pinata API 密钥：</p>
+                        <ol>
+                            <li>访问 <a href="https://pinata.cloud" target="_blank">Pinata.cloud</a> 并注册账户</li>
+                            <li>在控制台中创建新的 API Key</li>
+                            <li>复制 JWT Token 或 API Key + Secret Key</li>
+                            <li>粘贴到上方输入框并保存</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 铸造NFT部分 -->
+        <section id="mint" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="fas fa-hammer"></i>
+                    铸造 NFT
+                </h2>
+                <div class="mint-tabs">
+                    <button class="tab-btn active" data-tab="upload">
+                        <i class="fas fa-upload"></i>
+                        上传创建
+                    </button>
+                    <button class="tab-btn" data-tab="uri">
+                        <i class="fas fa-link"></i>
+                        URI铸造
+                    </button>
+                </div>
+                
+                <!-- 上传创建标签页 -->
+                <div id="uploadTab" class="tab-content active">
+                    <div class="mint-card">
+                        <div class="mint-form">
+                            <div class="form-group">
+                                <label for="nftImage">NFT 图片:</label>
+                                <div class="file-upload-area" id="fileUploadArea">
+                                    <input type="file" id="nftImage" accept="image/*" hidden>
+                                    <div class="upload-placeholder" id="imageDropZone">
+                                        <div id="upload-zone">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <p>点击或拖拽上传图片</p>
+                                            <small>支持 JPG, PNG, GIF, WebP, SVG (最大 10MB)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="nft-name">NFT 名称:</label>
+                                <input type="text" id="nft-name" placeholder="输入NFT名称" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nft-description">NFT 描述:</label>
+                                <textarea id="nft-description" placeholder="描述您的NFT..." rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>NFT 属性:</label>
+                                <div id="nft-attributes">
+                                    <div class="attribute-row">
+                                        <input type="text" placeholder="属性名称" class="attr-name">
+                                        <input type="text" placeholder="属性值" class="attr-value">
+                                        <button type="button" class="btn-remove-attr">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="button" id="addAttribute" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-plus"></i>
+                                    添加属性
+                                </button>
+                            </div>
+                            <div class="upload-progress hidden" id="upload-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-fill"></div>
+                                </div>
+                                <div class="progress-text">
+                                    <span id="progress-percent">0%</span>
+                                    <span id="progress-step">准备上传...</span>
+                                </div>
+                            </div>
+                            <button id="createNFTBtn" class="btn btn-primary" disabled>
+                                <i class="fas fa-magic"></i>
+                                创建并铸造 NFT
+                            </button>
+                        </div>
+                        <div class="mint-preview">
+                            <div class="preview-placeholder" id="image-preview">
+                                <i class="fas fa-image"></i>
+                                <p>图片预览</p>
+                            </div>
+                            <div class="preview-info hidden" id="previewInfo">
+                                <h4 id="previewName">NFT 名称</h4>
+                                <p id="previewDescription">NFT 描述</p>
+                                <div id="previewAttributes" class="preview-attributes"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- URI铸造标签页 -->
+                <div id="uriTab" class="tab-content">
+                    <div class="mint-card">
+                        <div class="mint-form">
+                            <div class="form-group">
+                                <label for="tokenURI">NFT 元数据 URI:</label>
+                                <input type="url" id="tokenURI" placeholder="https://example.com/metadata.json" required>
+                                <small class="form-hint">输入包含NFT元数据的JSON文件URL</small>
+                            </div>
+                            <div class="mint-info">
+                                <div class="info-item">
+                                    <span class="info-label">铸造价格:</span>
+                                    <span id="mintPrice" class="info-value">0.01 MATIC</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">总供应量:</span>
+                                    <span id="totalSupply" class="info-value">0 / 10000</span>
+                                </div>
+                            </div>
+                            <button id="mintBtn" class="btn btn-primary">
+                                <i class="fas fa-hammer"></i>
+                                铸造 NFT
+                            </button>
+                        </div>
+                        <div class="mint-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-image"></i>
+                                <p>NFT 预览</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NFT市场部分 -->
+        <section id="marketplace" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="fas fa-store"></i>
+                    NFT 市场
+                </h2>
+                <div class="marketplace-controls">
+                    <button id="refreshListings" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i>
+                        刷新列表
+                    </button>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="搜索NFT...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                <div id="nftGrid" class="nft-grid">
+                    <div class="loading-placeholder">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 我的NFT部分 -->
+        <section id="my-nfts" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="fas fa-user"></i>
+                    我的 NFT
+                </h2>
+                <div class="my-nfts-controls">
+                    <button id="refreshMyNFTs" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i>
+                        刷新我的NFT
+                    </button>
+                </div>
+                <div id="myNFTGrid" class="nft-grid">
+                    <div class="empty-placeholder">
+                        <i class="fas fa-box-open"></i>
+                        <p>您还没有任何NFT</p>
+                        <p>去铸造您的第一个NFT吧！</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- NFT详情模态框 -->
+    <div id="nftModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">NFT 详情</h3>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="nft-details">
+                    <div class="nft-image">
+                        <img id="modalImage" src="" alt="NFT">
+                    </div>
+                    <div class="nft-info">
+                        <h4 id="modalNFTName">NFT 名称</h4>
+                        <p id="modalDescription">NFT 描述</p>
+                        <div class="nft-properties">
+                            <div class="property">
+                                <span class="property-label">Token ID:</span>
+                                <span id="modalTokenId" class="property-value"></span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">拥有者:</span>
+                                <span id="modalOwner" class="property-value"></span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">价格:</span>
+                                <span id="modalPrice" class="property-value"></span>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="buyBtn" class="btn btn-primary hidden">
+                                <i class="fas fa-shopping-cart"></i>
+                                购买
+                            </button>
+                            <button id="listBtn" class="btn btn-success hidden">
+                                <i class="fas fa-tag"></i>
+                                上架销售
+                            </button>
+                            <button id="cancelListingBtn" class="btn btn-danger hidden">
+                                <i class="fas fa-times"></i>
+                                取消上架
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上架模态框 -->
+    <div id="listModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>上架NFT</h3>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="listPrice">销售价格 (MATIC):</label>
+                    <input type="number" id="listPrice" step="0.001" min="0.001" placeholder="0.1" required>
+                    <small class="form-hint">最低价格: 0.001 MATIC</small>
+                </div>
+                <div class="modal-actions">
+                    <button id="confirmListBtn" class="btn btn-primary">
+                        <i class="fas fa-check"></i>
+                        确认上架
+                    </button>
+                    <button class="btn btn-secondary modal-close">
+                        <i class="fas fa-times"></i>
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知容器 -->
+    <div id="notifications" class="notifications"></div>
+
+    <!-- 加载遮罩 -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>处理中...</p>
+        </div>
+    </div>
+
+    <!-- 引入ethers.js -->
+    <script src="ethers.umd.min.js"></script>
+    <!-- 引入主要脚本 -->
+    <script src="config.js"></script>
+    <script src="ipfs.js"></script>
+    <script src="contracts.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
