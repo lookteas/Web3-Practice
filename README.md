@@ -14,6 +14,8 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [day4 ：如何使用 ERC20 实现代币](#day4-如何使用-erc20-实现代币)
 - [day5 ：使用 ERC721 实现 NFT 和 NFT的交互](#day5-使用-erc721-实现-nft-和-nft的交互)
 - [day6 ：Foundry的工程化： 项目初始化、编译、测试、部署](#day6-foundry的工程化-项目初始化-编译-测试-部署)
+- [day7 ：nft合约部署](#day7-nft合约部署)
+- [day8 Solidity 实现用 Token 购买 NFT](#day8-solidity-实现用-token-购买-nft)
 
 - [新增目录说明](#新增目录说明)
 
@@ -73,6 +75,40 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
   -------
 
+
+### **day7 nft合约部署**
+- 用solidity 编写 NFT项目  详情请查看[nft/README.md](nft/README.md)
+- 位置：nft/nft-market
+- 包含nft合约项目的基本结构，以及如何铸造nft、查看nft、测试和部署智能合约。
+
+  -------
+
+
+  ### **day8 Solidity 实现用 Token 购买 NFT**
+- 用solidity 编写 NFTMarketWithERC20 合约  详情请查看[nft/nft-market-token/README-ERC20-NFT-Market.md](nft/nft-market-token/README-ERC20-NFT-Market.md)
+- 位置：nft/nft-market-token
+- 包含NFTMarketWithERC20合约，实现用ERC20代币购买NFT的功能。
+
+  -------
+
+
+  ### **day9 foundry的工程化 项目初始化 编译 测试 部署**
+- 用solidity 编写 Foundry 项目  详情请查看[foundry/README.md](foundry/README.md)
+- 位置：foundry/README.md
+- 包含Foundry项目的基本结构，以及如何初始化、编译、测试和部署智能合约。
+
+  -------
+
+
+  ### **day10 foundry的工程化 项目初始化 编译 测试 部署**
+- 用solidity 编写 Foundry 项目  详情请查看[foundry/README.md](foundry/README.md)
+- 位置：foundry/README.md
+- 包含Foundry项目的基本结构，以及如何初始化、编译、测试和部署智能合约。
+
+  -------
+
+
 ### 新增目录说明
+
 
 > 说明：后续新增练习代码时，在此处添加目录相对链接，方便从首页快速跳转。

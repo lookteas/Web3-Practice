@@ -19,6 +19,7 @@ js/contract-config.js
 build/
 dist/
 
+
 # 缓存文件
 .cache/
 cache/
@@ -41,6 +42,9 @@ Thumbs.db
 .vscode/
 .idea/
 .deps/
+artifacts/
+.states/
+.states/vm-prague
 *.swp
 *.swo
 *~
