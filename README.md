@@ -85,7 +85,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
 
   ### **day8 Solidity 实现用 Token 购买 NFT**
-- 用solidity 编写 NFTMarketWithERC20 合约  详情请查看[nft/nft-market-token/README-ERC20-NFT-Market.md](nft/nft-market-token/README-ERC20-NFT-Market.md)
+- 用solidity 编写 NFTMarketWithERC20 合约  详情请查看[nft/nft-market-token/README.md](nft/nft-market-token/README.md)
 - 位置：nft/nft-market-token
 - 包含NFTMarketWithERC20合约，实现用ERC20代币购买NFT的功能。
 
