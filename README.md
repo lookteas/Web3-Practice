@@ -17,6 +17,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [day7 ：nft合约部署](#day7-nft合约部署)
 - [day8 ：Solidity 实现用 Token 购买 NFT](#day8-solidity-实现用-token-购买-nft)
 - [day9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录](#day9-使⽤-viem.sh-监听-nftmarket-的买卖记录)
+- [day10 ：Web3 命令行钱包](#day10-web3-命令行钱包)
 
 
 
@@ -104,10 +105,10 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-  ### **day10 ：foundry的工程化 项目初始化 编译 测试 部署**
-- 用solidity 编写 Foundry 项目  详情请查看[foundry/README.md](foundry/README.md)
-- 位置：foundry/README.md
-- 包含Foundry项目的基本结构，以及如何初始化、编译、测试和部署智能合约。
+  ### **day10 ：Web3 命令行钱包**
+- 基于 Viem.js 构建的 Sepolia 测试网命令行钱包，支持私钥生成、余额查询、ERC20 转账等功能。详情请查看[cliWallet/README.md](cliWallet/README.md)
+- 位置：cliWallet
+- 包含Viem.js项目的基本结构，以及如何使用命令行钱包进行操作。
 
   -------
 
