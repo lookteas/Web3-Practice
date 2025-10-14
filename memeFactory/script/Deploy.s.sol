@@ -199,17 +199,19 @@ contract DeployWithExamplesScript is Script {
         MemeFactory factory = MemeFactory(factoryAddress);
         
         // 部署示例代币 1: PEPE
-        address pepe = factory.deployInscription{value: factory.deploymentFee()}(
+        address pepe = factory.deployMeme{value: factory.deploymentFee()}(
             "PEPE",
             1000000 * 10**18,  // 1M total supply
-            1000 * 10**18      // 1K per mint
+            1000 * 10**18,     // 1K per mint
+            0.001 ether        // 0.001 ETH per mint
         );
         
         // 部署示例代币 2: DOGE
-        address doge = factory.deployInscription{value: factory.deploymentFee()}(
+        address doge = factory.deployMeme{value: factory.deploymentFee()}(
             "DOGE",
             500000 * 10**18,   // 500K total supply
-            500 * 10**18       // 500 per mint
+            500 * 10**18,      // 500 per mint
+            0.002 ether        // 0.002 ETH per mint
         );
         
         vm.stopBroadcast();

@@ -9,7 +9,7 @@ import "./MemeToken.sol";
 /**
  * @title MemeFactory
  * @dev 使用 EIP-1167 最小代理模式的 Meme 代币工厂合约
- * 实现 deployInscription 和 mintInscription 方法
+ * 实现 deployMeme 和 mintMeme 方法
  */
 contract MemeFactory is Ownable, ReentrancyGuard {
     using Clones for address;
@@ -29,11 +29,17 @@ contract MemeFactory is Ownable, ReentrancyGuard {
     // 代币地址到部署者的映射
     mapping(address => address) public tokenToDeployer;
     
+    // 代币地址到价格的映射（每次铸造的费用，以 wei 计价）
+    mapping(address => uint256) public tokenToPrice;
+    
     // 部署费用（可选）
     uint256 public deploymentFee;
     
     // 铸造费用（可选）
     uint256 public mintingFee;
+    
+    // 项目方费用比例（基点，100 = 1%）
+    uint256 public constant PROJECT_FEE_BASIS_POINTS = 100;
     
     // 事件
     event TokenDeployed(
@@ -41,6 +47,7 @@ contract MemeFactory is Ownable, ReentrancyGuard {
         string symbol,
         uint256 totalSupply,
         uint256 perMint,
+        uint256 price,
         address indexed deployer
     );
     
@@ -48,6 +55,7 @@ contract MemeFactory is Ownable, ReentrancyGuard {
         address indexed tokenAddress,
         address indexed to,
         uint256 amount,
+        uint256 fee,
         address indexed minter
     );
     
@@ -66,18 +74,21 @@ contract MemeFactory is Ownable, ReentrancyGuard {
      * @param symbol 代币符号
      * @param totalSupply 总供应量
      * @param perMint 每次铸造数量
+     * @param price 每次铸造的费用（以 wei 计价）
      * @return tokenAddress 新部署的代币地址
      */
-    function deployInscription(
+    function deployMeme(
         string memory symbol,
         uint256 totalSupply,
-        uint256 perMint
+        uint256 perMint,
+        uint256 price
     ) external payable nonReentrant returns (address tokenAddress) {
         require(bytes(symbol).length > 0, "Symbol cannot be empty");
         require(bytes(symbol).length <= 10, "Symbol too long");
         require(totalSupply > 0, "Total supply must be greater than 0");
         require(perMint > 0, "Per mint must be greater than 0");
         require(perMint <= totalSupply, "Per mint cannot exceed total supply");
+        require(price > 0, "Price must be greater than 0");
         require(symbolToToken[symbol] == address(0), "Symbol already exists");
         require(msg.value >= deploymentFee, "Insufficient deployment fee");
         
@@ -99,8 +110,9 @@ contract MemeFactory is Ownable, ReentrancyGuard {
         symbolToToken[symbol] = tokenAddress;
         tokenToSymbol[tokenAddress] = symbol;
         tokenToDeployer[tokenAddress] = msg.sender;
+        tokenToPrice[tokenAddress] = price;
         
-        emit TokenDeployed(tokenAddress, symbol, totalSupply, perMint, msg.sender);
+        emit TokenDeployed(tokenAddress, symbol, totalSupply, perMint, price, msg.sender);
         
         return tokenAddress;
     }
@@ -109,18 +121,36 @@ contract MemeFactory is Ownable, ReentrancyGuard {
      * @dev 铸造代币
      * @param tokenAddr 代币合约地址
      */
-    function mintInscription(address tokenAddr) external payable nonReentrant {
+    function mintMeme(address tokenAddr) external payable nonReentrant {
         require(tokenAddr != address(0), "Invalid token address");
         require(isDeployedToken(tokenAddr), "Token not deployed by this factory");
-        require(msg.value >= mintingFee, "Insufficient minting fee");
+        
+        uint256 price = tokenToPrice[tokenAddr];
+        require(msg.value >= price, "Insufficient payment");
         
         MemeToken token = MemeToken(tokenAddr);
         require(token.canMint(msg.sender), "Cannot mint to this address");
         
+        // 计算费用分配
+        uint256 projectFee = (price * PROJECT_FEE_BASIS_POINTS) / 10000; // 1%
+        uint256 deployerFee = price - projectFee; // 99%
+        
+        // 分配费用
+        address deployer = tokenToDeployer[tokenAddr];
+        if (projectFee > 0) {
+            (bool success1, ) = payable(owner()).call{value: projectFee}("");
+            require(success1, "Project fee transfer failed");
+        }
+        
+        if (deployerFee > 0) {
+            (bool success2, ) = payable(deployer).call{value: deployerFee}("");
+            require(success2, "Deployer fee transfer failed");
+        }
+        
         // 调用代币合约的铸造函数
         token.mint(msg.sender);
         
-        emit TokenMinted(tokenAddr, msg.sender, token.perMint(), msg.sender);
+        emit TokenMinted(tokenAddr, msg.sender, token.perMint(), price, msg.sender);
     }
     
     /**
@@ -128,20 +158,39 @@ contract MemeFactory is Ownable, ReentrancyGuard {
      * @param tokenAddr 代币合约地址
      * @param count 铸造次数
      */
-    function batchMintInscription(address tokenAddr, uint256 count) external payable nonReentrant {
+    function batchMintMeme(address tokenAddr, uint256 count) external payable nonReentrant {
         require(tokenAddr != address(0), "Invalid token address");
         require(isDeployedToken(tokenAddr), "Token not deployed by this factory");
         require(count > 0 && count <= 5, "Invalid count (1-5)");
-        require(msg.value >= mintingFee * count, "Insufficient minting fee");
+        
+        uint256 price = tokenToPrice[tokenAddr];
+        uint256 totalPrice = price * count;
+        require(msg.value >= totalPrice, "Insufficient payment");
         
         MemeToken token = MemeToken(tokenAddr);
+        
+        // 计算费用分配
+        uint256 projectFee = (totalPrice * PROJECT_FEE_BASIS_POINTS) / 10000; // 1%
+        uint256 deployerFee = totalPrice - projectFee; // 99%
+        
+        // 分配费用
+        address deployer = tokenToDeployer[tokenAddr];
+        if (projectFee > 0) {
+            (bool success1, ) = payable(owner()).call{value: projectFee}("");
+            require(success1, "Project fee transfer failed");
+        }
+        
+        if (deployerFee > 0) {
+            (bool success2, ) = payable(deployer).call{value: deployerFee}("");
+            require(success2, "Deployer fee transfer failed");
+        }
         
         for (uint256 i = 0; i < count; i++) {
             require(token.canMint(msg.sender), "Cannot mint more to this address");
             token.mint(msg.sender);
         }
         
-        emit TokenMinted(tokenAddr, msg.sender, token.perMint() * count, msg.sender);
+        emit TokenMinted(tokenAddr, msg.sender, token.perMint() * count, totalPrice, msg.sender);
     }
     
     /**
@@ -193,12 +242,14 @@ contract MemeFactory is Ownable, ReentrancyGuard {
         uint256 perMint,
         uint256 mintedAmount,
         uint256 remainingSupply,
+        uint256 price,
         address deployer
     ) {
         require(isDeployedToken(tokenAddr), "Token not deployed by this factory");
         
         MemeToken token = MemeToken(tokenAddr);
         (name, symbol, totalSupply, perMint, mintedAmount, remainingSupply) = token.getTokenInfo();
+        price = tokenToPrice[tokenAddr];
         deployer = tokenToDeployer[tokenAddr];
     }
     
