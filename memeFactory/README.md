@@ -19,6 +19,10 @@ Meme Factory 是一个智能合约系统，允许用户以极低的 gas 成本�
 - **完整查询**: 提供丰富的代币信息查询功能
 - **价格管理**: 每个代币可设置独立的铸造价格
 
+
+
+
+
 ## 🏗️ 项目结构
 
 ```
@@ -279,6 +283,8 @@ cast send 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
 ```
 
 ### Sepolia 测试网部署
+
+<img src="D:\code\web3\Web3-Practice\memeFactory\images\2.jpg" style="zoom:50%;" />
 
 1. **部署到 Sepolia**:
 ```bash
