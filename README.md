@@ -8,17 +8,17 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
 
 ## 目录
-- [day1 ：POW 与 RSA 相关练习](#day1-pow-与-rsa-相关练习)
-- [day2 ：solidity 基础 合约测试](#day2-solidity-基础-合约测试)
-- [day3 ：solidity 基础 合约继承和接口](#day3-solidity-基础-合约继承和接口)
-- [day4 ：如何使用 ERC20 实现代币](#day4-如何使用-erc20-实现代币)
-- [day5 ：使用 ERC721 实现 NFT 和 NFT的交互](#day5-使用-erc721-实现-nft-和-nft的交互)
-- [day6  ：Foundry的工程化： 项目初始化、编译、测试、部署](#day6-foundry的工程化-项目初始化-编译-测试-部署)
-- [day7 ：nft合约部署](#day7-nft合约部署)
-- [day8 ：Solidity 实现用 Token 购买 NFT](#day8-solidity-实现用-token-购买-nft)
-- [day9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录](#day9-使⽤-viem.sh-监听-nftmarket-的买卖记录)
-- [day10 ：Web3 命令行钱包](#day10-web3-命令行钱包)
-- [day11 ：使用用多签名实现 Token 购买 NFT](#day11-使用用多签名实现-token-购买-nft)
+- [1 ：POW 与 RSA 相关练习](#1-pow-与-rsa-相关练习)
+- [2 ：solidity 基础 合约测试](#2-solidity-基础-合约测试)
+- [3 ：solidity 基础 合约继承和接口](#3-solidity-基础-合约继承和接口)
+- [4 ：如何使用 ERC20 实现代币](#4-如何使用-erc20-实现代币)
+- [5 ：使用 ERC721 实现 NFT 和 NFT的交互](#5-使用-erc721-实现-nft-和-nft的交互)
+- [6  ：Foundry的工程化： 项目初始化、编译、测试、部署](#6-foundry的工程化-项目初始化-编译-测试-部署)
+- [7 ：nft合约部署](#7-nft合约部署)
+- [8 ：Solidity 实现用 Token 购买 NFT](#8-solidity-实现用-token-购买-nft)
+- [9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录](#9-使⽤-viem.sh-监听-nftmarket-的买卖记录)
+- [10 ：Web3 命令行钱包](#10-web3-命令行钱包)
+- [11 ：使用用多签名实现 Token 购买 NFT](#11-使用用多签名实现-token-购买-nft)
 
 
 
@@ -28,7 +28,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 ------
 
 
-### **day1 ：POW 与 RSA 相关练习**
+### **1 ：POW 与 RSA 相关练习**
 
 - POW 与 RSA 实验详情请查看 [powLabs/README.md](powLabs/README.md)
 
@@ -41,7 +41,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   ------
   
 
-### **day2 ：solidity 基础 合约测试**
+### **2 ：solidity 基础 合约测试**
 - 用solidity 编写 Bank 智能合约  详情请查看[bankContract/README.md](bankContract/README.md)
 - 位置：bankContract/README.md
 - 包含一个bank的demo合约，实现存款、提款和排行榜功能
@@ -49,7 +49,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   ------
 
 
-### **day3 ：solidity 基础 合约继承和接口**
+### **3 ：solidity 基础 合约继承和接口**
 - 用solidity 编写 BigBank 实践 solidity 继承及接口合约交互  详情请查看[bigBankContract/README.md](bigBankContract/README.md)
 - 位置：bigBankContract/README.md
 - 包含bank基础合约，管理员合约，银行合约接口文件，实现存款、提款、余额查询和转移管理员权限功能
@@ -57,7 +57,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-### **day4 ：如何使用 ERC20 实现代币**
+### **4 ：如何使用 ERC20 实现代币**
 - 用solidity 编写 ERC20 合约  详情请查看[erc20/README.md](erc20/README.md)
 - 位置：erc20/README.md
 - 包含ERC20合约，实现代币的基本功能：转账、查询余额、授权转账等。
@@ -65,7 +65,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-### **day5 ：使用 ERC721 实现 NFT 和 NFT的交互**
+### **5 ：使用 ERC721 实现 NFT 和 NFT的交互**
 - 用solidity 编写 ERC721 合约  详情请查看[nft/README.md](nft/README.md)
 - 位置：nft/README.md
 - 包含ERC721合约，实现NFT的基本功能： mint、transfer、approve、balanceOf等。
@@ -73,7 +73,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-### **day6 ：foundry的工程化 项目初始化 编译 测试 部署**
+### **6 ：foundry的工程化 项目初始化 编译 测试 部署**
 - 用solidity 编写 Foundry 项目  详情请查看[foundry/README.md](foundry/README.md)
 - 位置：foundry/README.md
 - 包含Foundry项目的基本结构，以及如何初始化、编译、测试和部署智能合约。
@@ -81,7 +81,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-### **day7 ：nft合约部署**
+### **7 ：nft合约部署**
 - 用solidity 编写 NFT项目  详情请查看[nft/README.md](nft/README.md)
 - 位置：nft/nft-market
 - 包含nft合约项目的基本结构，以及如何铸造nft、查看nft、测试和部署智能合约。
@@ -89,7 +89,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-  ### **day8 ：Solidity 实现用 Token 购买 NFT**
+  ### **8 ：Solidity 实现用 Token 购买 NFT**
 - 用solidity 编写 NFTMarketWithERC20 合约  详情请查看[nft/nft-market-token/README.md](nft/nft-market-token/README.md)
 - 位置：nft/nft-market-token
 - 包含NFTMarketWithERC20合约，实现用ERC20代币购买NFT的功能。
@@ -97,7 +97,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-  ### **day9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录**
+  ### **9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录**
 - 使用 Viem.sh 监听 NFTMarket 的买卖记录 详情请查看[viemTokenBank/README.md](viemTokenBank/README.md)
 - 位置：viemTokenBank/README.md
 - 包含Viem.sh项目的基本结构，以及如何监听智能合约。
@@ -106,14 +106,14 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-  ### **day10 ：Web3 命令行钱包**
+  ### **10 ：Web3 命令行钱包**
 - 基于 Viem.js 构建的 Sepolia 测试网命令行钱包，支持私钥生成、余额查询、ERC20 转账等功能。详情请查看[cliWallet/README.md](cliWallet/README.md)
 - 位置：cliWallet
 - 包含Viem.js项目的基本结构，以及如何使用命令行钱包进行操作。
 
   -------
 
-### **day11 ：使用用多签名实现 Token 购买 NFT**
+### **11 ：使用用多签名实现 Token 购买 NFT**
 - 用solidity 编写 NFTMarketWithERC20 合约  详情请查看[nft/nft-market-token/README.md](nft/nft-market-token/README.md)
 - 位置：nft/nft-market-token
 - 包含NFTMarketWithERC20合约，实现用ERC20代币购买NFT的功能。
