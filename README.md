@@ -89,7 +89,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-  ### **8 ：Solidity 实现用 Token 购买 NFT**
+### **8 ：Solidity 实现用 Token 购买 NFT**
 - 用solidity 编写 NFTMarketWithERC20 合约  详情请查看[nft/nft-market-token/README.md](nft/nft-market-token/README.md)
 - 位置：nft/nft-market-token
 - 包含NFTMarketWithERC20合约，实现用ERC20代币购买NFT的功能。
@@ -97,7 +97,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-  ### **9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录**
+### **9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录**
 - 使用 Viem.sh 监听 NFTMarket 的买卖记录 详情请查看[viemTokenBank/README.md](viemTokenBank/README.md)
 - 位置：viemTokenBank/README.md
 - 包含Viem.sh项目的基本结构，以及如何监听智能合约。
@@ -106,7 +106,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 
-  ### **10 ：Web3 命令行钱包**
+### **10 ：Web3 命令行钱包**
 - 基于 Viem.js 构建的 Sepolia 测试网命令行钱包，支持私钥生成、余额查询、ERC20 转账等功能。详情请查看[cliWallet/README.md](cliWallet/README.md)
 - 位置：cliWallet
 - 包含Viem.js项目的基本结构，以及如何使用命令行钱包进行操作。
