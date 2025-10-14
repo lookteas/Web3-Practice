@@ -18,6 +18,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [day8 ：Solidity 实现用 Token 购买 NFT](#day8-solidity-实现用-token-购买-nft)
 - [day9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录](#day9-使⽤-viem.sh-监听-nftmarket-的买卖记录)
 - [day10 ：Web3 命令行钱包](#day10-web3-命令行钱包)
+- [day11 ：使用用多签名实现 Token 购买 NFT](#day11-使用用多签名实现-token-购买-nft)
 
 
 
@@ -112,7 +113,12 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
   -------
 
+### **day11 ：使用用多签名实现 Token 购买 NFT**
+- 用solidity 编写 NFTMarketWithERC20 合约  详情请查看[nft/nft-market-token/README.md](nft/nft-market-token/README.md)
+- 位置：nft/nft-market-token
+- 包含NFTMarketWithERC20合约，实现用ERC20代币购买NFT的功能。
 
+  -------
 ### 新增目录说明
 
 
