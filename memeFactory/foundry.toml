@@ -1,0 +1,75 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.25"
+optimizer = true
+optimizer_runs = 200
+via_ir = false
+bytecode_hash = "none"
+cbor_metadata = false
+sparse_mode = false
+build_info = false
+extra_output = []
+extra_output_files = []
+names = false
+sizes = false
+test = "test"
+cache_path = "cache"
+broadcast = "broadcast"
+allow_paths = []
+include_paths = []
+force = false
+evm_version = "paris"
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+
+# 网络配置
+[rpc_endpoints]
+# 本地 Anvil 网络
+anvil = "http://127.0.0.1:8545"
+localhost = "http://127.0.0.1:8545"
+
+# Sepolia 测试网络
+sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
+sepolia_alchemy = "https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}"
+
+# 以太坊主网（可选）
+mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
+
+# Etherscan API 配置
+[etherscan]
+sepolia = { key = "${ETHERSCAN_API_KEY}" }
+mainnet = { key = "${ETHERSCAN_API_KEY}" }
+
+# 依赖配置
+[dependencies]
+"@openzeppelin/contracts" = "5.0.2"
+
+# 本地开发配置
+[profile.local]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.25"
+optimizer = true
+optimizer_runs = 200
+gas_limit = 30000000
+gas_price = 1000000000  # 1 gwei
+
+# Sepolia 测试网配置
+[profile.sepolia]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.25"
+optimizer = true
+optimizer_runs = 200
+gas_limit = 3000000
+gas_price = 20000000000  # 20 gwei
+
+# 格式化配置
+[fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = true
+int_types = "long"

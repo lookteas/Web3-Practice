@@ -16,6 +16,7 @@ yarn-error.log*
 *.keystore
 wallet.json
 private-keys/
+account*.json
 
 # 日志文件
 logs/

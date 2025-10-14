@@ -19,13 +19,13 @@ let wallet = null;
 
 // 初始化钱包
 function initWallet() {
-  const rpcUrl = process.env.SEPOLIA_RPC_URL || 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID';
+  const rpcUrl = process.env.SEPOLIA_RPC_URL || 'https://sepolia.infura.io/v3/23211bcb978542dbb55264865dd2ffd4';
   wallet = new Wallet(rpcUrl);
 }
 
 // 显示欢迎信息
 function showWelcome() {
-  console.log(chalk.cyan.bold('\n🚀 Web3 命令行钱包'));
+  console.log(chalk.cyan.bold('\n Web3 命令行钱包'));
   console.log(chalk.gray('基于 Viem.js 构建的 Sepolia 测试网钱包\n'));
 }
 
@@ -38,11 +38,11 @@ async function generateAccount() {
     
     spinner.succeed('账户生成成功！');
     
-    console.log(chalk.green('\n✅ 新账户信息:'));
+    console.log(chalk.green('\n 新账户信息:'));
     console.log(chalk.yellow(`地址: ${address}`));
     console.log(chalk.yellow(`私钥: ${privateKey}`));
     
-    console.log(chalk.red('\n⚠️  重要提醒:'));
+    console.log(chalk.red('\n  重要提醒:'));
     console.log(chalk.red('• 请安全保存您的私钥'));
     console.log(chalk.red('• 不要与任何人分享您的私钥'));
     console.log(chalk.red('• 丢失私钥将无法恢复资产'));
@@ -97,7 +97,7 @@ async function importAccount() {
     const address = wallet.importAccount(privateKey);
     
     spinner.succeed('账户导入成功！');
-    console.log(chalk.green(`\n✅ 账户地址: ${address}`));
+    console.log(chalk.green(`\n 账户地址: ${address}`));
     
   } catch (error) {
     console.error(chalk.red(`导入失败: ${error.message}`));
@@ -240,7 +240,7 @@ async function transferERC20() {
       );
       
       transferSpinner.succeed('交易已发送！');
-      console.log(chalk.green(`\n✅ 交易哈希: ${hash}`));
+      console.log(chalk.green(`\n 交易哈希: ${hash}`));
       console.log(chalk.blue(`Sepolia 浏览器: https://sepolia.etherscan.io/tx/${hash}`));
       
       // 等待确认
@@ -268,11 +268,11 @@ async function transferERC20() {
 // 主菜单
 async function showMainMenu() {
   const choices = [
-    { name: '🔑 生成新账户', value: 'generate' },
-    { name: '📥 导入账户', value: 'import' },
-    { name: '💰 查询余额', value: 'balance' },
-    { name: '💸 ERC20 转账', value: 'transfer' },
-    { name: '❌ 退出', value: 'exit' }
+    { name: ' 生成新账户', value: 'generate' },
+    { name: ' 导入账户', value: 'import' },
+    { name: ' 查询余额', value: 'balance' },
+    { name: ' ERC20 转账', value: 'transfer' },
+    { name: ' 退出', value: 'exit' }
   ];
   
   if (wallet.isConnected()) {

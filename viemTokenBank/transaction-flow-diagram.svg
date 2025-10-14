@@ -1,0 +1,137 @@
+<svg width="800" height="1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; rx: 8; }
+      .decision { fill: #fff3e0; stroke: #f57c00; stroke-width: 2; }
+      .process { fill: #e8f5e8; stroke: #388e3c; stroke-width: 2; rx: 8; }
+      .error { fill: #ffebee; stroke: #d32f2f; stroke-width: 2; rx: 8; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; }
+      .title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; text-anchor: middle; }
+      .arrow { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .error-arrow { stroke: #d32f2f; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" class="title" fill="#1976d2">Viem 交易发送流程图</text>
+  
+  <!-- Start -->
+  <ellipse cx="400" cy="70" rx="60" ry="25" class="box"/>
+  <text x="400" y="76" class="text">开始</text>
+  
+  <!-- Step 1: Load Environment -->
+  <rect x="320" y="120" width="160" height="40" class="box"/>
+  <text x="400" y="135" class="text">1. 加载环境配置</text>
+  <text x="400" y="150" class="text">dotenv.config()</text>
+  
+  <!-- Step 2: Get Private Key -->
+  <rect x="320" y="190" width="160" height="40" class="box"/>
+  <text x="400" y="205" class="text">2. 获取私钥</text>
+  <text x="400" y="220" class="text">process.env.PRIVATE_KEY</text>
+  
+  <!-- Decision: Private Key Check -->
+  <polygon points="400,250 450,270 400,290 350,270" class="decision"/>
+  <text x="400" y="275" class="text">私钥存在?</text>
+  
+  <!-- Error: No Private Key -->
+  <rect x="520" y="250" width="120" height="40" class="error"/>
+  <text x="580" y="265" class="text">抛出错误:</text>
+  <text x="580" y="280" class="text">请设置私钥</text>
+  
+  <!-- Step 3: Create Account -->
+  <rect x="320" y="320" width="160" height="40" class="box"/>
+  <text x="400" y="335" class="text">3. 创建账户</text>
+  <text x="400" y="350" class="text">privateKeyToAccount()</text>
+  
+  <!-- Step 4: Create Public Client -->
+  <rect x="320" y="390" width="160" height="40" class="box"/>
+  <text x="400" y="405" class="text">4. 创建公共客户端</text>
+  <text x="400" y="420" class="text">createPublicClient()</text>
+  
+  <!-- Step 5: Network Status Check -->
+  <rect x="280" y="460" width="240" height="60" class="process"/>
+  <text x="400" y="480" class="text">5. 检查网络状态和账户信息</text>
+  <text x="400" y="495" class="text">• 获取区块号 (getBlockNumber)</text>
+  <text x="400" y="510" class="text">• 获取Gas价格 (getGasPrice)</text>
+  
+  <!-- Step 6: Account Info -->
+  <rect x="280" y="550" width="240" height="60" class="process"/>
+  <text x="400" y="570" class="text">6. 查询账户信息</text>
+  <text x="400" y="585" class="text">• 查询余额 (getBalance)</text>
+  <text x="400" y="600" class="text">• 查询Nonce (getTransactionCount)</text>
+  
+  <!-- Step 7: Build Transaction -->
+  <rect x="280" y="640" width="240" height="80" class="process"/>
+  <text x="400" y="665" class="text">7. 构建交易参数</text>
+  <text x="400" y="680" class="text">• 目标地址、金额、Gas参数</text>
+  <text x="400" y="695" class="text">• EIP-1559 参数设置</text>
+  <text x="400" y="710" class="text">• prepareTransactionRequest()</text>
+  
+  <!-- Step 8: Create Wallet Client -->
+  <rect x="320" y="750" width="160" height="40" class="box"/>
+  <text x="400" y="765" class="text">8. 创建钱包客户端</text>
+  <text x="400" y="780" class="text">createWalletClient()</text>
+  
+  <!-- Step 9: Send Transaction Methods -->
+  <rect x="120" y="820" width="160" height="60" class="process"/>
+  <text x="200" y="840" class="text">方式1: 直接发送</text>
+  <text x="200" y="855" class="text">walletClient.</text>
+  <text x="200" y="870" class="text">sendTransaction()</text>
+  
+  <rect x="520" y="820" width="160" height="60" class="process"/>
+  <text x="600" y="840" class="text">方式2: 签名后发送</text>
+  <text x="600" y="855" class="text">signTransaction() +</text>
+  <text x="600" y="870" class="text">sendRawTransaction()</text>
+  
+  <!-- Step 10: Wait for Receipt -->
+  <rect x="280" y="920" width="240" height="60" class="process"/>
+  <text x="400" y="945" class="text">10. 等待交易确认</text>
+  <text x="400" y="960" class="text">waitForTransactionReceipt()</text>
+  
+  <!-- Step 11: Display Results -->
+  <rect x="280" y="1010" width="240" height="60" class="process"/>
+  <text x="400" y="1035" class="text">11. 显示交易结果</text>
+  <text x="400" y="1050" class="text">状态、区块号、Gas使用量</text>
+  
+  <!-- Success End -->
+  <ellipse cx="400" cy="1110" rx="80" ry="25" class="box"/>
+  <text x="400" y="1116" class="text">返回交易哈希</text>
+  
+  <!-- Error Handling -->
+  <rect x="50" y="1050" width="160" height="60" class="error"/>
+  <text x="130" y="1075" class="text">错误处理</text>
+  <text x="130" y="1090" class="text">捕获并记录错误</text>
+  <text x="130" y="1105" class="text">重新抛出异常</text>
+  
+  <!-- Arrows -->
+  <line x1="400" y1="95" x2="400" y2="120" class="arrow"/>
+  <line x1="400" y1="160" x2="400" y2="190" class="arrow"/>
+  <line x1="400" y1="230" x2="400" y2="250" class="arrow"/>
+  <line x1="450" y1="270" x2="520" y2="270" class="error-arrow"/>
+  <text x="485" y="265" class="text" fill="#d32f2f">否</text>
+  <line x1="400" y1="290" x2="400" y2="320" class="arrow"/>
+  <text x="415" y="310" class="text" fill="#388e3c">是</text>
+  <line x1="400" y1="360" x2="400" y2="390" class="arrow"/>
+  <line x1="400" y1="430" x2="400" y2="460" class="arrow"/>
+  <line x1="400" y1="520" x2="400" y2="550" class="arrow"/>
+  <line x1="400" y1="610" x2="400" y2="640" class="arrow"/>
+  <line x1="400" y1="720" x2="400" y2="750" class="arrow"/>
+  
+  <!-- Split to two methods -->
+  <line x1="400" y1="790" x2="200" y2="820" class="arrow"/>
+  <line x1="400" y1="790" x2="600" y2="820" class="arrow"/>
+  
+  <!-- Merge back -->
+  <line x1="200" y1="880" x2="400" y2="920" class="arrow"/>
+  <line x1="600" y1="880" x2="400" y2="920" class="arrow"/>
+  
+  <line x1="400" y1="980" x2="400" y2="1010" class="arrow"/>
+  <line x1="400" y1="1070" x2="400" y2="1085" class="arrow"/>
+  
+  <!-- Error handling arrow -->
+  <line x1="50" y1="1080" x2="210" y2="1080" class="error-arrow"/>
+  <text x="130" y="1140" class="text" fill="#d32f2f">任何步骤出错</text>
+</svg>
