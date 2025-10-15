@@ -123,9 +123,9 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   -------
 
 ### **12 ：读取 esRNT 合约的锁信息**
-- 用solidity 编写 esRNT 合约  详情请查看[esrnt/README.md](esrnt/README.md)
-- 位置：esrnt/README.md
-- 包含esRNT合约，实现锁信息的读取功能。
+- 用solidity 编写 esRNT 合约部署测试网后，使用viem读取锁信息  详情请查看[evm/read-esrnt-locks/esrnt.sol](evm/read-esrnt-locks)
+- 位置：evm/read-esrnt-locks
+- 包含readLocks.js，实现读取esRNT合约锁信息的功能。
 
   -------
 
