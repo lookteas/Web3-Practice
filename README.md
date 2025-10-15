@@ -100,7 +100,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
 
 ### **9 ：使⽤ Viem.sh 监听 NFTMarket 的买卖记录**
-- 使用 Viem.sh 监听 NFTMarket 的买卖记录 详情请查看[viemTokenBank/README.md](viemTokenBank/README.md)
+- 使用 Viem.sh 监听 NFTMarket 的买卖记录 详情请查看[viemTokenBank/README.md](viemTokenBank/)
 - 位置：viemTokenBank/README.md
 - 包含Viem.sh项目的基本结构，以及如何监听智能合约。
 - 监听 NFTMarket 的买卖记录，包括购买和销售事件。
