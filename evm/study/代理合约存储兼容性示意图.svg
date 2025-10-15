@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1800" height="1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #34495e; }
+      .section-title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #2c3e50; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; fill: #2c3e50; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; fill: #7f8c8d; }
+      .code-text { font-family: 'Courier New', monospace; font-size: 10px; fill: #2c3e50; }
+      .proxy-slot { fill: #e3f2fd; stroke: #2196f3; stroke-width: 2; }
+      .impl-slot { fill: #f3e5f5; stroke: #9c27b0; stroke-width: 2; }
+      .user-slot { fill: #e8f5e8; stroke: #4caf50; stroke-width: 2; }
+      .conflict-slot { fill: #ffebee; stroke: #f44336; stroke-width: 2; }
+      .safe-slot { fill: #fff3e0; stroke: #ff9800; stroke-width: 2; }
+      .arrow { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .danger-arrow { stroke: #f44336; stroke-width: 3; fill: none; marker-end: url(#dangerarrow); }
+      .safe-arrow { stroke: #4caf50; stroke-width: 2; fill: none; marker-end: url(#safearrow); }
+      .warning-box { fill: #fff3cd; stroke: #ffc107; stroke-width: 2; }
+      .success-box { fill: #d4edda; stroke: #28a745; stroke-width: 2; }
+      .danger-box { fill: #f8d7da; stroke: #dc3545; stroke-width: 2; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e" />
+    </marker>
+    <marker id="dangerarrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f44336" />
+    </marker>
+    <marker id="safearrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50" />
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="900" y="30" text-anchor="middle" class="title">代理合约存储兼容性详细分析</text>
+  
+  <!-- 1. 代理合约基本架构 -->
+  <g id="proxy-architecture">
+    <text x="50" y="70" class="subtitle">1. 代理合约存储架构</text>
+    
+    <!-- 代理合约 -->
+    <text x="50" y="100" class="section-title">代理合约 (Proxy)</text>
+    <rect x="50" y="110" width="300" height="150" class="proxy-slot" rx="5"/>
+    <text x="60" y="130" class="code-text">contract Proxy {</text>
+    <text x="70" y="145" class="code-text">    // EIP-1967 标准存储槽</text>
+    <text x="70" y="160" class="code-text">    // 实现地址槽:</text>
+    <text x="70" y="175" class="code-text">    // 0x360894a13ba1a3210667c828492db98dca3e2076</text>
+    <text x="70" y="190" class="code-text">    // cc3735a920a3ca505d382bbc</text>
+    <text x="70" y="205" class="code-text">    </text>
+    <text x="70" y="220" class="code-text">    // 管理员地址槽:</text>
+    <text x="70" y="235" class="code-text">    // 0xb53127684a568b3173ae13b9f8a6016e243e63b6</text>
+    <text x="70" y="250" class="code-text">    // e8ee1178d6a717850b5d6103</text>
+    <text x="60" y="265" class="code-text">}</text>
+    
+    <!-- 实现合约 -->
+    <text x="400" y="100" class="section-title">实现合约 (Implementation)</text>
+    <rect x="400" y="110" width="300" height="150" class="impl-slot" rx="5"/>
+    <text x="410" y="130" class="code-text">contract Implementation {</text>
+    <text x="420" y="145" class="code-text">    // 业务逻辑存储</text>
+    <text x="420" y="160" class="code-text">    uint256 public value;      // Slot 0</text>
+    <text x="420" y="175" class="code-text">    address public owner;      // Slot 1</text>
+    <text x="420" y="190" class="code-text">    mapping(address => uint256) balances;</text>
+    <text x="420" y="205" class="code-text">                              // Slot 2</text>
+    <text x="420" y="220" class="code-text">    </text>
+    <text x="420" y="235" class="code-text">    function setValue(uint256 _value) {</text>
+    <text x="430" y="250" class="code-text">        value = _value;</text>
+    <text x="420" y="265" class="code-text">    }</text>
+    <text x="410" y="280" class="code-text">}</text>
+    
+    <!-- 存储分离说明 -->
+    <rect x="750" y="110" width="350" height="150" class="warning-box" rx="5"/>
+    <text x="760" y="130" class="section-title">⚠️ 关键概念</text>
+    <text x="760" y="150" class="text">• 代理合约存储代理相关数据</text>
+    <text x="760" y="165" class="text">• 实现合约定义存储布局</text>
+    <text x="760" y="180" class="text">• delegatecall 在代理存储中执行</text>
+    <text x="760" y="195" class="text">• 存储槽冲突是主要风险</text>
+    <text x="760" y="215" class="text">EIP-1967 标准槽位:</text>
+    <text x="760" y="230" class="small-text">实现地址: keccak256("eip1967.proxy.implementation") - 1</text>
+    <text x="760" y="245" class="small-text">管理员地址: keccak256("eip1967.proxy.admin") - 1</text>
+  </g>
+  
+  <!-- 2. 存储槽冲突问题 -->
+  <g id="storage-conflicts">
+    <text x="50" y="330" class="subtitle">2. 存储槽冲突问题分析</text>
+    
+    <!-- 冲突示例 -->
+    <text x="50" y="360" class="section-title">❌ 危险的存储冲突</text>
+    
+    <!-- 代理合约V1 -->
+    <rect x="50" y="370" width="250" height="100" class="danger-box" rx="5"/>
+    <text x="60" y="390" class="code-text">// 代理合约内部存储</text>
+    <text x="60" y="405" class="code-text">address implementation; // Slot 0</text>
+    <text x="60" y="420" class="code-text">address admin;          // Slot 1</text>
+    <text x="60" y="435" class="code-text">bool initialized;       // Slot 2</text>
+    
+    <!-- 实现合约V1 -->
+    <rect x="350" y="370" width="250" height="100" class="danger-box" rx="5"/>
+    <text x="360" y="390" class="code-text">// 实现合约存储布局</text>
+    <text x="360" y="405" class="code-text">uint256 value;          // Slot 0 ⚠️</text>
+    <text x="360" y="420" class="code-text">address owner;          // Slot 1 ⚠️</text>
+    <text x="360" y="435" class="code-text">uint256 balance;        // Slot 2 ⚠️</text>
+    
+    <!-- 冲突箭头 -->
+    <path d="M 320 420 L 340 420" class="danger-arrow"/>
+    <text x="330" y="410" class="small-text" fill="#f44336">冲突!</text>
+    
+    <!-- 冲突结果 -->
+    <rect x="650" y="370" width="300" height="100" class="conflict-slot" rx="5"/>
+    <text x="660" y="390" class="section-title">冲突结果:</text>
+    <text x="660" y="410" class="text">• implementation 被 value 覆盖</text>
+    <text x="660" y="425" class="text">• admin 被 owner 覆盖</text>
+    <text x="660" y="440" class="text">• 代理功能完全失效</text>
+    <text x="660" y="455" class="text">• 可能导致资金损失</text>
+  </g>
+  
+  <!-- 3. 安全的存储模式 -->
+  <g id="safe-storage">
+    <text x="50" y="520" class="subtitle">3. 安全的存储模式</text>
+    
+    <!-- EIP-1967 标准 -->
+    <text x="50" y="550" class="section-title">✅ EIP-1967 标准模式</text>
+    
+    <!-- 标准代理 -->
+    <rect x="50" y="560" width="350" height="120" class="success-box" rx="5"/>
+    <text x="60" y="580" class="code-text">// EIP-1967 标准代理</text>
+    <text x="60" y="595" class="code-text">contract StandardProxy {</text>
+    <text x="70" y="610" class="code-text">    // 实现地址存储在特殊槽位</text>
+    <text x="70" y="625" class="code-text">    // Slot: 0x360894a13ba1a3210667c828492db98d...</text>
+    <text x="70" y="640" class="code-text">    </text>
+    <text x="70" y="655" class="code-text">    // 管理员地址存储在特殊槽位</text>
+    <text x="70" y="670" class="code-text">    // Slot: 0xb53127684a568b3173ae13b9f8a6016e...</text>
+    <text x="60" y="685" class="code-text">}</text>
+    
+    <!-- 实现合约安全布局 -->
+    <rect x="450" y="560" width="350" height="120" class="success-box" rx="5"/>
+    <text x="460" y="580" class="code-text">// 安全的实现合约</text>
+    <text x="460" y="595" class="code-text">contract SafeImplementation {</text>
+    <text x="470" y="610" class="code-text">    // 从 Slot 0 开始安全使用</text>
+    <text x="470" y="625" class="code-text">    uint256 public value;      // Slot 0 ✅</text>
+    <text x="470" y="640" class="code-text">    address public owner;      // Slot 1 ✅</text>
+    <text x="470" y="655" class="code-text">    mapping(address => uint256) balances;</text>
+    <text x="470" y="670" class="code-text">                              // Slot 2 ✅</text>
+    <text x="460" y="685" class="code-text">}</text>
+    
+    <!-- 安全箭头 -->
+    <path d="M 420 625 L 440 625" class="safe-arrow"/>
+    <text x="430" y="615" class="small-text" fill="#4caf50">安全!</text>
+    
+    <!-- 槽位计算 -->
+    <rect x="850" y="560" width="400" height="120" class="warning-box" rx="5"/>
+    <text x="860" y="580" class="section-title">特殊槽位计算:</text>
+    <text x="860" y="600" class="code-text">// 实现地址槽</text>
+    <text x="860" y="615" class="code-text">bytes32 IMPLEMENTATION_SLOT = </text>
+    <text x="870" y="630" class="code-text">keccak256("eip1967.proxy.implementation") - 1;</text>
+    <text x="860" y="650" class="code-text">// 管理员地址槽</text>
+    <text x="860" y="665" class="code-text">bytes32 ADMIN_SLOT = </text>
+    <text x="870" y="680" class="code-text">keccak256("eip1967.proxy.admin") - 1;</text>
+  </g>
+  
+  <!-- 4. 升级兼容性检查 -->
+  <g id="upgrade-compatibility">
+    <text x="50" y="730" class="subtitle">4. 升级兼容性检查</text>
+    
+    <!-- V1 实现 -->
+    <text x="50" y="760" class="section-title">实现合约 V1</text>
+    <rect x="50" y="770" width="250" height="120" class="impl-slot" rx="5"/>
+    <text x="60" y="790" class="code-text">contract ImplementationV1 {</text>
+    <text x="70" y="805" class="code-text">    uint256 value;     // Slot 0</text>
+    <text x="70" y="820" class="code-text">    address owner;     // Slot 1</text>
+    <text x="70" y="835" class="code-text">    bool active;       // Slot 2</text>
+    <text x="70" y="850" class="code-text">    uint256 balance;   // Slot 3</text>
+    <text x="60" y="865" class="code-text">}</text>
+    
+    <!-- 兼容的V2 -->
+    <text x="350" y="760" class="section-title">✅ 兼容的 V2 升级</text>
+    <rect x="350" y="770" width="300" height="120" class="success-box" rx="5"/>
+    <text x="360" y="790" class="code-text">contract ImplementationV2 {</text>
+    <text x="370" y="805" class="code-text">    uint256 value;     // Slot 0 (保持)</text>
+    <text x="370" y="820" class="code-text">    address owner;     // Slot 1 (保持)</text>
+    <text x="370" y="835" class="code-text">    bool active;       // Slot 2 (保持)</text>
+    <text x="370" y="850" class="code-text">    uint256 balance;   // Slot 3 (保持)</text>
+    <text x="370" y="865" class="code-text">    uint256 newFeature;// Slot 4 (新增)</text>
+    <text x="360" y="880" class="code-text">}</text>
+    
+    <!-- 不兼容的V2 -->
+    <text x="700" y="760" class="section-title">❌ 不兼容的 V2 升级</text>
+    <rect x="700" y="770" width="300" height="120" class="danger-box" rx="5"/>
+    <text x="710" y="790" class="code-text">contract BadImplementationV2 {</text>
+    <text x="720" y="805" class="code-text">    address owner;     // Slot 0 ⚠️ 改变!</text>
+    <text x="720" y="820" class="code-text">    uint256 value;     // Slot 1 ⚠️ 改变!</text>
+    <text x="720" y="835" class="code-text">    uint256 newData;   // Slot 2 ⚠️ 覆盖!</text>
+    <text x="720" y="850" class="code-text">    bool active;       // Slot 3 ⚠️ 移动!</text>
+    <text x="710" y="880" class="code-text">}</text>
+    
+    <!-- 兼容性规则 -->
+    <rect x="1050" y="770" width="350" height="120" class="warning-box" rx="5"/>
+    <text x="1060" y="790" class="section-title">升级兼容性规则:</text>
+    <text x="1060" y="810" class="text">✅ 可以在末尾添加新变量</text>
+    <text x="1060" y="825" class="text">✅ 可以添加新的映射</text>
+    <text x="1060" y="840" class="text">❌ 不能改变现有变量顺序</text>
+    <text x="1060" y="855" class="text">❌ 不能改变现有变量类型</text>
+    <text x="1060" y="870" class="text">❌ 不能删除现有变量</text>
+  </g>
+  
+  <!-- 5. 存储间隙技术 -->
+  <g id="storage-gaps">
+    <text x="50" y="940" class="subtitle">5. 存储间隙 (Storage Gaps) 技术</text>
+    
+    <!-- 无间隙版本 -->
+    <text x="50" y="970" class="section-title">❌ 无存储间隙</text>
+    <rect x="50" y="980" width="300" height="100" class="danger-box" rx="5"/>
+    <text x="60" y="1000" class="code-text">contract BaseV1 {</text>
+    <text x="70" y="1015" class="code-text">    uint256 value;     // Slot 0</text>
+    <text x="70" y="1030" class="code-text">    address owner;     // Slot 1</text>
+    <text x="60" y="1045" class="code-text">}</text>
+    <text x="60" y="1065" class="small-text">升级时可能与子合约冲突</text>
+    
+    <!-- 有间隙版本 -->
+    <text x="400" y="970" class="section-title">✅ 使用存储间隙</text>
+    <rect x="400" y="980" width="350" height="100" class="success-box" rx="5"/>
+    <text x="410" y="1000" class="code-text">contract BaseV1 {</text>
+    <text x="420" y="1015" class="code-text">    uint256 value;     // Slot 0</text>
+    <text x="420" y="1030" class="code-text">    address owner;     // Slot 1</text>
+    <text x="420" y="1045" class="code-text">    uint256[48] __gap; // Slots 2-49 预留</text>
+    <text x="410" y="1060" class="code-text">}</text>
+    <text x="410" y="1080" class="small-text">为未来升级预留50个槽位</text>
+    
+    <!-- 间隙使用示例 -->
+    <rect x="800" y="980" width="400" height="100" class="warning-box" rx="5"/>
+    <text x="810" y="1000" class="code-text">// 升级时使用间隙</text>
+    <text x="810" y="1015" class="code-text">contract BaseV2 {</text>
+    <text x="820" y="1030" class="code-text">    uint256 value;     // Slot 0</text>
+    <text x="820" y="1045" class="code-text">    address owner;     // Slot 1</text>
+    <text x="820" y="1060" class="code-text">    uint256 newFeature;// Slot 2 (使用间隙)</text>
+    <text x="820" y="1075" class="code-text">    uint256[47] __gap; // 调整间隙大小</text>
+    <text x="810" y="1090" class="code-text">}</text>
+  </g>
+  
+  <!-- 6. 继承存储布局 -->
+  <g id="inheritance-storage">
+    <text x="50" y="1140" class="subtitle">6. 继承存储布局</text>
+    
+    <!-- 基础合约 -->
+    <text x="50" y="1170" class="section-title">基础合约</text>
+    <rect x="50" y="1180" width="250" height="80" class="user-slot" rx="5"/>
+    <text x="60" y="1200" class="code-text">contract Base {</text>
+    <text x="70" y="1215" class="code-text">    uint256 baseValue; // Slot 0</text>
+    <text x="70" y="1230" class="code-text">    address baseOwner; // Slot 1</text>
+    <text x="60" y="1245" class="code-text">}</text>
+    
+    <!-- 继承合约 -->
+    <text x="350" y="1170" class="section-title">继承合约</text>
+    <rect x="350" y="1180" width="300" height="80" class="impl-slot" rx="5"/>
+    <text x="360" y="1200" class="code-text">contract Child is Base {</text>
+    <text x="370" y="1215" class="code-text">    uint256 childValue;  // Slot 2</text>
+    <text x="370" y="1230" class="code-text">    bool childActive;    // Slot 3</text>
+    <text x="360" y="1245" class="code-text">}</text>
+    
+    <!-- 存储布局 -->
+    <text x="700" y="1170" class="section-title">最终存储布局</text>
+    <rect x="700" y="1180" width="200" height="20" class="user-slot"/>
+    <text x="800" y="1193" text-anchor="middle" class="small-text">Slot 0: baseValue</text>
+    <rect x="700" y="1205" width="200" height="20" class="user-slot"/>
+    <text x="800" y="1218" text-anchor="middle" class="small-text">Slot 1: baseOwner</text>
+    <rect x="700" y="1230" width="200" height="20" class="impl-slot"/>
+    <text x="800" y="1243" text-anchor="middle" class="small-text">Slot 2: childValue</text>
+    <rect x="700" y="1255" width="200" height="20" class="impl-slot"/>
+    <text x="800" y="1268" text-anchor="middle" class="small-text">Slot 3: childActive</text>
+    
+    <!-- 继承规则 -->
+    <rect x="950" y="1180" width="350" height="80" class="warning-box" rx="5"/>
+    <text x="960" y="1200" class="section-title">继承存储规则:</text>
+    <text x="960" y="1220" class="text">• 父合约变量在前</text>
+    <text x="960" y="1235" class="text">• 子合约变量在后</text>
+    <text x="960" y="1250" class="text">• 按继承顺序排列</text>
+  </g>
+  
+  <!-- 7. 最佳实践总结 -->
+  <g id="best-practices">
+    <text x="50" y="1310" class="subtitle">7. 代理合约存储最佳实践</text>
+    
+    <!-- 设计阶段 -->
+    <rect x="50" y="1330" width="350" height="120" class="success-box" rx="5"/>
+    <text x="60" y="1350" class="section-title">��� 设计阶段</text>
+    <text x="60" y="1370" class="text">• 使用 EIP-1967 标准</text>
+    <text x="60" y="1385" class="text">• 预留存储间隙</text>
+    <text x="60" y="1400" class="text">• 避免构造函数初始化</text>
+    <text x="60" y="1415" class="text">• 使用 initializer 模式</text>
+    <text x="60" y="1430" class="text">• 文档化存储布局</text>
+    
+    <!-- 开发阶段 -->
+    <rect x="450" y="1330" width="350" height="120" class="warning-box" rx="5"/>
+    <text x="460" y="1350" class="section-title">⚙️ 开发阶段</text>
+    <text x="460" y="1370" class="text">• 使用存储布局检查工具</text>
+    <text x="460" y="1385" class="text">• 编写升级兼容性测试</text>
+    <text x="460" y="1400" class="text">• 验证存储槽不冲突</text>
+    <text x="460" y="1415" class="text">• 使用 OpenZeppelin 库</text>
+    <text x="460" y="1430" class="text">• 代码审计</text>
+    
+    <!-- 部署阶段 -->
+    <rect x="850" y="1330" width="350" height="120" class="danger-box" rx="5"/>
+    <text x="860" y="1350" class="section-title">��� 部署阶段</text>
+    <text x="860" y="1370" class="text">• 测试网充分测试</text>
+    <text x="860" y="1385" class="text">• 升级路径验证</text>
+    <text x="860" y="1400" class="text">• 多签管理权限</text>
+    <text x="860" y="1415" class="text">• 时间锁保护</text>
+    <text x="860" y="1430" class="text">• 应急暂停机制</text>
+    
+    <!-- 工具推荐 -->
+    <rect x="1250" y="1330" width="350" height="120" class="proxy-slot" rx="5"/>
+    <text x="1260" y="1350" class="section-title">���️ 推荐工具</text>
+    <text x="1260" y="1370" class="text">• @openzeppelin/upgrades</text>
+    <text x="1260" y="1385" class="text">• hardhat-upgrades</text>
+    <text x="1260" y="1400" class="text">• storage-layout checker</text>
+    <text x="1260" y="1415" class="text">• slither 静态分析</text>
+    <text x="1260" y="1430" class="text">• mythril 安全扫描</text>
+  </g>
+  
+  <!-- 8. 常见陷阱警告 -->
+  <g id="common-pitfalls">
+    <text x="50" y="1500" class="subtitle">8. 常见陷阱与解决方案</text>
+    
+    <rect x="50" y="1520" width="1500" height="60" class="danger-box" rx="5"/>
+    <text x="60" y="1540" class="section-title">⚠️ 严重警告</text>
+    <text x="60" y="1560" class="text">• 永远不要在代理合约中直接声明状态变量 • 升级前必须验证存储布局兼容性 • 使用 delegatecall 时要特别注意存储上下文</text>
+    <text x="60" y="1575" class="text">• 构造函数在代理模式下不会执行 • 小心处理继承链中的存储布局 • 测试所有升级路径的数据完整性</text>
+  </g>
+</svg>

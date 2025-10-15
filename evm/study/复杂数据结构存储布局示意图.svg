@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #34495e; }
+      .section-title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #2c3e50; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; fill: #2c3e50; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; fill: #7f8c8d; }
+      .code-text { font-family: 'Courier New', monospace; font-size: 10px; fill: #2c3e50; }
+      .slot-box { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 2; }
+      .array-slot { fill: #3498db; stroke: #2980b9; stroke-width: 2; }
+      .mapping-slot { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; }
+      .struct-slot { fill: #f39c12; stroke: #e67e22; stroke-width: 2; }
+      .length-slot { fill: #9b59b6; stroke: #8e44ad; stroke-width: 2; }
+      .hash-slot { fill: #1abc9c; stroke: #16a085; stroke-width: 2; }
+      .arrow { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .dashed-arrow { stroke: #95a5a6; stroke-width: 2; stroke-dasharray: 5,5; fill: none; marker-end: url(#arrowhead); }
+      .calculation-box { fill: #fff3cd; stroke: #ffc107; stroke-width: 1; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e" />
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="800" y="30" text-anchor="middle" class="title">复杂数据结构存储布局详细示意图</text>
+  
+  <!-- 动态数组存储 -->
+  <g id="dynamic-arrays">
+    <text x="50" y="70" class="subtitle">1. 动态数组存储机制</text>
+    
+    <!-- 合约代码 -->
+    <rect x="50" y="90" width="300" height="100" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+    <text x="60" y="110" class="code-text">contract ArrayExample {</text>
+    <text x="70" y="125" class="code-text">    uint256[] numbers;  // Slot 0</text>
+    <text x="70" y="140" class="code-text">    string[] names;     // Slot 1</text>
+    <text x="70" y="155" class="code-text">    uint128[] small;    // Slot 2</text>
+    <text x="60" y="170" class="code-text">}</text>
+    
+    <!-- 存储布局 -->
+    <text x="400" y="110" class="section-title">存储布局:</text>
+    
+    <!-- numbers 数组 -->
+    <text x="400" y="135" class="text">numbers[] (Slot 0):</text>
+    <rect x="400" y="145" width="200" height="25" class="length-slot"/>
+    <text x="500" y="162" text-anchor="middle" class="small-text" fill="white">数组长度</text>
+    
+    <!-- 箭头指向实际数据 -->
+    <path d="M 620 157 L 680 157" class="arrow"/>
+    
+    <!-- 实际数据存储 -->
+    <text x="700" y="135" class="text">实际数据:</text>
+    <rect x="700" y="145" width="150" height="20" class="array-slot"/>
+    <text x="775" y="158" text-anchor="middle" class="small-text" fill="white">keccak256(0) + 0</text>
+    <rect x="700" y="170" width="150" height="20" class="array-slot"/>
+    <text x="775" y="183" text-anchor="middle" class="small-text" fill="white">keccak256(0) + 1</text>
+    <rect x="700" y="195" width="150" height="20" class="array-slot"/>
+    <text x="775" y="208" text-anchor="middle" class="small-text" fill="white">keccak256(0) + 2</text>
+    <text x="860" y="175" class="small-text">numbers[0]</text>
+    <text x="860" y="190" class="small-text">numbers[1]</text>
+    <text x="860" y="205" class="small-text">numbers[2]</text>
+    
+    <!-- 计算公式 -->
+    <rect x="1000" y="120" width="250" height="100" class="calculation-box" rx="5"/>
+    <text x="1010" y="140" class="section-title">地址计算:</text>
+    <text x="1010" y="160" class="code-text">slot = 0 (numbers的槽位)</text>
+    <text x="1010" y="175" class="code-text">baseSlot = keccak256(slot)</text>
+    <text x="1010" y="190" class="code-text">numbers[i] 位置:</text>
+    <text x="1010" y="205" class="code-text">baseSlot + i</text>
+  </g>
+  
+  <!-- 映射存储 -->
+  <g id="mappings">
+    <text x="50" y="270" class="subtitle">2. 映射存储机制</text>
+    
+    <!-- 合约代码 -->
+    <rect x="50" y="290" width="350" height="120" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+    <text x="60" y="310" class="code-text">contract MappingExample {</text>
+    <text x="70" y="325" class="code-text">    mapping(address => uint256) balances;    // Slot 0</text>
+    <text x="70" y="340" class="code-text">    mapping(uint256 => string) names;        // Slot 1</text>
+    <text x="70" y="355" class="code-text">    mapping(address => mapping(address => uint256))</text>
+    <text x="70" y="370" class="code-text">        allowances;                          // Slot 2</text>
+    <text x="60" y="390" class="code-text">}</text>
+    
+    <!-- 单层映射 -->
+    <text x="450" y="310" class="section-title">单层映射 balances:</text>
+    <rect x="450" y="320" width="180" height="25" class="slot-box"/>
+    <text x="540" y="337" text-anchor="middle" class="small-text">Slot 0 (空)</text>
+    
+    <path d="M 650 332 L 710 332" class="arrow"/>
+    
+    <rect x="730" y="320" width="200" height="25" class="mapping-slot"/>
+    <text x="830" y="337" text-anchor="middle" class="small-text" fill="white">keccak256(key . 0)</text>
+    <text x="950" y="337" class="small-text">balances[key]</text>
+    
+    <!-- 嵌套映射 -->
+    <text x="450" y="370" class="section-title">嵌套映射 allowances:</text>
+    <rect x="450" y="380" width="180" height="25" class="slot-box"/>
+    <text x="540" y="397" text-anchor="middle" class="small-text">Slot 2 (空)</text>
+    
+    <path d="M 650 392 L 710 392" class="arrow"/>
+    
+    <rect x="730" y="380" width="200" height="25" class="hash-slot"/>
+    <text x="830" y="397" text-anchor="middle" class="small-text" fill="white">keccak256(owner . 2)</text>
+    
+    <path d="M 950 392 L 1010 392" class="arrow"/>
+    
+    <rect x="1030" y="380" width="220" height="25" class="mapping-slot"/>
+    <text x="1140" y="397" text-anchor="middle" class="small-text" fill="white">keccak256(spender . hash1)</text>
+    
+    <!-- 计算步骤 -->
+    <rect x="1300" y="290" width="280" height="120" class="calculation-box" rx="5"/>
+    <text x="1310" y="310" class="section-title">嵌套映射计算:</text>
+    <text x="1310" y="330" class="code-text">1. hash1 = keccak256(owner . slot)</text>
+    <text x="1310" y="345" class="code-text">2. hash2 = keccak256(spender . hash1)</text>
+    <text x="1310" y="360" class="code-text">3. allowances[owner][spender]</text>
+    <text x="1310" y="375" class="code-text">   存储在 hash2 位置</text>
+    <text x="1310" y="395" class="small-text">其中 slot = 2 (allowances的槽位)</text>
+  </g>
+  
+  <!-- 结构体存储 -->
+  <g id="structs">
+    <text x="50" y="470" class="subtitle">3. 结构体存储布局</text>
+    
+    <!-- 合约代码 -->
+    <rect x="50" y="490" width="400" height="160" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+    <text x="60" y="510" class="code-text">contract StructExample {</text>
+    <text x="70" y="525" class="code-text">    struct User {</text>
+    <text x="80" y="540" class="code-text">        uint256 id;         // 32 字节</text>
+    <text x="80" y="555" class="code-text">        address addr;       // 20 字节</text>
+    <text x="80" y="570" class="code-text">        uint96 balance;     // 12 字节</text>
+    <text x="80" y="585" class="code-text">        bool active;        // 1 字节</text>
+    <text x="80" y="600" class="code-text">        uint8 level;        // 1 字节</text>
+    <text x="70" y="615" class="code-text">    }</text>
+    <text x="70" y="630" class="code-text">    User public user;       // 从 Slot 0 开始</text>
+    <text x="60" y="645" class="code-text">}</text>
+    
+    <!-- 结构体存储布局 -->
+    <text x="500" y="510" class="section-title">结构体存储布局:</text>
+    
+    <!-- Slot 0: id -->
+    <text x="500" y="535" class="text">Slot 0:</text>
+    <rect x="560" y="520" width="300" height="25" class="struct-slot"/>
+    <text x="710" y="537" text-anchor="middle" class="small-text" fill="white">uint256 id (32 字节)</text>
+    
+    <!-- Slot 1: addr + balance -->
+    <text x="500" y="565" class="text">Slot 1:</text>
+    <rect x="560" y="550" width="200" height="25" class="struct-slot"/>
+    <rect x="760" y="550" width="100" height="25" class="struct-slot"/>
+    <text x="660" y="567" text-anchor="middle" class="small-text" fill="white">address addr (20B)</text>
+    <text x="810" y="567" text-anchor="middle" class="small-text" fill="white">uint96 balance (12B)</text>
+    
+    <!-- Slot 2: active + level -->
+    <text x="500" y="595" class="text">Slot 2:</text>
+    <rect x="560" y="580" width="30" height="25" class="struct-slot"/>
+    <rect x="590" y="580" width="30" height="25" class="struct-slot"/>
+    <rect x="620" y="580" width="240" height="25" fill="#ffebee" stroke="#f44336" stroke-width="1"/>
+    <text x="575" y="597" text-anchor="middle" class="small-text" fill="white">bool</text>
+    <text x="605" y="597" text-anchor="middle" class="small-text" fill="white">uint8</text>
+    <text x="740" y="597" text-anchor="middle" class="small-text">浪费 (30字节)</text>
+  </g>
+  
+  <!-- 结构体数组 -->
+  <g id="struct-arrays">
+    <text x="50" y="700" class="subtitle">4. 结构体数组存储</text>
+    
+    <!-- 合约代码 -->
+    <rect x="50" y="720" width="350" height="100" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+    <text x="60" y="740" class="code-text">contract StructArrayExample {</text>
+    <text x="70" y="755" class="code-text">    struct Item {</text>
+    <text x="80" y="770" class="code-text">        uint128 price;  uint128 quantity;</text>
+    <text x="70" y="785" class="code-text">    }</text>
+    <text x="70" y="800" class="code-text">    Item[] items;  // Slot 0</text>
+    <text x="60" y="815" class="code-text">}</text>
+    
+    <!-- 存储布局 -->
+    <text x="450" y="740" class="section-title">存储布局:</text>
+    
+    <!-- 长度槽 -->
+    <rect x="450" y="750" width="150" height="25" class="length-slot"/>
+    <text x="525" y="767" text-anchor="middle" class="small-text" fill="white">数组长度 (Slot 0)</text>
+    
+    <path d="M 620 762 L 680 762" class="arrow"/>
+    
+    <!-- 结构体元素 -->
+    <text x="700" y="740" class="text">结构体元素:</text>
+    <rect x="700" y="750" width="120" height="25" class="array-slot"/>
+    <rect x="820" y="750" width="120" height="25" class="array-slot"/>
+    <text x="760" y="767" text-anchor="middle" class="small-text" fill="white">price</text>
+    <text x="880" y="767" text-anchor="middle" class="small-text" fill="white">quantity</text>
+    <text x="950" y="767" class="small-text">items[0] (1个槽)</text>
+    
+    <rect x="700" y="780" width="120" height="25" class="array-slot"/>
+    <rect x="820" y="780" width="120" height="25" class="array-slot"/>
+    <text x="760" y="797" text-anchor="middle" class="small-text" fill="white">price</text>
+    <text x="880" y="797" text-anchor="middle" class="small-text" fill="white">quantity</text>
+    <text x="950" y="797" class="small-text">items[1] (1个槽)</text>
+    
+    <!-- 地址计算 -->
+    <rect x="1100" y="720" width="250" height="100" class="calculation-box" rx="5"/>
+    <text x="1110" y="740" class="section-title">地址计算:</text>
+    <text x="1110" y="760" class="code-text">baseSlot = keccak256(0)</text>
+    <text x="1110" y="775" class="code-text">items[i] 位置:</text>
+    <text x="1110" y="790" class="code-text">baseSlot + i * slotsPerStruct</text>
+    <text x="1110" y="805" class="small-text">这里 slotsPerStruct = 1</text>
+  </g>
+  
+  <!-- 映射中的结构体 -->
+  <g id="mapping-structs">
+    <text x="50" y="870" class="subtitle">5. 映射中的结构体</text>
+    
+    <!-- 合约代码 -->
+    <rect x="50" y="890" width="400" height="120" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+    <text x="60" y="910" class="code-text">contract MappingStructExample {</text>
+    <text x="70" y="925" class="code-text">    struct Account {</text>
+    <text x="80" y="940" class="code-text">        uint256 balance;    // 32 字节</text>
+    <text x="80" y="955" class="code-text">        uint256 nonce;      // 32 字节</text>
+    <text x="80" y="970" class="code-text">        bool frozen;        // 1 字节</text>
+    <text x="70" y="985" class="code-text">    }</text>
+    <text x="70" y="1000" class="code-text">    mapping(address => Account) accounts;  // Slot 0</text>
+    <text x="60" y="1015" class="code-text">}</text>
+    
+    <!-- 存储布局 -->
+    <text x="500" y="910" class="section-title">存储布局:</text>
+    
+    <!-- 映射槽 -->
+    <rect x="500" y="920" width="150" height="25" class="slot-box"/>
+    <text x="575" y="937" text-anchor="middle" class="small-text">Slot 0 (空)</text>
+    
+    <path d="M 670 932 L 730 932" class="arrow"/>
+    
+    <!-- 结构体字段 -->
+    <text x="750" y="910" class="text">accounts[addr]:</text>
+    <rect x="750" y="920" width="200" height="25" class="mapping-slot"/>
+    <text x="850" y="937" text-anchor="middle" class="small-text" fill="white">balance (hash + 0)</text>
+    
+    <rect x="750" y="950" width="200" height="25" class="mapping-slot"/>
+    <text x="850" y="967" text-anchor="middle" class="small-text" fill="white">nonce (hash + 1)</text>
+    
+    <rect x="750" y="980" width="200" height="25" class="mapping-slot"/>
+    <text x="850" y="997" text-anchor="middle" class="small-text" fill="white">frozen (hash + 2)</text>
+    
+    <!-- 计算说明 -->
+    <rect x="1000" y="890" width="280" height="120" class="calculation-box" rx="5"/>
+    <text x="1010" y="910" class="section-title">字段地址计算:</text>
+    <text x="1010" y="930" class="code-text">baseHash = keccak256(addr . 0)</text>
+    <text x="1010" y="945" class="code-text">balance: baseHash + 0</text>
+    <text x="1010" y="960" class="code-text">nonce: baseHash + 1</text>
+    <text x="1010" y="975" class="code-text">frozen: baseHash + 2</text>
+    <text x="1010" y="995" class="small-text">结构体字段按顺序连续存储</text>
+  </g>
+  
+  <!-- 复杂嵌套示例 -->
+  <g id="complex-nesting">
+    <text x="50" y="1070" class="subtitle">6. 复杂嵌套结构示例</text>
+    
+    <!-- 合约代码 -->
+    <rect x="50" y="1090" width="500" height="100" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+    <text x="60" y="1110" class="code-text">contract ComplexExample {</text>
+    <text x="70" y="1125" class="code-text">    mapping(address => uint256[]) userTransactions;      // Slot 0</text>
+    <text x="70" y="1140" class="code-text">    mapping(uint256 => mapping(address => bool)) approvals;  // Slot 1</text>
+    <text x="70" y="1155" class="code-text">    struct Data { uint256[] values; mapping(uint256 => bool) flags; }</text>
+    <text x="70" y="1170" class="code-text">    mapping(address => Data) userData;                   // Slot 2</text>
+    <text x="60" y="1185" class="code-text">}</text>
+    
+    <!-- 存储说明 -->
+    <text x="600" y="1110" class="section-title">存储地址计算:</text>
+    
+    <rect x="600" y="1120" width="450" height="70" class="calculation-box" rx="5"/>
+    <text x="610" y="1140" class="code-text">userTransactions[user][i]:</text>
+    <text x="620" y="1155" class="small-text">1. arraySlot = keccak256(user . 0)</text>
+    <text x="620" y="1170" class="small-text">2. elementSlot = keccak256(arraySlot) + i</text>
+    
+    <rect x="1100" y="1120" width="450" height="70" class="calculation-box" rx="5"/>
+    <text x="1110" y="1140" class="code-text">userData[user].values[i]:</text>
+    <text x="1120" y="1155" class="small-text">1. structSlot = keccak256(user . 2)</text>
+    <text x="1120" y="1170" class="small-text">2. arraySlot = keccak256(structSlot + 0)</text>
+    <text x="1120" y="1185" class="small-text">3. elementSlot = arraySlot + i</text>
+  </g>
+</svg>

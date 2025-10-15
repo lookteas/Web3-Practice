@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1800" height="1400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #34495e; }
+      .section-title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #2c3e50; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; fill: #2c3e50; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; fill: #7f8c8d; }
+      .code-text { font-family: 'Courier New', monospace; font-size: 10px; fill: #2c3e50; }
+      .bad-practice { fill: #ffebee; stroke: #f44336; stroke-width: 2; }
+      .good-practice { fill: #e8f5e8; stroke: #4caf50; stroke-width: 2; }
+      .optimization { fill: #fff3e0; stroke: #ff9800; stroke-width: 2; }
+      .gas-high { fill: #ffcdd2; stroke: #d32f2f; stroke-width: 2; }
+      .gas-medium { fill: #fff9c4; stroke: #f57f17; stroke-width: 2; }
+      .gas-low { fill: #c8e6c9; stroke: #388e3c; stroke-width: 2; }
+      .arrow { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .comparison-box { fill: #f5f5f5; stroke: #bdbdbd; stroke-width: 1; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e" />
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="900" y="30" text-anchor="middle" class="title">EVM 存储优化策略对比分析</text>
+  
+  <!-- 1. 变量打包优化 -->
+  <g id="variable-packing">
+    <text x="50" y="70" class="subtitle">1. 变量打包优化 (Variable Packing)</text>
+    
+    <!-- 未优化版本 -->
+    <text x="50" y="100" class="section-title">❌ 未优化 (浪费存储)</text>
+    <rect x="50" y="110" width="350" height="120" class="bad-practice" rx="5"/>
+    <text x="60" y="130" class="code-text">contract Unoptimized {</text>
+    <text x="70" y="145" class="code-text">    bool isActive;      // Slot 0 (浪费31字节)</text>
+    <text x="70" y="160" class="code-text">    uint256 balance;    // Slot 1</text>
+    <text x="70" y="175" class="code-text">    address owner;      // Slot 2 (浪费12字节)</text>
+    <text x="70" y="190" class="code-text">    uint8 level;        // Slot 3 (浪费31字节)</text>
+    <text x="70" y="205" class="code-text">    uint64 timestamp;   // Slot 4 (浪费24字节)</text>
+    <text x="60" y="220" class="code-text">}</text>
+    
+    <!-- 存储布局 -->
+    <text x="450" y="100" class="section-title">存储布局:</text>
+    <rect x="450" y="110" width="200" height="20" class="gas-high"/>
+    <text x="550" y="123" text-anchor="middle" class="small-text">Slot 0: bool (浪费31B)</text>
+    <rect x="450" y="135" width="200" height="20" class="gas-high"/>
+    <text x="550" y="148" text-anchor="middle" class="small-text">Slot 1: uint256</text>
+    <rect x="450" y="160" width="200" height="20" class="gas-high"/>
+    <text x="550" y="173" text-anchor="middle" class="small-text">Slot 2: address (浪费12B)</text>
+    <rect x="450" y="185" width="200" height="20" class="gas-high"/>
+    <text x="550" y="198" text-anchor="middle" class="small-text">Slot 3: uint8 (浪费31B)</text>
+    <rect x="450" y="210" width="200" height="20" class="gas-high"/>
+    <text x="550" y="223" text-anchor="middle" class="small-text">Slot 4: uint64 (浪费24B)</text>
+    
+    <!-- Gas 成本 -->
+    <rect x="700" y="110" width="150" height="120" class="comparison-box" rx="5"/>
+    <text x="775" y="130" text-anchor="middle" class="section-title">Gas 成本</text>
+    <text x="710" y="150" class="text">存储槽数: 5</text>
+    <text x="710" y="165" class="text">SSTORE: 5 × 20,000</text>
+    <text x="710" y="180" class="text">= 100,000 gas</text>
+    <text x="710" y="200" class="text">浪费空间: 98 字节</text>
+    <text x="710" y="215" class="small-text">(31+12+31+24)</text>
+    
+    <!-- 优化版本 -->
+    <text x="900" y="100" class="section-title">✅ 优化后 (紧凑存储)</text>
+    <rect x="900" y="110" width="350" height="120" class="good-practice" rx="5"/>
+    <text x="910" y="130" class="code-text">contract Optimized {</text>
+    <text x="920" y="145" class="code-text">    uint256 balance;    // Slot 0</text>
+    <text x="920" y="160" class="code-text">    address owner;      // Slot 1 (20字节)</text>
+    <text x="920" y="175" class="code-text">    uint64 timestamp;   // Slot 1 (8字节)</text>
+    <text x="920" y="190" class="code-text">    uint8 level;        // Slot 1 (1字节)</text>
+    <text x="920" y="205" class="code-text">    bool isActive;      // Slot 1 (1字节)</text>
+    <text x="910" y="220" class="code-text">}</text>
+    
+    <!-- 优化存储布局 -->
+    <text x="1300" y="100" class="section-title">存储布局:</text>
+    <rect x="1300" y="110" width="200" height="20" class="gas-low"/>
+    <text x="1400" y="123" text-anchor="middle" class="small-text">Slot 0: uint256</text>
+    <rect x="1300" y="135" width="120" height="20" class="gas-low"/>
+    <rect x="1420" y="135" width="50" height="20" class="gas-low"/>
+    <rect x="1470" y="135" width="20" height="20" class="gas-low"/>
+    <rect x="1490" y="135" width="10" height="20" class="gas-low"/>
+    <text x="1360" y="148" text-anchor="middle" class="small-text">address</text>
+    <text x="1445" y="148" text-anchor="middle" class="small-text">uint64</text>
+    <text x="1480" y="148" text-anchor="middle" class="small-text">uint8</text>
+    <text x="1495" y="148" text-anchor="middle" class="small-text">bool</text>
+    
+    <!-- 优化 Gas 成本 -->
+    <rect x="1550" y="110" width="150" height="120" class="comparison-box" rx="5"/>
+    <text x="1625" y="130" text-anchor="middle" class="section-title">Gas 成本</text>
+    <text x="1560" y="150" class="text">存储槽数: 2</text>
+    <text x="1560" y="165" class="text">SSTORE: 2 × 20,000</text>
+    <text x="1560" y="180" class="text">= 40,000 gas</text>
+    <text x="1560" y="200" class="text">节省: 60,000 gas</text>
+    <text x="1560" y="215" class="small-text">(60% 节省)</text>
+  </g>
+  
+  <!-- 2. 数组优化策略 -->
+  <g id="array-optimization">
+    <text x="50" y="290" class="subtitle">2. 数组优化策略</text>
+    
+    <!-- 固定数组 vs 动态数组 -->
+    <text x="50" y="320" class="section-title">固定数组 vs 动态数组</text>
+    
+    <!-- 动态数组 -->
+    <rect x="50" y="330" width="300" height="80" class="gas-medium" rx="5"/>
+    <text x="60" y="350" class="code-text">// 动态数组 - 更灵活但Gas更高</text>
+    <text x="60" y="365" class="code-text">uint256[] dynamicArray;</text>
+    <text x="60" y="380" class="code-text">// 需要额外的长度存储</text>
+    <text x="60" y="395" class="code-text">// Gas: 20,000 + 5,000 per element</text>
+    
+    <!-- 固定数组 -->
+    <rect x="400" y="330" width="300" height="80" class="gas-low" rx="5"/>
+    <text x="410" y="350" class="code-text">// 固定数组 - 更高效</text>
+    <text x="410" y="365" class="code-text">uint256[10] fixedArray;</text>
+    <text x="410" y="380" class="code-text">// 连续存储，无长度开销</text>
+    <text x="410" y="395" class="code-text">// Gas: 20,000 per slot</text>
+    
+    <!-- 打包小数组 -->
+    <rect x="750" y="330" width="300" height="80" class="good-practice" rx="5"/>
+    <text x="760" y="350" class="code-text">// 打包小数组 - 最优</text>
+    <text x="760" y="365" class="code-text">uint128[2] packedArray;</text>
+    <text x="760" y="380" class="code-text">// 两个元素共享一个槽</text>
+    <text x="760" y="395" class="code-text">// Gas: 20,000 for 2 elements</text>
+    
+    <!-- 数组访问模式优化 -->
+    <text x="50" y="450" class="section-title">数组访问模式优化</text>
+    
+    <!-- 顺序访问 -->
+    <rect x="50" y="460" width="350" height="100" class="good-practice" rx="5"/>
+    <text x="60" y="480" class="code-text">// ✅ 顺序访问 - 缓存友好</text>
+    <text x="60" y="495" class="code-text">for (uint i = 0; i < array.length; i++) {</text>
+    <text x="70" y="510" class="code-text">    sum += array[i];</text>
+    <text x="60" y="525" class="code-text">}</text>
+    <text x="60" y="545" class="small-text">Gas: 约 2,100 per access (warm)</text>
+    
+    <!-- 随机访问 -->
+    <rect x="450" y="460" width="350" height="100" class="gas-medium" rx="5"/>
+    <text x="460" y="480" class="code-text">// ⚠️ 随机访问 - 缓存不友好</text>
+    <text x="460" y="495" class="code-text">for (uint i = 0; i < indices.length; i++) {</text>
+    <text x="470" y="510" class="code-text">    sum += array[indices[i]];</text>
+    <text x="460" y="525" class="code-text">}</text>
+    <text x="460" y="545" class="small-text">Gas: 约 2,100-20,000 per access</text>
+    
+    <!-- 批量操作 -->
+    <rect x="850" y="460" width="350" height="100" class="optimization" rx="5"/>
+    <text x="860" y="480" class="code-text">// ��� 批量操作优化</text>
+    <text x="860" y="495" class="code-text">function batchUpdate(uint[] indices,</text>
+    <text x="860" y="510" class="code-text">                    uint[] values) {</text>
+    <text x="870" y="525" class="code-text">    // 减少函数调用开销</text>
+    <text x="860" y="540" class="code-text">}</text>
+    <text x="860" y="555" class="small-text">节省: 21,000 gas per call</text>
+  </g>
+  
+  <!-- 3. 映射优化策略 -->
+  <g id="mapping-optimization">
+    <text x="50" y="610" class="subtitle">3. 映射优化策略</text>
+    
+    <!-- 嵌套映射 vs 单一映射 -->
+    <text x="50" y="640" class="section-title">嵌套映射 vs 单一映射优化</text>
+    
+    <!-- 嵌套映射 -->
+    <rect x="50" y="650" width="400" height="100" class="gas-high" rx="5"/>
+    <text x="60" y="670" class="code-text">// 嵌套映射 - 两次哈希计算</text>
+    <text x="60" y="685" class="code-text">mapping(address => mapping(uint => uint)) nested;</text>
+    <text x="60" y="700" class="code-text">nested[user][tokenId] = value;</text>
+    <text x="60" y="720" class="small-text">Gas: 2 × keccak256 + SSTORE</text>
+    <text x="60" y="735" class="small-text">约 23,000-43,000 gas</text>
+    
+    <!-- 单一映射 + 编码 -->
+    <rect x="500" y="650" width="400" height="100" class="gas-low" rx="5"/>
+    <text x="510" y="670" class="code-text">// 单一映射 + 键编码 - 一次哈希</text>
+    <text x="510" y="685" class="code-text">mapping(bytes32 => uint) single;</text>
+    <text x="510" y="700" class="code-text">bytes32 key = keccak256(abi.encode(user, tokenId));</text>
+    <text x="510" y="715" class="code-text">single[key] = value;</text>
+    <text x="510" y="735" class="small-text">Gas: 1 × keccak256 + SSTORE</text>
+    <text x="510" y="750" class="small-text">约 20,000-40,000 gas</text>
+    
+    <!-- 映射 vs 数组选择 -->
+    <text x="950" y="640" class="section-title">映射 vs 数组选择</text>
+    
+    <rect x="950" y="650" width="350" height="100" class="comparison-box" rx="5"/>
+    <text x="960" y="670" class="text">使用映射当:</text>
+    <text x="970" y="685" class="small-text">• 键不连续或稀疏</text>
+    <text x="970" y="700" class="small-text">• 需要O(1)查找</text>
+    <text x="970" y="715" class="small-text">• 键类型复杂</text>
+    
+    <text x="1150" y="670" class="text">使用数组当:</text>
+    <text x="1160" y="685" class="small-text">• 键连续(0,1,2...)</text>
+    <text x="1160" y="700" class="small-text">• 需要遍历所有元素</text>
+    <text x="1160" y="715" class="small-text">• 内存使用更重要</text>
+  </g>
+  
+  <!-- 4. 结构体优化 -->
+  <g id="struct-optimization">
+    <text x="50" y="800" class="subtitle">4. 结构体优化策略</text>
+    
+    <!-- 字段重排序 -->
+    <text x="50" y="830" class="section-title">字段重排序优化</text>
+    
+    <!-- 未优化结构体 -->
+    <rect x="50" y="840" width="300" height="120" class="bad-practice" rx="5"/>
+    <text x="60" y="860" class="code-text">// 未优化 - 4个槽</text>
+    <text x="60" y="875" class="code-text">struct User {</text>
+    <text x="70" y="890" class="code-text">    bool active;     // Slot 0</text>
+    <text x="70" y="905" class="code-text">    uint256 balance; // Slot 1</text>
+    <text x="70" y="920" class="code-text">    address addr;    // Slot 2</text>
+    <text x="70" y="935" class="code-text">    uint8 level;     // Slot 3</text>
+    <text x="60" y="950" class="code-text">}</text>
+    
+    <!-- 优化结构体 -->
+    <rect x="400" y="840" width="300" height="120" class="good-practice" rx="5"/>
+    <text x="410" y="860" class="code-text">// 优化 - 2个槽</text>
+    <text x="410" y="875" class="code-text">struct User {</text>
+    <text x="420" y="890" class="code-text">    uint256 balance; // Slot 0</text>
+    <text x="420" y="905" class="code-text">    address addr;    // Slot 1</text>
+    <text x="420" y="920" class="code-text">    uint8 level;     // Slot 1</text>
+    <text x="420" y="935" class="code-text">    bool active;     // Slot 1</text>
+    <text x="410" y="950" class="code-text">}</text>
+    
+    <!-- 结构体数组优化 -->
+    <rect x="750" y="840" width="350" height="120" class="optimization" rx="5"/>
+    <text x="760" y="860" class="code-text">// 结构体数组优化</text>
+    <text x="760" y="875" class="code-text">// 分离热数据和冷数据</text>
+    <text x="760" y="890" class="code-text">struct HotData {</text>
+    <text x="770" y="905" class="code-text">    uint256 balance;</text>
+    <text x="770" y="920" class="code-text">    uint256 lastAccess;</text>
+    <text x="760" y="935" class="code-text">}</text>
+    <text x="760" y="950" class="small-text">冷数据存储在另一个映射中</text>
+  </g>
+  
+  <!-- 5. 高级优化技术 -->
+  <g id="advanced-optimization">
+    <text x="50" y="1010" class="subtitle">5. 高级优化技术</text>
+    
+    <!-- 位操作优化 -->
+    <text x="50" y="1040" class="section-title">位操作优化</text>
+    
+    <rect x="50" y="1050" width="400" height="100" class="optimization" rx="5"/>
+    <text x="60" y="1070" class="code-text">// 使用位操作存储多个布尔值</text>
+    <text x="60" y="1085" class="code-text">uint256 flags; // 可存储256个布尔值</text>
+    <text x="60" y="1100" class="code-text">function setFlag(uint index, bool value) {</text>
+    <text x="70" y="1115" class="code-text">    if (value) flags |= (1 << index);</text>
+    <text x="70" y="1130" class="code-text">    else flags &= ~(1 << index);</text>
+    <text x="60" y="1145" class="code-text">}</text>
+    
+    <!-- 存储槽复用 -->
+    <rect x="500" y="1050" width="400" height="100" class="optimization" rx="5"/>
+    <text x="510" y="1070" class="code-text">// 存储槽复用技术</text>
+    <text x="510" y="1085" class="code-text">uint256 packed;</text>
+    <text x="510" y="1100" class="code-text">// 高128位: 价格, 低128位: 数量</text>
+    <text x="510" y="1115" class="code-text">uint128 price = uint128(packed >> 128);</text>
+    <text x="510" y="1130" class="code-text">uint128 amount = uint128(packed);</text>
+    
+    <!-- 延迟初始化 -->
+    <rect x="950" y="1050" width="400" height="100" class="optimization" rx="5"/>
+    <text x="960" y="1070" class="code-text">// 延迟初始化策略</text>
+    <text x="960" y="1085" class="code-text">mapping(address => bool) initialized;</text>
+    <text x="960" y="1100" class="code-text">function lazyInit(address user) {</text>
+    <text x="970" y="1115" class="code-text">    if (!initialized[user]) {</text>
+    <text x="980" y="1130" class="code-text">        // 首次访问时初始化</text>
+    <text x="970" y="1145" class="code-text">    }</text>
+    <text x="960" y="1160" class="code-text">}</text>
+  </g>
+  
+  <!-- 6. Gas 成本对比总结 -->
+  <g id="gas-comparison">
+    <text x="50" y="1220" class="subtitle">6. Gas 成本对比总结</text>
+    
+    <!-- 对比表格 -->
+    <rect x="50" y="1240" width="1500" height="140" class="comparison-box" rx="5"/>
+    
+    <!-- 表头 -->
+    <text x="70" y="1260" class="section-title">操作类型</text>
+    <text x="250" y="1260" class="section-title">未优化</text>
+    <text x="450" y="1260" class="section-title">基础优化</text>
+    <text x="650" y="1260" class="section-title">高级优化</text>
+    <text x="850" y="1260" class="section-title">节省比例</text>
+    <text x="1050" y="1260" class="section-title">适用场景</text>
+    
+    <!-- 分隔线 -->
+    <line x1="60" y1="1270" x2="1540" y2="1270" stroke="#bdbdbd" stroke-width="1"/>
+    
+    <!-- 数据行 -->
+    <text x="70" y="1290" class="text">变量存储</text>
+    <text x="250" y="1290" class="text">100,000 gas</text>
+    <text x="450" y="1290" class="text">40,000 gas</text>
+    <text x="650" y="1290" class="text">20,000 gas</text>
+    <text x="850" y="1290" class="text">80%</text>
+    <text x="1050" y="1290" class="small-text">状态变量声明</text>
+    
+    <text x="70" y="1310" class="text">数组操作</text>
+    <text x="250" y="1310" class="text">25,000 gas</text>
+    <text x="450" y="1310" class="text">22,100 gas</text>
+    <text x="650" y="1310" class="text">20,000 gas</text>
+    <text x="850" y="1310" class="text">20%</text>
+    <text x="1050" y="1310" class="small-text">批量数据处理</text>
+    
+    <text x="70" y="1330" class="text">映射访问</text>
+    <text x="250" y="1330" class="text">43,000 gas</text>
+    <text x="450" y="1330" class="text">23,000 gas</text>
+    <text x="650" y="1330" class="text">20,000 gas</text>
+    <text x="850" y="1330" class="text">53%</text>
+    <text x="1050" y="1330" class="small-text">键值对存储</text>
+    
+    <text x="70" y="1350" class="text">结构体操作</text>
+    <text x="250" y="1350" class="text">80,000 gas</text>
+    <text x="450" y="1350" class="text">40,000 gas</text>
+    <text x="650" y="1350" class="text">20,000 gas</text>
+    <text x="850" y="1350" class="text">75%</text>
+    <text x="1050" y="1350" class="small-text">复杂数据结构</text>
+    
+    <!-- 优化建议 -->
+    <rect x="1400" y="1240" width="350" height="140" fill="#e3f2fd" stroke="#2196f3" stroke-width="2" rx="5"/>
+    <text x="1410" y="1260" class="section-title">优化建议优先级</text>
+    <text x="1410" y="1280" class="text">1. 变量打包 (最高ROI)</text>
+    <text x="1410" y="1295" class="text">2. 存储槽复用</text>
+    <text x="1410" y="1310" class="text">3. 数据结构选择</text>
+    <text x="1410" y="1325" class="text">4. 访问模式优化</text>
+    <text x="1410" y="1340" class="text">5. 位操作技术</text>
+    <text x="1410" y="1355" class="text">6. 延迟初始化</text>
+  </g>
+</svg>

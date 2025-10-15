@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #34495e; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; fill: #2c3e50; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; fill: #7f8c8d; }
+      .storage-box { fill: #3498db; stroke: #2980b9; stroke-width: 2; }
+      .memory-box { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; }
+      .stack-box { fill: #f39c12; stroke: #e67e22; stroke-width: 2; }
+      .calldata-box { fill: #9b59b6; stroke: #8e44ad; stroke-width: 2; }
+      .slot-box { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 1; }
+      .packed-box { fill: #2ecc71; stroke: #27ae60; stroke-width: 1; }
+      .arrow { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e" />
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="600" y="30" text-anchor="middle" class="title">EVM 存储模型示意图</text>
+  
+  <!-- Storage 区域 -->
+  <g id="storage-section">
+    <rect x="50" y="60" width="280" height="320" class="storage-box" rx="10"/>
+    <text x="190" y="85" text-anchor="middle" class="subtitle" fill="white">Storage (持久化存储)</text>
+    
+    <!-- 存储槽示例 -->
+    <text x="70" y="110" class="text" fill="white">存储槽 (32字节/256位)</text>
+    
+    <!-- Slot 0 -->
+    <rect x="70" y="120" width="240" height="25" class="slot-box"/>
+    <text x="75" y="137" class="small-text">Slot 0: uint256 a</text>
+    <text x="280" y="137" class="small-text">32 bytes</text>
+    
+    <!-- Slot 1 -->
+    <rect x="70" y="150" width="240" height="25" class="slot-box"/>
+    <text x="75" y="167" class="small-text">Slot 1: uint256 b</text>
+    <text x="280" y="167" class="small-text">32 bytes</text>
+    
+    <!-- Slot 2 - 打包存储 -->
+    <rect x="70" y="180" width="120" height="25" class="packed-box"/>
+    <rect x="190" y="180" width="120" height="25" class="packed-box"/>
+    <text x="75" y="197" class="small-text">uint128 c (16B)</text>
+    <text x="195" y="197" class="small-text">uint128 d (16B)</text>
+    <text x="250" y="215" class="small-text" text-anchor="middle">Slot 2: 打包存储</text>
+    
+    <!-- 动态数组 -->
+    <text x="70" y="240" class="text" fill="white">动态数组存储:</text>
+    <rect x="70" y="250" width="240" height="20" class="slot-box"/>
+    <text x="75" y="263" class="small-text">Slot p: 数组长度</text>
+    <rect x="70" y="275" width="240" height="20" class="slot-box"/>
+    <text x="75" y="288" class="small-text">keccak256(p) + index: 数组元素</text>
+    
+    <!-- 映射存储 -->
+    <text x="70" y="315" class="text" fill="white">映射存储:</text>
+    <rect x="70" y="325" width="240" height="20" class="slot-box"/>
+    <text x="75" y="338" class="small-text">keccak256(key . slot): 映射值</text>
+    
+    <!-- Gas 消耗 -->
+    <text x="70" y="365" class="small-text" fill="white">Gas: SSTORE(20k/5k), SLOAD(800)</text>
+  </g>
+  
+  <!-- Memory 区域 -->
+  <g id="memory-section">
+    <rect x="350" y="60" width="200" height="180" class="memory-box" rx="10"/>
+    <text x="450" y="85" text-anchor="middle" class="subtitle" fill="white">Memory (临时存储)</text>
+    
+    <text x="370" y="110" class="text" fill="white">特点:</text>
+    <text x="370" y="130" class="small-text" fill="white">• 函数执行期间使用</text>
+    <text x="370" y="145" class="small-text" fill="white">• 线性寻址</text>
+    <text x="370" y="160" class="small-text" fill="white">• 可扩展</text>
+    <text x="370" y="175" class="small-text" fill="white">• 执行结束后清空</text>
+    
+    <text x="370" y="200" class="small-text" fill="white">用途: 函数参数、局部变量</text>
+    <text x="370" y="220" class="small-text" fill="white">Gas: 相对便宜</text>
+  </g>
+  
+  <!-- Stack 区域 -->
+  <g id="stack-section">
+    <rect x="570" y="60" width="200" height="180" class="stack-box" rx="10"/>
+    <text x="670" y="85" text-anchor="middle" class="subtitle" fill="white">Stack (栈)</text>
+    
+    <text x="590" y="110" class="text" fill="white">特点:</text>
+    <text x="590" y="130" class="small-text" fill="white">• LIFO (后进先出)</text>
+    <text x="590" y="145" class="small-text" fill="white">• 最大深度 1024</text>
+    <text x="590" y="160" class="small-text" fill="white">• 每个元素 32 字节</text>
+    <text x="590" y="175" class="small-text" fill="white">• 操作码执行</text>
+    
+    <text x="590" y="200" class="small-text" fill="white">用途: 操作数、返回地址</text>
+    <text x="590" y="220" class="small-text" fill="white">Gas: 非常便宜</text>
+  </g>
+  
+  <!-- Calldata 区域 -->
+  <g id="calldata-section">
+    <rect x="790" y="60" width="200" height="180" class="calldata-box" rx="10"/>
+    <text x="890" y="85" text-anchor="middle" class="subtitle" fill="white">Calldata (调用数据)</text>
+    
+    <text x="810" y="110" class="text" fill="white">特点:</text>
+    <text x="810" y="130" class="small-text" fill="white">• 只读数据</text>
+    <text x="810" y="145" class="small-text" fill="white">• 函数调用参数</text>
+    <text x="810" y="160" class="small-text" fill="white">• 不可修改</text>
+    <text x="810" y="175" class="small-text" fill="white">• 外部调用传入</text>
+    
+    <text x="810" y="200" class="small-text" fill="white">用途: 函数参数、数据传递</text>
+    <text x="810" y="220" class="small-text" fill="white">Gas: 便宜 (4/16 gas/byte)</text>
+  </g>
+  
+  <!-- 存储打包详细示例 -->
+  <g id="packing-example">
+    <text x="50" y="420" class="subtitle">存储打包 (Storage Packing) 示例</text>
+    
+    <!-- 未优化的布局 -->
+    <text x="50" y="450" class="text">未优化:</text>
+    <rect x="50" y="460" width="120" height="25" class="slot-box"/>
+    <text x="55" y="477" class="small-text">Slot 0: uint128 a</text>
+    <rect x="170" y="460" width="120" height="25" class="slot-box" fill="#ffebee"/>
+    <text x="175" y="477" class="small-text">未使用 (16B)</text>
+    
+    <rect x="50" y="490" width="240" height="25" class="slot-box"/>
+    <text x="55" y="507" class="small-text">Slot 1: uint256 b</text>
+    
+    <rect x="50" y="520" width="120" height="25" class="slot-box"/>
+    <text x="55" y="537" class="small-text">Slot 2: uint128 c</text>
+    <rect x="170" y="520" width="120" height="25" class="slot-box" fill="#ffebee"/>
+    <text x="175" y="537" class="small-text">未使用 (16B)</text>
+    
+    <!-- 优化后的布局 -->
+    <text x="350" y="450" class="text">优化后:</text>
+    <rect x="350" y="460" width="120" height="25" class="packed-box"/>
+    <rect x="470" y="460" width="120" height="25" class="packed-box"/>
+    <text x="355" y="477" class="small-text">uint128 a (16B)</text>
+    <text x="475" y="477" class="small-text">uint128 c (16B)</text>
+    <text x="530" y="495" class="small-text" text-anchor="middle">Slot 0: 完全利用</text>
+    
+    <rect x="350" y="520" width="240" height="25" class="slot-box"/>
+    <text x="355" y="537" class="small-text">Slot 1: uint256 b</text>
+    
+    <!-- 节省说明 -->
+    <text x="650" y="490" class="text" fill="#27ae60">节省 1 个存储槽!</text>
+    <text x="650" y="510" class="small-text">Gas 节省: ~20,000</text>
+  </g>
+  
+  <!-- 继承存储布局 -->
+  <g id="inheritance-layout">
+    <text x="50" y="590" class="subtitle">继承中的存储布局</text>
+    
+    <!-- Base 合约 -->
+    <text x="50" y="620" class="text">Base 合约:</text>
+    <rect x="50" y="630" width="150" height="20" class="slot-box"/>
+    <text x="55" y="643" class="small-text">Slot 0: baseVar1</text>
+    <rect x="50" y="655" width="150" height="20" class="slot-box"/>
+    <text x="55" y="668" class="small-text">Slot 1: baseVar2</text>
+    
+    <!-- 箭头 -->
+    <path d="M 220 650 L 280 650" class="arrow"/>
+    
+    <!-- Derived 合约 -->
+    <text x="300" y="620" class="text">Derived 合约:</text>
+    <rect x="300" y="630" width="150" height="20" class="slot-box"/>
+    <text x="305" y="643" class="small-text">Slot 0: baseVar1</text>
+    <rect x="300" y="655" width="150" height="20" class="slot-box"/>
+    <text x="305" y="668" class="small-text">Slot 1: baseVar2</text>
+    <rect x="300" y="680" width="150" height="20" class="packed-box"/>
+    <text x="305" y="693" class="small-text">Slot 2: derivedVar1</text>
+    <rect x="300" y="705" width="150" height="20" class="packed-box"/>
+    <text x="305" y="718" class="small-text">Slot 3: derivedVar2</text>
+  </g>
+  
+  <!-- 代理合约存储 -->
+  <g id="proxy-storage">
+    <text x="500" y="590" class="subtitle">代理合约存储兼容性</text>
+    
+    <!-- 代理合约 -->
+    <text x="500" y="620" class="text">Proxy:</text>
+    <rect x="500" y="630" width="150" height="20" class="slot-box"/>
+    <text x="505" y="643" class="small-text">Slot 0: implementation</text>
+    
+    <!-- Implementation V1 -->
+    <text x="500" y="670" class="text">Implementation V1:</text>
+    <rect x="500" y="680" width="150" height="20" class="slot-box"/>
+    <text x="505" y="693" class="small-text">Slot 0: implementation</text>
+    <rect x="500" y="705" width="150" height="20" class="packed-box"/>
+    <text x="505" y="718" class="small-text">Slot 1: value</text>
+    
+    <!-- Implementation V2 -->
+    <text x="700" y="670" class="text">Implementation V2:</text>
+    <rect x="700" y="680" width="150" height="20" class="slot-box"/>
+    <text x="705" y="693" class="small-text">Slot 0: implementation</text>
+    <rect x="700" y="705" width="150" height="20" class="packed-box"/>
+    <text x="705" y="718" class="small-text">Slot 1: value</text>
+    <rect x="700" y="730" width="150" height="20" class="packed-box"/>
+    <text x="705" y="743" class="small-text">Slot 2: newValue</text>
+    
+    <!-- 箭头 -->
+    <path d="M 670 700 L 680 700" class="arrow"/>
+    
+    <!-- 警告 -->
+    <text x="900" y="700" class="small-text" fill="#e74c3c">⚠️ 必须保持布局兼容!</text>
+  </g>
+  
+  <!-- Gas 消耗对比 -->
+  <g id="gas-comparison">
+    <text x="50" y="780" class="subtitle">Gas 消耗对比</text>
+    <rect x="200" y="765" width="80" height="15" class="storage-box"/>
+    <text x="290" y="775" class="small-text">Storage: 高</text>
+    <rect x="350" y="765" width="80" height="15" class="memory-box"/>
+    <text x="440" y="775" class="small-text">Memory: 中</text>
+    <rect x="500" y="765" width="80" height="15" class="stack-box"/>
+    <text x="590" y="775" class="small-text">Stack: 低</text>
+    <rect x="650" y="765" width="80" height="15" class="calldata-box"/>
+    <text x="740" y="775" class="small-text">Calldata: 最低</text>
+  </g>
+</svg>

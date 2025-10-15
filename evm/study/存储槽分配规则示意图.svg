@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #34495e; }
+      .section-title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #2c3e50; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; fill: #2c3e50; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; fill: #7f8c8d; }
+      .code-text { font-family: 'Courier New', monospace; font-size: 10px; fill: #2c3e50; }
+      .slot-box { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 2; }
+      .packed-slot { fill: #2ecc71; stroke: #27ae60; stroke-width: 2; }
+      .wasted-slot { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; }
+      .type-uint256 { fill: #3498db; stroke: #2980b9; stroke-width: 1; }
+      .type-uint128 { fill: #9b59b6; stroke: #8e44ad; stroke-width: 1; }
+      .type-uint64 { fill: #f39c12; stroke: #e67e22; stroke-width: 1; }
+      .type-uint32 { fill: #e67e22; stroke: #d35400; stroke-width: 1; }
+      .type-uint8 { fill: #1abc9c; stroke: #16a085; stroke-width: 1; }
+      .type-bool { fill: #95a5a6; stroke: #7f8c8d; stroke-width: 1; }
+      .type-address { fill: #e91e63; stroke: #c2185b; stroke-width: 1; }
+      .arrow { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .dashed-line { stroke: #95a5a6; stroke-width: 1; stroke-dasharray: 5,5; fill: none; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e" />
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="700" y="30" text-anchor="middle" class="title">EVM 存储槽分配规则详细示意图</text>
+  
+  <!-- 基本概念 -->
+  <g id="basic-concepts">
+    <text x="50" y="70" class="subtitle">1. 存储槽基本概念</text>
+    
+    <!-- 存储槽结构 -->
+    <rect x="50" y="90" width="400" height="40" class="slot-box" rx="5"/>
+    <text x="250" y="105" text-anchor="middle" class="text">存储槽 (Storage Slot)</text>
+    <text x="250" y="120" text-anchor="middle" class="small-text">32 字节 = 256 位</text>
+    
+    <!-- 字节标记 -->
+    <g id="byte-markers">
+      <text x="60" y="150" class="small-text">字节位置:</text>
+      <text x="60" y="165" class="small-text">0</text>
+      <text x="110" y="165" class="small-text">4</text>
+      <text x="160" y="165" class="small-text">8</text>
+      <text x="210" y="165" class="small-text">12</text>
+      <text x="260" y="165" class="small-text">16</text>
+      <text x="310" y="165" class="small-text">20</text>
+      <text x="360" y="165" class="small-text">24</text>
+      <text x="410" y="165" class="small-text">28</text>
+      <text x="440" y="165" class="small-text">31</text>
+      
+      <!-- 字节分隔线 -->
+      <line x1="70" y1="90" x2="70" y2="130" class="dashed-line"/>
+      <line x1="120" y1="90" x2="120" y2="130" class="dashed-line"/>
+      <line x1="170" y1="90" x2="170" y2="130" class="dashed-line"/>
+      <line x1="220" y1="90" x2="220" y2="130" class="dashed-line"/>
+      <line x1="270" y1="90" x2="270" y2="130" class="dashed-line"/>
+      <line x1="320" y1="90" x2="320" y2="130" class="dashed-line"/>
+      <line x1="370" y1="90" x2="370" y2="130" class="dashed-line"/>
+      <line x1="420" y1="90" x2="420" y2="130" class="dashed-line"/>
+    </g>
+    
+    <!-- 槽编号说明 -->
+    <text x="500" y="105" class="text">槽编号: 0, 1, 2, 3, ...</text>
+    <text x="500" y="120" class="small-text">从 0 开始递增</text>
+  </g>
+  
+  <!-- 数据类型大小 -->
+  <g id="data-types">
+    <text x="50" y="210" class="subtitle">2. 数据类型存储大小</text>
+    
+    <!-- 类型表格 -->
+    <rect x="50" y="230" width="600" height="200" fill="none" stroke="#bdc3c7" stroke-width="1"/>
+    
+    <!-- 表头 -->
+    <rect x="50" y="230" width="600" height="25" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+    <text x="70" y="247" class="text">数据类型</text>
+    <text x="200" y="247" class="text">大小 (字节)</text>
+    <text x="320" y="247" class="text">示例</text>
+    <text x="500" y="247" class="text">存储特点</text>
+    
+    <!-- 类型行 -->
+    <g id="type-rows">
+      <!-- bool -->
+      <rect x="60" y="260" width="20" height="15" class="type-bool"/>
+      <text x="90" y="270" class="small-text">bool</text>
+      <text x="200" y="270" class="small-text">1</text>
+      <text x="320" y="270" class="code-text">true/false</text>
+      <text x="500" y="270" class="small-text">存储为 0x00 或 0x01</text>
+      
+      <!-- uint8 -->
+      <rect x="60" y="280" width="20" height="15" class="type-uint8"/>
+      <text x="90" y="290" class="small-text">uint8</text>
+      <text x="200" y="290" class="small-text">1</text>
+      <text x="320" y="290" class="code-text">0-255</text>
+      <text x="500" y="290" class="small-text">可与其他小类型打包</text>
+      
+      <!-- uint32 -->
+      <rect x="60" y="300" width="20" height="15" class="type-uint32"/>
+      <text x="90" y="310" class="small-text">uint32</text>
+      <text x="200" y="310" class="small-text">4</text>
+      <text x="320" y="310" class="code-text">0-4,294,967,295</text>
+      <text x="500" y="310" class="small-text">适合时间戳等</text>
+      
+      <!-- uint64 -->
+      <rect x="60" y="320" width="20" height="15" class="type-uint64"/>
+      <text x="90" y="330" class="small-text">uint64</text>
+      <text x="200" y="330" class="small-text">8</text>
+      <text x="320" y="330" class="code-text">0-18,446,744,073,709,551,615</text>
+      <text x="500" y="330" class="small-text">可与 uint128 等打包</text>
+      
+      <!-- uint128 -->
+      <rect x="60" y="340" width="20" height="15" class="type-uint128"/>
+      <text x="90" y="350" class="small-text">uint128</text>
+      <text x="200" y="350" class="small-text">16</text>
+      <text x="320" y="350" class="code-text">大数值</text>
+      <text x="500" y="350" class="small-text">两个可打包在一槽</text>
+      
+      <!-- uint256 -->
+      <rect x="60" y="360" width="20" height="15" class="type-uint256"/>
+      <text x="90" y="370" class="small-text">uint256</text>
+      <text x="200" y="370" class="small-text">32</text>
+      <text x="320" y="370" class="code-text">最大整数</text>
+      <text x="500" y="370" class="small-text">占用完整存储槽</text>
+      
+      <!-- address -->
+      <rect x="60" y="380" width="20" height="15" class="type-address"/>
+      <text x="90" y="390" class="small-text">address</text>
+      <text x="200" y="390" class="small-text">20</text>
+      <text x="320" y="390" class="code-text">0x742d35Cc...</text>
+      <text x="500" y="390" class="small-text">可与12字节数据打包</text>
+      
+      <!-- bytes32 -->
+      <rect x="60" y="400" width="20" height="15" class="type-uint256"/>
+      <text x="90" y="410" class="small-text">bytes32</text>
+      <text x="200" y="410" class="small-text">32</text>
+      <text x="320" y="410" class="code-text">0x1234...</text>
+      <text x="500" y="410" class="small-text">占用完整存储槽</text>
+    </g>
+  </g>
+  
+  <!-- 分配规则示例 -->
+  <g id="allocation-rules">
+    <text x="50" y="470" class="subtitle">3. 存储槽分配规则示例</text>
+    
+    <!-- 示例合约代码 -->
+    <rect x="50" y="490" width="400" height="180" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+    <text x="60" y="510" class="code-text">contract StorageExample {</text>
+    <text x="70" y="525" class="code-text">    uint256 a;      // 32 字节</text>
+    <text x="70" y="540" class="code-text">    uint128 b;      // 16 字节</text>
+    <text x="70" y="555" class="code-text">    uint128 c;      // 16 字节</text>
+    <text x="70" y="570" class="code-text">    uint64 d;       // 8 字节</text>
+    <text x="70" y="585" class="code-text">    uint32 e;       // 4 字节</text>
+    <text x="70" y="600" class="code-text">    uint16 f;       // 2 字节</text>
+    <text x="70" y="615" class="code-text">    uint8 g;        // 1 字节</text>
+    <text x="70" y="630" class="code-text">    bool h;         // 1 字节</text>
+    <text x="70" y="645" class="code-text">    address owner;  // 20 字节</text>
+    <text x="60" y="660" class="code-text">}</text>
+    
+    <!-- 存储布局可视化 -->
+    <text x="500" y="510" class="section-title">实际存储布局:</text>
+    
+    <!-- Slot 0 -->
+    <text x="500" y="535" class="text">Slot 0:</text>
+    <rect x="570" y="520" width="320" height="25" class="type-uint256"/>
+    <text x="730" y="537" text-anchor="middle" class="small-text" fill="white">uint256 a (32 字节)</text>
+    
+    <!-- Slot 1 -->
+    <text x="500" y="565" class="text">Slot 1:</text>
+    <rect x="570" y="550" width="160" height="25" class="type-uint128"/>
+    <rect x="730" y="550" width="160" height="25" class="type-uint128"/>
+    <text x="650" y="567" text-anchor="middle" class="small-text" fill="white">uint128 b</text>
+    <text x="810" y="567" text-anchor="middle" class="small-text" fill="white">uint128 c</text>
+    
+    <!-- Slot 2 -->
+    <text x="500" y="595" class="text">Slot 2:</text>
+    <rect x="570" y="580" width="80" height="25" class="type-uint64"/>
+    <rect x="650" y="580" width="40" height="25" class="type-uint32"/>
+    <rect x="690" y="580" width="20" height="25" class="type-uint8"/>
+    <rect x="710" y="580" width="20" height="25" class="type-uint8"/>
+    <rect x="730" y="580" width="10" height="25" class="type-bool"/>
+    <rect x="740" y="580" width="150" height="25" class="wasted-slot"/>
+    <text x="610" y="597" text-anchor="middle" class="small-text" fill="white">d</text>
+    <text x="670" y="597" text-anchor="middle" class="small-text" fill="white">e</text>
+    <text x="700" y="597" text-anchor="middle" class="small-text" fill="white">f</text>
+    <text x="720" y="597" text-anchor="middle" class="small-text" fill="white">g</text>
+    <text x="735" y="597" text-anchor="middle" class="small-text" fill="white">h</text>
+    <text x="815" y="597" text-anchor="middle" class="small-text">浪费 (15字节)</text>
+    
+    <!-- Slot 3 -->
+    <text x="500" y="625" class="text">Slot 3:</text>
+    <rect x="570" y="610" width="200" height="25" class="type-address"/>
+    <rect x="770" y="610" width="120" height="25" class="wasted-slot"/>
+    <text x="670" y="627" text-anchor="middle" class="small-text" fill="white">address owner (20字节)</text>
+    <text x="830" y="627" text-anchor="middle" class="small-text">浪费 (12字节)</text>
+    
+    <!-- 优化建议 -->
+    <text x="500" y="660" class="text" fill="#e74c3c">❌ 浪费了 27 字节存储空间!</text>
+  </g>
+  
+  <!-- 优化后的布局 -->
+  <g id="optimized-layout">
+    <text x="50" y="720" class="subtitle">4. 优化后的存储布局</text>
+    
+    <!-- 优化后的代码 -->
+    <rect x="50" y="740" width="400" height="180" fill="#e8f5e8" stroke="#4caf50" stroke-width="1" rx="5"/>
+    <text x="60" y="760" class="code-text">contract OptimizedStorage {</text>
+    <text x="70" y="775" class="code-text">    uint256 a;      // 32 字节</text>
+    <text x="70" y="790" class="code-text">    uint128 b;      // 16 字节</text>
+    <text x="70" y="805" class="code-text">    uint128 c;      // 16 字节</text>
+    <text x="70" y="820" class="code-text">    address owner;  // 20 字节</text>
+    <text x="70" y="835" class="code-text">    uint64 d;       // 8 字节</text>
+    <text x="70" y="850" class="code-text">    uint32 e;       // 4 字节</text>
+    <text x="70" y="865" class="code-text">    uint16 f;       // 2 字节</text>
+    <text x="70" y="880" class="code-text">    uint8 g;        // 1 字节</text>
+    <text x="70" y="895" class="code-text">    bool h;         // 1 字节</text>
+    <text x="60" y="910" class="code-text">}</text>
+    
+    <!-- 优化后的存储布局 -->
+    <text x="500" y="760" class="section-title">优化后存储布局:</text>
+    
+    <!-- Slot 0 -->
+    <text x="500" y="785" class="text">Slot 0:</text>
+    <rect x="570" y="770" width="320" height="25" class="type-uint256"/>
+    <text x="730" y="787" text-anchor="middle" class="small-text" fill="white">uint256 a (32 字节)</text>
+    
+    <!-- Slot 1 -->
+    <text x="500" y="815" class="text">Slot 1:</text>
+    <rect x="570" y="800" width="160" height="25" class="packed-slot"/>
+    <rect x="730" y="800" width="160" height="25" class="packed-slot"/>
+    <text x="650" y="817" text-anchor="middle" class="small-text" fill="white">uint128 b</text>
+    <text x="810" y="817" text-anchor="middle" class="small-text" fill="white">uint128 c</text>
+    
+    <!-- Slot 2 -->
+    <text x="500" y="845" class="text">Slot 2:</text>
+    <rect x="570" y="830" width="200" height="25" class="packed-slot"/>
+    <rect x="770" y="830" width="80" height="25" class="packed-slot"/>
+    <rect x="850" y="830" width="40" height="25" class="packed-slot"/>
+    <text x="670" y="847" text-anchor="middle" class="small-text" fill="white">address owner</text>
+    <text x="810" y="847" text-anchor="middle" class="small-text" fill="white">uint64 d</text>
+    <text x="870" y="847" text-anchor="middle" class="small-text" fill="white">e,f,g,h</text>
+    
+    <!-- 节省说明 -->
+    <text x="500" y="875" class="text" fill="#27ae60">✅ 节省 1 个存储槽!</text>
+    <text x="500" y="890" class="small-text">从 4 个槽减少到 3 个槽</text>
+    <text x="500" y="905" class="small-text">节省约 20,000 Gas</text>
+  </g>
+  
+  <!-- 打包规则 -->
+  <g id="packing-rules">
+    <text x="950" y="70" class="subtitle">5. 存储打包规则</text>
+    
+    <!-- 规则列表 -->
+    <rect x="950" y="90" width="400" height="300" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+    
+    <text x="970" y="115" class="section-title">✅ 可以打包的情况:</text>
+    <text x="980" y="135" class="small-text">• 相邻变量声明</text>
+    <text x="980" y="150" class="small-text">• 总大小 ≤ 32 字节</text>
+    <text x="980" y="165" class="small-text">• 类型兼容</text>
+    <text x="980" y="180" class="small-text">• 没有数组或映射分隔</text>
+    
+    <text x="970" y="205" class="section-title">❌ 不能打包的情况:</text>
+    <text x="980" y="225" class="small-text">• 变量之间有大类型分隔</text>
+    <text x="980" y="240" class="small-text">• 总大小 > 32 字节</text>
+    <text x="980" y="255" class="small-text">• 动态类型 (string, bytes, array)</text>
+    <text x="980" y="270" class="small-text">• 映射类型</text>
+    
+    <text x="970" y="295" class="section-title">��� 优化技巧:</text>
+    <text x="980" y="315" class="small-text">• 按大小排序变量</text>
+    <text x="980" y="330" class="small-text">• 使用合适的数据类型大小</text>
+    <text x="980" y="345" class="small-text">• 考虑使用 struct 打包</text>
+    <text x="980" y="360" class="small-text">• 避免在小类型间插入大类型</text>
+  </g>
+  
+  <!-- 特殊情况 -->
+  <g id="special-cases">
+    <text x="950" y="420" class="subtitle">6. 特殊存储情况</text>
+    
+    <!-- 数组和映射 -->
+    <rect x="950" y="440" width="400" height="200" fill="#fff3cd" stroke="#ffc107" stroke-width="1" rx="5"/>
+    
+    <text x="970" y="465" class="section-title">动态数组:</text>
+    <text x="980" y="485" class="code-text">uint256[] arr;  // Slot p</text>
+    <text x="980" y="500" class="small-text">• Slot p: 数组长度</text>
+    <text x="980" y="515" class="small-text">• keccak256(p) + i: arr[i]</text>
+    
+    <text x="970" y="540" class="section-title">映射:</text>
+    <text x="980" y="560" class="code-text">mapping(K => V) map;  // Slot p</text>
+    <text x="980" y="575" class="small-text">• keccak256(key . p): map[key]</text>
+    
+    <text x="970" y="600" class="section-title">嵌套结构:</text>
+    <text x="980" y="620" class="small-text">• 结构体成员按顺序分配</text>
+    <text x="980" y="635" class="small-text">• 可以跨越多个存储槽</text>
+  </g>
+  
+  <!-- Gas 成本对比 -->
+  <g id="gas-costs">
+    <text x="950" y="680" class="subtitle">7. Gas 成本对比</text>
+    
+    <rect x="950" y="700" width="400" height="150" fill="#f0f8ff" stroke="#007bff" stroke-width="1" rx="5"/>
+    
+    <text x="970" y="725" class="section-title">SSTORE (写入) 成本:</text>
+    <text x="980" y="745" class="small-text">• 0 → 非0: 20,000 gas</text>
+    <text x="980" y="760" class="small-text">• 非0 → 非0: 5,000 gas</text>
+    <text x="980" y="775" class="small-text">• 非0 → 0: 5,000 gas + 15,000 退款</text>
+    
+    <text x="970" y="800" class="section-title">SLOAD (读取) 成本:</text>
+    <text x="980" y="820" class="small-text">• 冷访问: 2,100 gas</text>
+    <text x="980" y="835" class="small-text">• 热访问: 100 gas</text>
+  </g>
+  
+  <!-- 底部总结 -->
+  <g id="summary">
+    <rect x="50" y="950" width="1300" height="40" fill="#e8f5e8" stroke="#4caf50" stroke-width="2" rx="5"/>
+    <text x="700" y="965" text-anchor="middle" class="section-title">��� 关键要点</text>
+    <text x="700" y="980" text-anchor="middle" class="small-text">合理的变量排序和类型选择可以显著减少存储槽使用，从而节省大量 Gas 费用</text>
+  </g>
+</svg>
