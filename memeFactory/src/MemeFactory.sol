@@ -32,10 +32,10 @@ contract MemeFactory is Ownable, ReentrancyGuard {
     // 代币地址到价格的映射（每次铸造的费用，以 wei 计价）
     mapping(address => uint256) public tokenToPrice;
     
-    // 部署费用（可选）
+    // 部署费用
     uint256 public deploymentFee;
     
-    // 铸造费用（可选）
+    // 铸造费用
     uint256 public mintingFee;
     
     // 项目方费用比例（基点，100 = 1%）

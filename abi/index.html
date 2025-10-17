@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ABI 编码/解码演示（简洁版）</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Microsoft YaHei", sans-serif; margin: 24px; }
+      .card { max-width: 720px; padding: 20px; border: 1px solid #ddd; border-radius: 12px; }
+      h1 { font-size: 20px; margin: 0 0 12px; }
+      .desc { color: #666; font-size: 14px; margin-bottom: 16px; }
+      .row { display: flex; gap: 12px; margin-bottom: 12px; }
+      .col { flex: 1; }
+      label { display: block; font-size: 13px; margin-bottom: 6px; color: #444; }
+      input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; }
+      button { padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; background: #f8f8f8; cursor: pointer; font-size: 14px; }
+      button:hover { background: #f0f0f0; }
+      .actions { display: flex; gap: 10px; margin: 10px 0 0; }
+      .result { margin-top: 14px; padding: 12px; border-radius: 8px; background: #fafafa; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; line-height: 1.75; overflow-wrap: anywhere; white-space: pre-wrap; }
+      .note { margin-top: 10px; font-size: 12px; color: #888; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>ABI 编码/解码演示（基于 Abi.sol）</h1>
+      <div class="desc">输入一个整数（uint）与文本（string），使用合约中的 <code>encodeMultiple</code> 进行编码，再用 <code>decodeMultiple</code> 解码并验证结果。</div>
+
+      <div class="row">
+        <div class="col">
+          <label>数字（uint256）</label>
+          <input id="num" type="text" placeholder="例如：12345" />
+        </div>
+        <div class="col">
+          <label>文本（string）</label>
+          <input id="text" type="text" placeholder="例如：Hello ABI" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label>待解码字节（0x 开头的 hex）</label>
+          <input id="bytesHex" type="text" placeholder="例如：0x...（可粘贴左侧编码结果）" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label>合约地址（Abi.sol 部署地址）</label>
+          <input id="contractAddress" type="text" placeholder="0x 开头的地址，例如：0xabc..." />
+        </div>
+        <div class="col" style="flex:0 0 320px">
+          <label style="visibility:hidden">操作</label>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button id="connect">连接钱包</button>
+            <button id="applyAddr">应用合约地址并预检</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="encodeBtn">只编码</button>
+        <button id="decodeBtn">只解码</button>
+        <button id="test">编码并解码（组合）</button>
+      </div>
+
+      <div id="contractStatus" class="result">合约状态：未检测</div>
+
+      <div id="addr" class="result">钱包地址：未连接</div>
+
+      <div class="row">
+        <div class="col">
+          <label>编码结果</label>
+          <div id="encodedResult" class="result">暂未生成</div>
+        </div>
+        <div class="col">
+          <label>解码结果</label>
+          <div id="decodedResult" class="result">暂未生成</div>
+        </div>
+      </div>
+
+      <div id="result" class="result">👉 请先连接钱包，再点击“编码并解码”</div>
+      <div class="note">提示：如需离线演示，可直接使用 <code>ethers.AbiCoder</code>，本页面已在链上调用失败时自动回退到离线模式。</div>
+    </div>
+
+    <script src="./ethers.umd.min.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>
