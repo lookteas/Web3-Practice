@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>多签钱包 DApp</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; background: #fafafa; }
+    h2, h3 { color: #2c3e50; }
+    input { width: 320px; padding: 8px; margin: 6px 0; border: 1px solid #ccc; border-radius: 4px; }
+    button { margin: 6px 12px 6px 0; padding: 9px 18px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #2980b9; }
+    .result { margin-top: 20px; padding: 12px; background: #e8f4fc; border-left: 4px solid #3498db; }
+    .status { margin: 10px 0; font-weight: bold; color: #27ae60; }
+  </style>
+</head>
+<body>
+  <h2>🔐 多签钱包操作面板</h2>
+
+  <button id="connect">🔌 连接钱包</button>
+  <div id="status" class="status">请先连接 MetaMask</div>
+  <hr>
+
+  <h3>1️⃣ 提交新交易（示例：ERC20 转账）</h3>
+  <label>目标合约地址：<br>
+    <input type="text" id="targetAddr" placeholder="0x...（如 USDT 合约）">
+  </label><br>
+  <label>接收者地址：<br>
+    <input type="text" id="recipient" placeholder="0x...（转账给谁）">
+  </label><br>
+  <label>代币数量：<br>
+    <input type="text" id="tokenAmount" placeholder="100（假设 18 位小数）">
+  </label><br>
+  <button id="submitTx">📤 提交交易</button>
+
+  <hr>
+  <h3>2️⃣ 确认或执行已有交易</h3>
+  <label>交易索引（txIndex）：<br>
+    <input type="number" id="txIndex" value="0" min="0">
+  </label><br>
+  <button id="confirmTx">✅ 确认交易</button>
+  <button id="executeTx">⚡ 执行交易</button>
+
+  <div id="result" class="result"></div>
+
+  <!-- 引入本地 ethers.js（非 CDN） -->
+  <script src="ethers.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
