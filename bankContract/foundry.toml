@@ -1,0 +1,5 @@
+[profile.default]
+src = "."
+test = "test"
+solc_version = "0.8.18"
+libs = ["lib", "../merkleTree/lib"]

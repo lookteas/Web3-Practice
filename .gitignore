@@ -18,6 +18,7 @@ js/contract-config.js
 # 构建输出
 build/
 dist/
+out/
 node_modules/
 
 

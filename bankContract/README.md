@@ -17,6 +17,17 @@
 
 <img src="./2.png" style="zoom:75%;" />
 
+### 测试Case 运行通过日志
+
+#### 测试Case 包含：
+
+- 断言检查存款前后用户在 Bank 合约中的存款额更新是否正确。检查方法为：test_DepositUpdates()
+- 检查存款金额的前 3 名用户是否正确，分别检查有1个、2个、3个、4 个用户， 以及同一个用户多次存款的情况。
+  - 检查方法为：test_TopDepositors_OneUser() ，test_TopDepositors_TwoUsersOrder()，test_TopDepositors_ThreeUsersOrder()，test_TopDepositors_FourUsersKeepsTopThree()，test_TopDepositors_SameUserMultipleDeposits()
+
+- 检查只有管理员可取款，其他人不可以取款。检查方法为：test_Withdraw_AdminOnly()
+  <img src="./3.jpg" style="zoom:80%;" />
+
 ## 合约结构
 
 ### 状态变量
