@@ -138,7 +138,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
   -------
 
-### **14 : 用solidity 编写 多签名钱包合约**
+### **14 ：用solidity 编写 多签名钱包合约**
 - 用solidity 编写 MultiSigWallet 合约  详情请查看[multiSigWallet/README.md](multiSigWallet)
 - 位置：multiSigWallet
 - 包含MultiSigWallet合约，实现多签名钱包的功能。
