@@ -17,7 +17,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [6 ：Foundry的工程化： 项目初始化、编译、测试、部署](#6-foundry的工程化-项目初始化-编译-测试-部署)
 - [7 ：NFT合约部署](#7-nft合约部署)
 - [8 ：Solidity 实现用 Token 购买 NFT](#8-solidity-实现用-token-购买-nft)
-- [9 ：使⽤ Viem 监听 NFTMarket 的买卖记录](#9-使⽤-viem-监听-nftmarket-的买卖记录)
+- [9 ：使⽤ Viem 监听 NFTMarket 的买卖记录](#8-solidity-实现用-token-购买-nft)
 - [10 ：Web3 命令行钱包](#10-web3-命令行钱包)
 - [11 ：使用多签名实现 Token 购买 NFT](#11-使用多签名实现-token-购买-nft)
 - [12 ：读取 esRNT 合约的锁信息](#12-读取-esrnt-合约的锁信息)
@@ -135,6 +135,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - 位置：abi
 - 包含ABI编码/解码合约，实现对不同数据类型的编码和解码。
 
+  -------
   
 ### 新增目录说明
 
