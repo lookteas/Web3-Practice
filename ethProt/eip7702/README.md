@@ -24,6 +24,14 @@
 - **前端**: Viem + 原生JavaScript + HTML
 - **开发模式**: 最小化、零构建开发模式
 
+<img src="./2.jpg" style="zoom:80%;" />
+
+
+
+
+
+<img src="./1.jpg" style="zoom:80%;" />
+
 ## 快速开始
 
 ### 1. 安装依赖

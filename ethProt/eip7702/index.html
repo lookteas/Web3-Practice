@@ -108,7 +108,10 @@
                 "type": "function"
             },
             {
-                "inputs": [{"internalType": "uint256[]", "name": "amounts", "type": "uint256[]"}],
+                "inputs": [
+                    {"internalType": "address[]", "name": "users", "type": "address[]"},
+                    {"internalType": "uint256[]", "name": "amounts", "type": "uint256[]"}
+                ],
                 "name": "batchDeposit",
                 "outputs": [],
                 "stateMutability": "payable",
@@ -263,10 +266,11 @@
                 
                 const amountWei = ethers.parseEther(amount);
                 
-                // 构建调用数据
+                // 构建调用数据 - 使用batchDeposit确保存款记录到正确的用户账户
                 const calldata = ethers.encodeFunctionData({
                     abi: window.TOKEN_BANK_ABI,
-                    functionName: 'deposit'
+                    functionName: 'batchDeposit',
+                    args: [[window.account.address], [amountWei]]
                 });
                 
                 // 获取当前nonce
@@ -292,8 +296,14 @@
                     { value: amountWei }
                 );
                 
+                console.log('Transaction sent:', tx.hash);
                 const receipt = await tx.wait();
-                const hash = receipt.hash;
+                console.log('Transaction receipt:', receipt);
+                
+                // 检查事件日志
+                console.log('Transaction logs:', receipt.logs);
+                
+                const hash = receipt.transactionHash;
                 
                 showStatus('depositStatus', `单次存款成功！交易哈希: ${hash}`, 'success');
                 document.getElementById('singleDepositAmount').value = '';
@@ -331,17 +341,25 @@
                 const calldatas = [];
                 let totalValue = 0n;
                 
+                // 准备批量存款的参数
+                const users = [];
+                const depositAmounts = [];
+                
                 for (const amount of amounts) {
                     const amountWei = ethers.parseEther(amount);
                     totalValue += amountWei;
-                    
-                    targets.push(window.TOKEN_BANK_ADDRESS);
-                    values.push(amountWei);
-                    calldatas.push(ethers.encodeFunctionData({
-                        abi: window.TOKEN_BANK_ABI,
-                        functionName: 'deposit'
-                    }));
+                    users.push(window.account.address); // 用户地址
+                    depositAmounts.push(amountWei); // 存款金额
                 }
+                
+                // 使用batchDeposit函数而不是多个deposit调用
+                targets.push(window.TOKEN_BANK_ADDRESS);
+                values.push(totalValue);
+                calldatas.push(ethers.encodeFunctionData({
+                    abi: window.TOKEN_BANK_ABI,
+                    functionName: 'batchDeposit',
+                    args: [users, depositAmounts]
+                }));
                 
                 // 获取当前nonce
                 const delegateContract = new ethers.Contract(
@@ -366,8 +384,14 @@
                     { value: totalValue }
                 );
                 
+                console.log('Batch transaction sent:', tx.hash);
                 const receipt = await tx.wait();
-                const hash = receipt.hash;
+                console.log('Batch transaction receipt:', receipt);
+                
+                // 检查事件日志
+                console.log('Batch transaction logs:', receipt.logs);
+                
+                const hash = receipt.transactionHash;
                 
                 showStatus('batchStatus', `批量存款成功！交易哈希: ${hash}`, 'success');
                 document.getElementById('batchDepositAmounts').value = '';

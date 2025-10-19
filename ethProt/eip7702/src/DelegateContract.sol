@@ -3,7 +3,7 @@ pragma solidity 0.8.25;
 
 /**
  * @title IERC1271
- * @dev Interface for ERC-1271 签名验证
+ * @dev Interface for ERC-1271 signature validation
  */
 interface IERC1271 {
     function isValidSignature(bytes32 hash, bytes memory signature) external view returns (bytes4 magicValue);
