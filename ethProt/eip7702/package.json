@@ -1,0 +1,17 @@
+{
+  "name": "eip7702-demo",
+  "version": "1.0.0",
+  "description": "EIP-7702 demonstration with viem",
+  "type": "module",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build step required for this demo'"
+  },
+  "dependencies": {
+    "viem": "^2.21.45"
+  },
+  "devDependencies": {},
+  "keywords": ["ethereum", "eip-7702", "viem", "web3"],
+  "author": "",
+  "license": "MIT"
+}

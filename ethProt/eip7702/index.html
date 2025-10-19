@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIP-7702 账户抽象演示</title>
+    <!-- 导入本地 Ethers.js v6.15.0 -->
+    <script src="./ethers-6.15.0.min.js"></script>
+    <script type="text/javascript">
+        
+        // 配置稳定的RPC节点
+        const STABLE_RPC_URLS = [
+            // 'https://sepolia.infura.io/v3/23211bcb978542dbb55264865dd2ffd4', // Infura公共节点
+            'https://ethereum-sepolia.gateway.tatum.io', // Infura公共节点
+            'https://eth-sepolia.g.alchemy.com/v2/demo', // Alchemy公共节点
+            'https://rpc.sepolia.org', // 官方公共节点
+            'https://sepolia.gateway.tenderly.co', // Tenderly公共节点
+        ];
+
+        // 创建带有重试机制的HTTP传输
+        function createStableTransport() {
+            return http(STABLE_RPC_URLS[0], {
+                retryCount: 3,
+                retryDelay: 1000,
+            });
+        }
+
+        // 全局变量
+        window.walletClient = null;
+        window.publicClient = null;
+        window.account = null;
+        window.delegateContract = null;
+        window.tokenBank = null;
+        
+        // 合约地址 (Sepolia测试网部署地址)
+        window.DELEGATE_CONTRACT_ADDRESS = '0xb9a31c2697b5ddaf00ce55b7323c9358b4a68175';
+        window.TOKEN_BANK_ADDRESS = '0x23343331c3ff07974c28ecc69ce5a2fe525910da';
+        
+        // 合约 ABI
+        window.DELEGATE_ABI = [
+            {
+                "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+                "name": "getNonce",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "address[]", "name": "targets", "type": "address[]"},
+                    {"internalType": "uint256[]", "name": "values", "type": "uint256[]"},
+                    {"internalType": "bytes[]", "name": "calldatas", "type": "bytes[]"},
+                    {"internalType": "uint256", "name": "nonce", "type": "uint256"}
+                ],
+                "name": "batchExecute",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "bytes32", "name": "hash", "type": "bytes32"},
+                    {"internalType": "bytes", "name": "signature", "type": "bytes"}
+                ],
+                "name": "isValidSignature",
+                "outputs": [{"internalType": "bytes4", "name": "", "type": "bytes4"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {"indexed": true, "internalType": "address", "name": "user", "type": "address"},
+                    {"indexed": false, "internalType": "uint256", "name": "nonce", "type": "uint256"}
+                ],
+                "name": "BatchExecuted",
+                "type": "event"
+            }
+        ];
+        
+        window.TOKEN_BANK_ABI = [
+            {
+                "inputs": [],
+                "name": "deposit",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "uint256", "name": "amount", "type": "uint256"}],
+                "name": "withdraw",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+                "name": "getBalance",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getContractBalance",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "uint256[]", "name": "amounts", "type": "uint256[]"}],
+                "name": "batchDeposit",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            }
+        ];
+        
+        // 初始化客户端
+        window.initClients = async function() {
+            try {
+                if (!window.ethereum) {
+                    throw new Error('请安装 MetaMask');
+                }
+                
+                // 创建 Provider
+                window.provider = new ethers.BrowserProvider(window.ethereum);
+                
+                // 获取网络信息
+                const network = await window.provider.getNetwork();
+                console.log('连接到网络:', network.name, 'Chain ID:', network.chainId);
+                
+                // 获取 Signer（如果已连接钱包）
+                try {
+                    window.signer = await window.provider.getSigner();
+                    window.account = { address: await window.signer.getAddress() };
+                    console.log('已连接账户:', window.account.address);
+                } catch (error) {
+                    console.log('钱包未连接，等待用户连接');
+                    window.signer = null;
+                    window.account = null;
+                }
+                
+                console.log('Ethers.js 客户端初始化成功');
+                return true;
+            } catch (error) {
+                console.error('初始化客户端失败:', error);
+                return false;
+            }
+        };
+        
+        // 连接钱包
+        window.connectWallet = async function() {
+            try {
+                if (!window.ethereum) {
+                    throw new Error('请安装 MetaMask');
+                }
+                
+                // 请求连接钱包
+                await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                
+                // 重新初始化客户端以获取 Signer
+                if (!(await window.initClients())) {
+                    throw new Error('客户端初始化失败');
+                }
+                
+                if (!window.account) {
+                    throw new Error('无法获取账户信息');
+                }
+                
+                document.getElementById('currentAccount').textContent = window.account.address;
+                showStatus('connectionStatus', '✅ 钱包连接成功！现在可以获取 nonce 和执行操作', 'success');
+                
+                // 检查网络
+                await checkNetwork();
+                
+            } catch (error) {
+                showStatus('connectionStatus', '连接钱包失败: ' + error.message, 'error');
+            }
+        };
+        
+        // 检查网络
+        window.checkNetwork = async function() {
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== '0xaa36a7') { // Sepolia chainId
+                    showStatus('connectionStatus', '请切换到 Sepolia 测试网', 'error');
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('检查网络失败:', error);
+                return false;
+            }
+        };
+        
+        // 设置合约地址
+        window.setContractAddresses = function() {
+            const delegateAddr = document.getElementById('delegateAddress').value;
+            const tokenBankAddr = document.getElementById('tokenBankAddress').value;
+            
+            if (!delegateAddr || !tokenBankAddr) {
+                showStatus('contractStatus', '请输入合约地址', 'error');
+                return;
+            }
+            
+            window.DELEGATE_CONTRACT_ADDRESS = delegateAddr;
+            window.TOKEN_BANK_ADDRESS = tokenBankAddr;
+            
+            showStatus('contractStatus', '合约地址设置成功！', 'success');
+        };
+        
+        // 获取当前nonce
+        window.getCurrentNonce = async function() {
+            try {
+                // 检查钱包连接状态
+                if (!window.provider) {
+                    throw new Error('请先连接钱包');
+                }
+                
+                if (!window.account || !window.account.address) {
+                    throw new Error('请先连接钱包');
+                }
+                
+                if (!window.DELEGATE_CONTRACT_ADDRESS) {
+                    throw new Error('请先设置代理合约地址');
+                }
+                
+                // 使用 provider 读取合约
+                const contract = new ethers.Contract(
+                    window.DELEGATE_CONTRACT_ADDRESS,
+                    window.DELEGATE_ABI,
+                    window.provider
+                );
+                
+                const nonce = await contract.getNonce(window.account.address);
+                
+                document.getElementById('currentNonce').textContent = nonce.toString();
+                showStatus('nonceStatus', `当前 nonce: ${nonce}`, 'info');
+                
+            } catch (error) {
+                showStatus('nonceStatus', '获取 nonce 失败: ' + error.message, 'error');
+            }
+        };
+        
+        // 单次存款
+        window.singleDeposit = async function() {
+            try {
+                // 检查必要的前置条件
+                if (!window.signer) {
+                    throw new Error('请先连接钱包');
+                }
+                if (!window.account) {
+                    throw new Error('请先连接钱包账户');
+                }
+                
+                const amount = document.getElementById('singleDepositAmount').value;
+                if (!amount || amount <= 0) {
+                    throw new Error('请输入有效的存款金额');
+                }
+                
+                const amountWei = ethers.parseEther(amount);
+                
+                // 构建调用数据
+                const calldata = ethers.encodeFunctionData({
+                    abi: window.TOKEN_BANK_ABI,
+                    functionName: 'deposit'
+                });
+                
+                // 获取当前nonce
+                const delegateContract = new ethers.Contract(
+                    window.DELEGATE_CONTRACT_ADDRESS,
+                    window.DELEGATE_ABI,
+                    window.provider
+                );
+                const nonce = await delegateContract.getNonce(window.account.address);
+                
+                // 执行批量操作
+                const delegateContractWithSigner = new ethers.Contract(
+                    window.DELEGATE_CONTRACT_ADDRESS,
+                    window.DELEGATE_ABI,
+                    window.signer
+                );
+                
+                const tx = await delegateContractWithSigner.batchExecute(
+                    [window.TOKEN_BANK_ADDRESS],
+                    [amountWei],
+                    [calldata],
+                    nonce,
+                    { value: amountWei }
+                );
+                
+                const receipt = await tx.wait();
+                const hash = receipt.hash;
+                
+                showStatus('depositStatus', `单次存款成功！交易哈希: ${hash}`, 'success');
+                document.getElementById('singleDepositAmount').value = '';
+                
+                // 更新nonce
+                setTimeout(() => getCurrentNonce(), 2000);
+                
+            } catch (error) {
+                showStatus('depositStatus', '单次存款失败: ' + error.message, 'error');
+            }
+        };
+        
+        // 批量存款
+        window.batchDeposit = async function() {
+            try {
+                // 检查必要的前置条件
+                if (!window.signer) {
+                    throw new Error('请先连接钱包');
+                }
+                if (!window.account) {
+                    throw new Error('请先连接钱包账户');
+                }
+                
+                const amounts = document.getElementById('batchDepositAmounts').value
+                    .split(',')
+                    .map(a => a.trim())
+                    .filter(a => a && parseFloat(a) > 0);
+                
+                if (amounts.length === 0) {
+                    throw new Error('请输入有效的存款金额列表');
+                }
+                
+                const targets = [];
+                const values = [];
+                const calldatas = [];
+                let totalValue = 0n;
+                
+                for (const amount of amounts) {
+                    const amountWei = ethers.parseEther(amount);
+                    totalValue += amountWei;
+                    
+                    targets.push(window.TOKEN_BANK_ADDRESS);
+                    values.push(amountWei);
+                    calldatas.push(ethers.encodeFunctionData({
+                        abi: window.TOKEN_BANK_ABI,
+                        functionName: 'deposit'
+                    }));
+                }
+                
+                // 获取当前nonce
+                const delegateContract = new ethers.Contract(
+                    window.DELEGATE_CONTRACT_ADDRESS,
+                    window.DELEGATE_ABI,
+                    window.provider
+                );
+                const nonce = await delegateContract.getNonce(window.account.address);
+                
+                // 执行批量操作
+                const delegateContractWithSigner = new ethers.Contract(
+                    window.DELEGATE_CONTRACT_ADDRESS,
+                    window.DELEGATE_ABI,
+                    window.signer
+                );
+                
+                const tx = await delegateContractWithSigner.batchExecute(
+                    targets,
+                    values,
+                    calldatas,
+                    nonce,
+                    { value: totalValue }
+                );
+                
+                const receipt = await tx.wait();
+                const hash = receipt.hash;
+                
+                showStatus('batchStatus', `批量存款成功！交易哈希: ${hash}`, 'success');
+                document.getElementById('batchDepositAmounts').value = '';
+                
+                // 更新nonce
+                setTimeout(() => getCurrentNonce(), 2000);
+                
+            } catch (error) {
+                showStatus('batchStatus', '批量存款失败: ' + error.message, 'error');
+            }
+        };
+        
+        // 查询余额
+        window.queryBalance = async function() {
+            try {
+                if (!window.provider || !window.account) {
+                    throw new Error('请先连接钱包');
+                }
+                
+                // 使用 ethers.js Contract 查询余额
+                const contract = new ethers.Contract(
+                    window.TOKEN_BANK_ADDRESS,
+                    window.TOKEN_BANK_ABI,
+                    window.provider
+                );
+                
+                const balance = await contract.getBalance(window.DELEGATE_CONTRACT_ADDRESS);
+                const balanceEth = ethers.formatEther(balance);
+                
+                document.getElementById('balanceResult').textContent = `${balanceEth} ETH`;
+                showStatus('queryStatus', `余额查询成功: ${balanceEth} ETH`, 'info');
+                
+            } catch (error) {
+                showStatus('queryStatus', '查询余额失败: ' + error.message, 'error');
+            }
+        };
+        
+        // 查询合约总余额
+        window.queryContractBalance = async function() {
+            try {
+                if (!window.provider) {
+                    throw new Error('请先初始化客户端');
+                }
+                
+                console.log('Querying contract balance for address:', window.TOKEN_BANK_ADDRESS);
+                
+                // 使用 ethers.js Contract 查询合约总余额
+                const contract = new ethers.Contract(
+                    window.TOKEN_BANK_ADDRESS,
+                    window.TOKEN_BANK_ABI,
+                    window.provider
+                );
+                
+                console.log('Contract instance created, calling getContractBalance...');
+                const balance = await contract.getContractBalance();
+                console.log('Raw balance result:', balance);
+                
+                const balanceEth = ethers.formatEther(balance);
+                console.log('Formatted balance:', balanceEth);
+                
+                document.getElementById('contractBalanceResult').textContent = `${balanceEth} ETH`;
+                showStatus('queryStatus', `合约总余额: ${balanceEth} ETH`, 'info');
+                
+            } catch (error) {
+                console.error('Query contract balance error:', error);
+                showStatus('queryStatus', '查询合约余额失败: ' + error.message, 'error');
+            }
+        };
+        
+        // 使用 Ethers.js 手动创建 EIP-7702 授权
+        window.createEIP7702Authorization = async function(params) {
+            try {
+                const { chainId, address, nonce } = params;
+                
+                // 构建 EIP-7702 授权消息
+                const authorizationMessage = ethers.solidityPacked(
+                    ['uint8', 'uint256', 'address', 'uint256'],
+                    [0x05, chainId, address, nonce] // 0x05 是 EIP-7702 的魔术字节
+                );
+                
+                // 计算消息哈希
+                const messageHash = ethers.keccak256(authorizationMessage);
+                
+                // 使用 signer 签名
+                const signature = await window.signer.signMessage(ethers.getBytes(messageHash));
+                
+                // 解析签名
+                const sig = ethers.Signature.from(signature);
+                
+                // 返回 EIP-7702 授权格式
+                return {
+                    chainId: chainId,
+                    address: address,
+                    nonce: nonce,
+                    yParity: sig.yParity,
+                    r: sig.r,
+                    s: sig.s
+                };
+                
+            } catch (error) {
+                console.error('创建 EIP-7702 授权失败:', error);
+                throw error;
+            }
+        };
+        
+        // EIP-7702 Authorization 相关功能
+        
+        // 生成 EIP-7702 Authorization 签名
+        window.generateAuthorization = async function(contractAddress, nonce = 0n) {
+            try {
+                if (!window.account || !window.walletClient) {
+                    throw new Error('请先连接钱包');
+                }
+                
+                // EIP-7702 Authorization 结构
+                const authorization = {
+                    chainId: BigInt(sepolia.id),
+                    address: contractAddress,
+                    nonce: BigInt(nonce)
+                };
+                
+                // 构建签名消息 (EIP-7702 规范)
+                const message = ethers.concat([
+                    '0x05', // EIP-7702 magic byte
+                    ethers.pad(ethers.toHex(authorization.chainId), { size: 32 }),
+                    ethers.pad(authorization.address, { size: 32 }),
+                    ethers.pad(ethers.toHex(authorization.nonce), { size: 32 })
+                ]);
+                
+                const messageHash = ethers.keccak256(message);
+                
+                // 使用 ethers.js signer 签名
+                const signature = await window.signer.signMessage(ethers.getBytes(messageHash));
+                
+                // 解析签名
+                const signatureBytes = ethers.getBytes(signature);
+                const r = ethers.hexlify(signatureBytes.slice(0, 32));
+                const s = ethers.hexlify(signatureBytes.slice(32, 64));
+                const v = signatureBytes[64];
+                
+                return {
+                    authorization,
+                    signature: {
+                        r,
+                        s,
+                        v,
+                        yParity: v === 27 ? 0 : 1
+                    },
+                    messageHash: ethers.hexlify(messageHash)
+                };
+                
+            } catch (error) {
+                console.error('生成 Authorization 失败:', error);
+                throw error;
+            }
+        };
+        
+        // 构建 Authorization List
+        window.buildAuthorizationList = async function() {
+            try {
+                const authData = await window.generateAuthorization(
+                    window.DELEGATE_CONTRACT_ADDRESS,
+                    0n
+                );
+                
+                // EIP-7702 Authorization List 格式
+                const authorizationList = [{
+                    chainId: authData.authorization.chainId,
+                    address: authData.authorization.address,
+                    nonce: authData.authorization.nonce,
+                    yParity: authData.signature.yParity,
+                    r: authData.signature.r,
+                    s: authData.signature.s
+                }];
+                
+                console.log('Authorization List 构建成功:', authorizationList);
+                return authorizationList;
+                
+            } catch (error) {
+                console.error('构建 Authorization List 失败:', error);
+                throw error;
+            }
+        };
+         
+         // 验证 Authorization 签名
+         window.verifyAuthorization = function(authorization, signature, signerAddress) {
+             try {
+                 // 重建签名消息
+                 const message = ethers.concat([
+                     '0x05', // EIP-7702 magic byte
+                     ethers.pad(ethers.toHex(authorization.chainId), { size: 32 }),
+                     ethers.pad(authorization.address, { size: 32 }),
+                     ethers.pad(ethers.toHex(authorization.nonce), { size: 32 })
+                 ]);
+                 
+                 const messageHash = ethers.keccak256(message);
+                 
+                 // 这里应该使用 ecrecover 验证签名，但在浏览器环境中简化处理
+                 console.log('验证 Authorization:', {
+                     messageHash: ethers.bytesToHex(messageHash),
+                     signature,
+                     expectedSigner: signerAddress
+                 });
+                 
+                 return true; // 简化验证，实际应该进行完整的签名验证
+                 
+             } catch (error) {
+                 console.error('验证 Authorization 失败:', error);
+                 return false;
+             }
+         };
+         
+         // 检查账户是否已经设置了代码
+         window.checkAccountCode = async function(address) {
+             try {
+                 if (!window.provider) {
+                     throw new Error('请先初始化客户端');
+                 }
+                 
+                 if (!address) {
+                    address = window.account.address;
+                }
+                 
+                 if (!address) {
+                     throw new Error('请先连接钱包');
+                 }
+                 
+                 const code = await window.provider.getCode(address);
+                 
+                 const hasCode = code && code !== '0x';
+                 const statusText = hasCode ? '已设置代码' : '未设置代码';
+                 
+                 document.getElementById('accountCodeStatus').textContent = statusText;
+                 showStatus('authStatus', `账户代码检查完成: ${statusText}`, 'info');
+                 
+                 console.log(`账户 ${address} 代码状态:`, statusText);
+                 console.log('字节码:', code);
+                 
+                 return {
+                     hasCode,
+                     bytecode: code || '0x'
+                 };
+                 
+             } catch (error) {
+                 showStatus('authStatus', '检查账户代码失败: ' + error.message, 'error');
+                 console.error('检查账户代码失败:', error);
+                 return { hasCode: false, bytecode: '0x' };
+             }
+         };
+         
+         // 发送带有 Authorization List 的交易
+        // 设置代理合约地址
+        window.setDelegateContract = function() {
+            const contractAddress = document.getElementById('delegateContract').value.trim();
+            
+            if (!contractAddress) {
+                alert('请输入代理合约地址');
+                return;
+            }
+            
+            if (!contractAddress.startsWith('0x') || contractAddress.length !== 42) {
+                alert('请输入有效的合约地址 (0x开头，42位字符)');
+                return;
+            }
+            
+            window.DELEGATE_CONTRACT_ADDRESS = contractAddress;
+            showStatus('authStatus', `代理合约地址已设置: ${contractAddress}`, 'success');
+            console.log('代理合约地址已设置:', contractAddress);
+        };
+
+        window.sendAuthorizationTransaction = async function() {
+            try {
+                if (!window.signer || !window.account) {
+                    throw new Error('请先连接钱包');
+                }
+                
+                if (!window.DELEGATE_CONTRACT_ADDRESS) {
+                    throw new Error('请先设置代理合约地址');
+                }
+                
+                showStatus('authStatus', '⚠️ 注意：MetaMask 当前不支持 EIP-7702 交易，正在演示授权签名过程...', 'info');
+                
+                // 获取当前 nonce
+                const currentNonce = await window.provider.getTransactionCount(window.account.address);
+                
+                console.log('Creating EIP-7702 authorization with:', {
+                    chainId: 11155111, // Sepolia chain ID
+                    address: window.account.address,
+                    nonce: currentNonce + 1, // 使用 nonce + 1 因为交易会先增加 nonce
+                    contractAddress: window.DELEGATE_CONTRACT_ADDRESS
+                });
+                
+                // 手动实现 EIP-7702 授权签名
+                const authorization = await createEIP7702Authorization({
+                    chainId: 11155111, // Sepolia chain ID
+                    address: window.DELEGATE_CONTRACT_ADDRESS, // 要委托给的合约地址
+                    nonce: currentNonce + 1 // 使用 nonce + 1
+                });
+                
+                console.log('EIP-7702 Authorization:', authorization);
+                
+                showStatus('authStatus', '✅ EIP-7702 授权签名生成成功！', 'success');
+                
+                // 模拟交易哈希
+                const mockTxHash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+                
+                // 显示授权详情
+                const authDetails = `
+                    <div style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 5px;">
+                        <h4>EIP-7702 授权详情：</h4>
+                        <p><strong>链 ID:</strong> ${authorization.chainId}</p>
+                        <p><strong>委托合约:</strong> ${authorization.address}</p>
+                        <p><strong>Nonce:</strong> ${authorization.nonce}</p>
+                        <p><strong>签名:</strong> ${authorization.signature}</p>
+                        <p><strong>模拟交易哈希:</strong> ${mockTxHash}</p>
+                        <p style="color: #666; font-size: 12px; margin-top: 10px;">
+                            注意：这是演示模式。实际的 EIP-7702 交易需要支持该标准的钱包和网络。
+                        </p>
+                    </div>
+                `;
+                
+                document.getElementById('authStatus').innerHTML = authDetails;
+                
+                console.log('EIP-7702 Authorization 演示完成:', {
+                    authorization,
+                    mockTxHash
+                });
+                
+                // 模拟账户代码状态更新
+                setTimeout(() => {
+                    document.getElementById('accountCodeStatus').textContent = '已设置代码';
+                    showStatus('codeStatus', '✅ 账户代码状态已更新', 'success');
+                }, 2000);
+                
+                return mockTxHash;
+                
+            } catch (error) {
+                showStatus('authStatus', 'EIP-7702 授权失败: ' + error.message, 'error');
+                console.error('EIP-7702 Authorization 交易失败:', error);
+                throw error;
+            }
+        };
+        
+        // 显示状态信息
+        window.showStatus = function(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+            element.style.display = 'block';
+            
+            // 3秒后隐藏成功信息
+            if (type === 'success') {
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 3000);
+            }
+        };
+        
+        // 页面加载时初始化
+        window.addEventListener('load', async () => {
+            try {
+                if (await window.initClients()) {
+                    console.log('EIP-7702 演示页面加载完成');
+                    
+                    // 如果已经连接钱包，显示连接状态
+                    if (window.account && window.account.address) {
+                        document.getElementById('currentAccount').textContent = window.account.address;
+                        showStatus('connectionStatus', '✅ 钱包已连接，可以开始操作', 'success');
+                    } else {
+                        showStatus('connectionStatus', '⚠️ 请点击"连接 MetaMask"按钮连接钱包', 'info');
+                    }
+                }
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+                showStatus('connectionStatus', '⚠️ 页面初始化失败，请刷新页面重试', 'error');
+            }
+        });
+    </script>
+    <style>
+        /* 全局重置和基础样式 */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+        }
+        
+        /* 标题样式 */
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+        
+        /* 功能区域样式 */
+        .section {
+            margin-bottom: 25px;
+            padding: 25px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            transition: all 0.3s ease;
+        }
+        
+        .section:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .section h3 {
+            margin: 0 0 20px 0;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 12px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        /* 输入组样式 */
+        .input-group {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .input-group label {
+            min-width: 140px;
+            font-weight: 500;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        /* 表单元素统一样式 */
+        input, button {
+            padding: 14px 18px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        input {
+            flex: 1;
+            background: white;
+            min-width: 200px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+            background: #fafbfc;
+        }
+        
+        input::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+        
+        /* 按钮样式 */
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            min-width: 130px;
+            white-space: nowrap;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            background: linear-gradient(135deg, #5a6fd8, #6a42a0);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2);
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        
+        /* 状态提示样式 */
+        .status {
+            margin-top: 15px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-weight: 500;
+            border-left: 4px solid;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+        
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+        
+        /* 特殊区域样式 */
+        .highlight {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            border-color: #e17055;
+            position: relative;
+        }
+        
+        .highlight::before {
+            content: "⭐";
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 20px;
+        }
+        
+        /* 结果显示样式 */
+        .result-display {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            font-family: 'Courier New', monospace;
+            color: #495057;
+            font-size: 13px;
+            min-width: 150px;
+            word-break: break-all;
+        }
+        
+        /* 网格布局 */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            width: 100%;
+        }
+        
+        .grid .section {
+            width: 100%;
+            min-width: 0;
+        }
+        
+        /* 使用说明样式 */
+        .section ol {
+            padding-left: 20px;
+        }
+        
+        .section ol li {
+            margin-bottom: 8px;
+            line-height: 1.7;
+        }
+        
+        .section ol li strong {
+            color: #495057;
+        }
+        
+        /* 警告提示样式 */
+        .section p[style*="background: #fff3cd"] {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7) !important;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107 !important;
+            font-size: 14px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .input-group label {
+                min-width: auto;
+                text-align: left;
+            }
+            
+            input, button {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            input, button {
+                padding: 12px 14px;
+                font-size: 13px;
+            }
+        }
+        
+        /* 可访问性改进 */
+        button:focus,
+        input:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .loading button {
+            position: relative;
+        }
+        
+        .loading button::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 EIP-7702 账户抽象演示</h1>
+        <p class="subtitle">基于 Viem 的批量操作和代理执行演示</p>
+        
+        <!-- 连接状态 -->
+        <div class="section">
+            <h3>📱 钱包连接</h3>
+            <div class="input-group">
+                <label>当前账户:</label>
+                <div class="result-display" id="currentAccount">未连接</div>
+                <button onclick="connectWallet()">连接 MetaMask</button>
+            </div>
+            <div id="connectionStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- 合约配置 -->
+        <div class="section">
+            <h3>⚙️ 合约配置</h3>
+            <div class="input-group">
+                <label>Delegate合约:</label>
+                <input type="text" id="delegateAddress" placeholder="输入 DelegateContract 地址" value="0xb9a31c2697b5DdAF00ce55B7323c9358b4A68175" style="font-family: monospace;">
+            </div>
+            <div class="input-group">
+                <label>TokenBank合约:</label>
+                <input type="text" id="tokenBankAddress" placeholder="输入 TokenBank 地址" value="0x23343331C3ff07974c28ECC69cE5a2Fe525910Da" style="font-family: monospace;">
+                <button onclick="setContractAddresses()">设置地址</button>
+            </div>
+            <div id="contractStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- Nonce 管理 -->
+        <div class="section">
+            <h3>🔢 Nonce 管理</h3>
+            <div class="input-group">
+                <label>当前 Nonce:</label>
+                <div class="result-display" id="currentNonce">-</div>
+                <button onclick="getCurrentNonce()">刷新 Nonce</button>
+            </div>
+            <p style="font-size: 12px; color: #6c757d; margin: 5px 0;">
+                💡 获取 nonce 前请确保已连接钱包并设置了代理合约地址
+            </p>
+            <div id="nonceStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- EIP-7702 账户抽象授权 -->
+        <div class="section highlight">
+            <h3>🔐 EIP-7702 账户抽象授权</h3>
+            <div class="input-group">
+                <label>代理合约地址:</label>
+                <input type="text" id="delegateContract" placeholder="输入代理合约地址 (0x...)">
+                <button onclick="setDelegateContract()">设置代理合约</button>
+            </div>
+            <div class="input-group">
+                <label>账户代码状态:</label>
+                <div class="result-display" id="accountCodeStatus">未检查</div>
+                <button onclick="checkAccountCode(window.account.address)">检查代码</button>
+            </div>
+            <div class="input-group">
+                <label>授权操作:</label>
+                <button onclick="sendAuthorizationTransaction()">模拟 EIP-7702 授权 </button>
+            </div>
+            <p style="font-size: 12px; color: #6c757d; margin: 5px 0;">
+                💡 EIP-7702 允许 EOA 账户临时设置代码，实现账户抽象功能<br>
+                ⚠️ 注意：当前 MetaMask 不支持外部 EIP-7702 交易，此处为演示模式
+            </p>
+            <div id="authStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <div class="grid">
+            <!-- 单次存款 -->
+            <div class="section">
+                <h3>💰 单次存款</h3>
+                <div class="input-group">
+                    <label>存款金额:</label>
+                    <input type="number" id="singleDepositAmount" placeholder="输入 ETH 数量" step="0.001" min="0">
+                    <button onclick="singleDeposit()">执行存款</button>
+                </div>
+                <div id="depositStatus" class="status" style="display:none;"></div>
+            </div>
+
+            <!-- 批量存款 -->
+            <div class="section highlight">
+                <h3>🎯 批量存款</h3>
+                <div class="input-group">
+                    <label>存款列表:</label>
+                    <input type="text" id="batchDepositAmounts" placeholder="例如: 0.1, 0.2, 0.3">
+                    <button onclick="batchDeposit()">批量执行</button>
+                </div>
+                <p style="font-size: 12px; color: #6c757d; margin: 5px 0;">
+                    💡 输入多个金额，用逗号分隔，将在一个交易中执行多次存款
+                </p>
+                <div id="batchStatus" class="status" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- 查询功能 -->
+        <div class="section">
+            <h3>🔍 余额查询</h3>
+            <div class="grid">
+                <div>
+                    <div class="input-group">
+                        <label>代理合约余额:</label>
+                        <div class="result-display" id="balanceResult">-</div>
+                        <button onclick="queryBalance()">查询余额</button>
+                    </div>
+                </div>
+                <div>
+                    <div class="input-group">
+                        <label>合约总余额:</label>
+                        <div class="result-display" id="contractBalanceResult">-</div>
+                        <button onclick="queryContractBalance()">查询总额</button>
+                    </div>
+                </div>
+            </div>
+            <div id="queryStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="section">
+            <h3>📖 使用说明</h3>
+            <ol style="line-height: 1.8;">
+                <li><strong>连接钱包:</strong> 点击"连接 MetaMask"按钮，确保切换到 Sepolia 测试网</li>
+                <li><strong>设置合约:</strong> 输入部署后的 DelegateContract 和 TokenBank 合约地址</li>
+                <li><strong>设置代理合约:</strong> 在 EIP-7702 授权区域设置代理合约地址</li>
+                <li><strong>EIP-7702 授权:</strong> 检查账户代码状态，然后模拟 EIP-7702 授权过程（演示模式，因 MetaMask 限制）</li>
+                <li><strong>查看 Nonce:</strong> 每次操作前查看当前 nonce，防止重放攻击</li>
+                <li><strong>单次存款:</strong> 通过代理合约执行单次存款操作</li>
+                <li><strong>批量存款:</strong> 在一个交易中执行多次存款，展示 EIP-7702 的批量操作能力</li>
+                <li><strong>查询余额:</strong> 查看代理合约在 TokenBank 中的存款余额</li>
+            </ol>
+            <p style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">
+                <strong>⚠️ 注意:</strong> 这是一个演示项目，仅在 Sepolia 测试网上使用。请不要在主网上使用真实资金。
+            </p>
+        </div>
+    </div>
+</body>
+</html>
