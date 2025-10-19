@@ -147,7 +147,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
   -------
 
-### **15 ： Permit2 银行合约项目**
+### **15 ：Permit2 银行合约项目**
   - 基于 Foundry 开发的 DeFi 项目，实现支持 Permit2 签名授权的银行合约系统。详情请查看[permit2/README.md](permit2)
   - 位置：permit2
   - 包含前端界面：Permit2 协议实现完整的 Web3 交互界面，支持 ETH 和 ERC20 分离显示
