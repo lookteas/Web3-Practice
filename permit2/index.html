@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permit2 银行合约测试页面</title>
+    <script type="module">
+        // 导入Viem模块
+        import { createPublicClient, createWalletClient, custom, http, formatEther, parseEther, getContract } from 'https://esm.sh/viem@2.21.45'
+        import { privateKeyToAccount } from 'https://esm.sh/viem@2.21.45/accounts'
+        import { localhost } from 'https://esm.sh/viem@2.21.45/chains'
+        
+        // 全局变量
+        window.viemClient = null;
+        window.walletClient = null;
+        window.bankContract = null;
+        window.tokenContract = null;
+        window.permit2Contract = null;
+        window.currentAccount = null;
+        
+        // 简化的 ABI
+        window.BANK_ABI = [
+            {"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"depositor","type":"address"}],"name":"getDeposit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"getTopDepositorsWithAmounts","outputs":[{"internalType":"address[3]","name":"","type":"address[3]"},{"internalType":"uint256[3]","name":"","type":"uint256[3]"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"components":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint160","name":"amount","type":"uint160"},{"internalType":"uint48","name":"expiration","type":"uint48"},{"internalType":"uint48","name":"nonce","type":"uint48"}],"internalType":"struct IPermit2.PermitDetails","name":"details","type":"tuple"},{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"sigDeadline","type":"uint256"}],"internalType":"struct IPermit2.PermitSingle","name":"permitSingle","type":"tuple"},{"internalType":"bytes","name":"signature","type":"bytes"}],"name":"depositWithPermit2","outputs":[],"stateMutability":"nonpayable","type":"function"}
+        ];
+
+        window.ERC20_ABI = [
+            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"balance","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"_to","type":"address"},{"internalType":"uint256","name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"success","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"_spender","type":"address"},{"internalType":"uint256","name":"_value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"success","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"_owner","type":"address"},{"internalType":"address","name":"_spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"remaining","type":"uint256"}],"stateMutability":"view","type":"function"}
+        ];
+
+        window.PERMIT2_ABI = [
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint160","name":"amount","type":"uint160"},{"internalType":"uint48","name":"expiration","type":"uint48"},{"internalType":"uint48","name":"nonce","type":"uint48"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"DOMAIN_SEPARATOR","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"nonces","outputs":[{"internalType":"uint48","name":"","type":"uint48"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"components":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint160","name":"amount","type":"uint160"},{"internalType":"uint48","name":"expiration","type":"uint48"},{"internalType":"uint48","name":"nonce","type":"uint48"}],"internalType":"struct IPermit2.PermitDetails","name":"details","type":"tuple"},{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"sigDeadline","type":"uint256"}],"internalType":"struct IPermit2.PermitSingle","name":"permitSingle","type":"tuple"},{"internalType":"bytes","name":"signature","type":"bytes"}],"name":"permit","outputs":[],"stateMutability":"nonpayable","type":"function"}
+        ];
+
+        // 导出函数到全局作用域
+        window.connectWallet = async function() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // 首先尝试切换到本地网络
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0x539' }], // 1337 的十六进制
+                        });
+                    } catch (switchError) {
+                        // 如果网络不存在，添加本地网络
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: '0x539', // 1337 的十六进制
+                                    chainName: 'Anvil Local Network',
+                                    nativeCurrency: {
+                                        name: 'Ethereum',
+                                        symbol: 'ETH',
+                                        decimals: 18
+                                    },
+                                    rpcUrls: ['http://127.0.0.1:8545'],
+                                    blockExplorerUrls: null
+                                }]
+                            });
+                        } else if (switchError.code === -32602) {
+                            // 网络已存在但RPC端点冲突，直接尝试连接
+                            showStatus('connectionStatus', '⚠️ 检测到网络配置冲突，请手动切换到Chain ID 1337', 'warning');
+                        } else {
+                            throw switchError;
+                        }
+                    }
+                    
+                    // 创建公共客户端
+                    window.viemClient = createPublicClient({
+                        chain: localhost,
+                        transport: http('http://127.0.0.1:8545')
+                    });
+                    
+                    // 创建钱包客户端
+                    window.walletClient = createWalletClient({
+                        chain: localhost,
+                        transport: custom(window.ethereum)
+                    });
+                    
+                    // 请求账户访问
+                    const accounts = await window.walletClient.requestAddresses();
+                    window.currentAccount = accounts[0];
+                    document.getElementById('currentAccount').textContent = window.currentAccount;
+                    
+                    // 获取网络信息
+                    const chainId = await window.viemClient.getChainId();
+                    document.getElementById('networkInfo').textContent = `Chain ID: ${chainId}`;
+                    
+                    showStatus('connectionStatus', '✅ 钱包连接成功！已切换到本地网络', 'success');
+                    
+                    // 监听账户变化
+                    window.ethereum.on('accountsChanged', function (accounts) {
+                        if (accounts.length > 0) {
+                            window.currentAccount = accounts[0];
+                            document.getElementById('currentAccount').textContent = window.currentAccount;
+                        } else {
+                            window.currentAccount = null;
+                            document.getElementById('currentAccount').textContent = '未连接';
+                        }
+                    });
+                    
+                    // 监听网络变化
+                    window.ethereum.on('chainChanged', function (chainId) {
+                        const decimalChainId = parseInt(chainId, 16);
+                        document.getElementById('networkInfo').textContent = `Chain ID: ${decimalChainId}`;
+                        if (decimalChainId !== 1337) {
+                            showStatus('connectionStatus', '⚠️ 请切换到本地网络 (Chain ID: 1337)', 'warning');
+                        }
+                    });
+                } catch (error) {
+                    showStatus('connectionStatus', '❌ 连接钱包失败: ' + error.message, 'error');
+                }
+            } else {
+                showStatus('connectionStatus', '❌ 请安装 MetaMask!', 'error');
+            }
+        };
+
+        // 初始化合约
+        window.initContracts = function() {
+            const bankAddress = document.getElementById('bankAddress').value;
+            const tokenAddress = document.getElementById('tokenAddress').value;
+            const permit2Address = document.getElementById('permit2Address').value;
+            
+            if (!window.viemClient || !window.walletClient) {
+                showStatus('connectionStatus', '❌ 请先连接钱包', 'error');
+                return;
+            }
+            
+            try {
+                if (bankAddress) {
+                    window.bankContract = getContract({
+                        address: bankAddress,
+                        abi: window.BANK_ABI,
+                        client: { public: window.viemClient, wallet: window.walletClient }
+                    });
+                }
+                if (tokenAddress) {
+                    window.tokenContract = getContract({
+                        address: tokenAddress,
+                        abi: window.ERC20_ABI,
+                        client: { public: window.viemClient, wallet: window.walletClient }
+                    });
+                }
+                if (permit2Address) {
+                    window.permit2Contract = getContract({
+                        address: permit2Address,
+                        abi: window.PERMIT2_ABI,
+                        client: { public: window.viemClient, wallet: window.walletClient }
+                    });
+                }
+                
+                showStatus('connectionStatus', '✅ 合约初始化成功！', 'success');
+            } catch (error) {
+                showStatus('connectionStatus', '❌ 合约初始化失败: ' + error.message, 'error');
+            }
+        };
+
+        // 获取Token信息
+        window.getTokenInfo = async function() {
+            if (!window.tokenContract) {
+                showStatus('tokenStatus', '❌ 请先初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                const name = await window.tokenContract.read.name();
+                const symbol = await window.tokenContract.read.symbol();
+                const decimals = await window.tokenContract.read.decimals();
+                const totalSupply = await window.tokenContract.read.totalSupply();
+                
+                const results = `
+                    Token名称: ${name}
+                    Token符号: ${symbol}
+                    小数位数: ${decimals}
+                    总供应量: ${formatEther(totalSupply)} ${symbol}
+                `;
+                
+                document.getElementById('tokenResults').textContent = results;
+                document.getElementById('tokenResults').style.display = 'block';
+                showStatus('tokenStatus', '✅ Token信息获取成功', 'success');
+            } catch (error) {
+                showStatus('tokenStatus', '❌ 获取Token信息失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询Token余额
+        window.getMyTokenBalance = async function() {
+            if (!window.tokenContract || !window.currentAccount) {
+                showStatus('tokenStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                const balance = await window.tokenContract.read.balanceOf([window.currentAccount]);
+                const symbol = await window.tokenContract.read.symbol();
+                
+                const results = `我的${symbol}余额: ${formatEther(balance)} ${symbol}`;
+                
+                document.getElementById('tokenResults').textContent = results;
+                document.getElementById('tokenResults').style.display = 'block';
+                showStatus('tokenStatus', '✅ 余额查询成功', 'success');
+            } catch (error) {
+                showStatus('tokenStatus', '❌ 查询余额失败: ' + error.message, 'error');
+            }
+        };
+
+        // 获取测试代币
+        window.mintTokens = async function() {
+            if (!window.tokenContract || !window.currentAccount) {
+                showStatus('tokenStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                 // 直接使用cast命令从部署者地址转账代币
+                 const response = await fetch('/transfer-tokens', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json',
+                     },
+                     body: JSON.stringify({
+                         to: window.currentAccount,
+                         amount: '10000'
+                     })
+                 });
+                 
+                 if (response.ok) {
+                     showStatus('tokenStatus', '✅ 获取测试代币成功', 'success');
+                 } else {
+                     throw new Error('转账失败');
+                 }
+             } catch (error) {
+                 // 如果API不可用，使用备用方案
+                 try {
+                     // 创建一个新的合约实例，使用部署者账户
+                     const deployerPrivateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+                     const deployerAccount = privateKeyToAccount(deployerPrivateKey);
+                     
+                     const deployerWalletClient = createWalletClient({
+                         account: deployerAccount,
+                         chain: localhost,
+                         transport: http('http://localhost:8545')
+                     });
+                     
+                     const tokenAddress = document.getElementById('tokenAddress').value;
+                     const deployerTokenContract = getContract({
+                         address: tokenAddress,
+                         abi: window.ERC20_ABI,
+                         client: { public: window.viemClient, wallet: deployerWalletClient }
+                     });
+                     
+                     const amount = parseEther('10000'); // 转账1万个token给用户
+                     const hash = await deployerTokenContract.write.transfer([window.currentAccount, amount]);
+                     
+                     showStatus('tokenStatus', '✅ 获取测试代币成功，交易哈希: ' + hash, 'success');
+                 } catch (backupError) {
+                     showStatus('tokenStatus', '❌ 获取测试代币失败: ' + backupError.message, 'error');
+                 }
+             }
+        };
+
+        // 授权Token
+        window.approveToken = async function() {
+            if (!window.tokenContract || !window.currentAccount) {
+                showStatus('tokenStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            const permit2Address = document.getElementById('permit2Address').value;
+            if (!permit2Address) {
+                showStatus('tokenStatus', '❌ 请输入Permit2地址', 'error');
+                return;
+            }
+            
+            try {
+                const amount = parseEther('1000000'); // 授权100万个token
+                const hash = await window.tokenContract.write.approve([permit2Address, amount], {
+                    account: window.currentAccount
+                });
+                showStatus('tokenStatus', '✅ Token授权成功，交易哈希: ' + hash, 'success');
+            } catch (error) {
+                showStatus('tokenStatus', '❌ Token授权失败: ' + error.message, 'error');
+            }
+        };
+
+        // 转账Token
+        window.transferToken = async function() {
+            if (!window.tokenContract || !window.currentAccount) {
+                showStatus('tokenStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            const to = document.getElementById('transferTo').value;
+            const amount = document.getElementById('transferAmount').value;
+            
+            if (!to || !amount) {
+                showStatus('tokenStatus', '❌ 请输入转账地址和数量', 'error');
+                return;
+            }
+            
+            try {
+                const amountWei = parseEther(amount);
+                const hash = await window.tokenContract.write.transfer([to, amountWei], {
+                    account: window.currentAccount
+                });
+                showStatus('tokenStatus', '✅ 转账成功，交易哈希: ' + hash, 'success');
+            } catch (error) {
+                showStatus('tokenStatus', '❌ 转账失败: ' + error.message, 'error');
+            }
+        };
+
+        // 存款ETH
+        window.depositETH = async function() {
+            if (!window.bankContract || !window.currentAccount) {
+                showStatus('bankStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            const amount = document.getElementById('depositAmount').value;
+            if (!amount) {
+                showStatus('bankStatus', '❌ 请输入存款金额', 'error');
+                return;
+            }
+            
+            try {
+                const amountWei = parseEther(amount);
+                const hash = await window.bankContract.write.deposit([], {
+                    account: window.currentAccount,
+                    value: amountWei
+                });
+                showStatus('bankStatus', '✅ 存款成功，交易哈希: ' + hash, 'success');
+            } catch (error) {
+                showStatus('bankStatus', '❌ 存款失败: ' + error.message, 'error');
+            }
+        };
+
+        // 提款ETH
+        window.withdrawETH = async function() {
+            if (!window.bankContract || !window.currentAccount) {
+                showStatus('bankStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            const amount = document.getElementById('withdrawAmount').value;
+            if (!amount) {
+                showStatus('bankStatus', '❌ 请输入提款金额', 'error');
+                return;
+            }
+            
+            try {
+                const amountWei = parseEther(amount);
+                const hash = await window.bankContract.write.withdraw([amountWei], {
+                    account: window.currentAccount
+                });
+                showStatus('bankStatus', '✅ 提款成功，交易哈希: ' + hash, 'success');
+            } catch (error) {
+                showStatus('bankStatus', '❌ 提款失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询我的存款
+        window.getMyDeposit = async function() {
+            if (!window.bankContract || !window.currentAccount) {
+                showStatus('bankStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                const deposit = await window.bankContract.read.getDeposit([window.currentAccount]);
+                const results = `我的存款: ${formatEther(deposit)} ETH`;
+                
+                document.getElementById('bankResults').textContent = results;
+                document.getElementById('bankResults').style.display = 'block';
+                showStatus('bankStatus', '✅ 存款查询成功', 'success');
+            } catch (error) {
+                showStatus('bankStatus', '❌ 查询存款失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询合约余额
+        window.getContractBalance = async function() {
+            if (!window.bankContract) {
+                showStatus('bankStatus', '❌ 请先初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                const balance = await window.bankContract.read.getContractBalance();
+                const results = `合约总余额: ${formatEther(balance)} ETH`;
+                
+                document.getElementById('bankResults').textContent = results;
+                document.getElementById('bankResults').style.display = 'block';
+                showStatus('bankStatus', '✅ 合约余额查询成功', 'success');
+            } catch (error) {
+                showStatus('bankStatus', '❌ 查询合约余额失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询排行榜
+        window.getTopDepositors = async function() {
+            if (!window.bankContract) {
+                showStatus('bankStatus', '❌ 请先初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                const [addresses, amounts] = await window.bankContract.read.getTopDepositorsWithAmounts();
+                
+                let results = '存款排行榜:\n';
+                for (let i = 0; i < addresses.length; i++) {
+                    if (addresses[i] !== '0x0000000000000000000000000000000000000000') {
+                        results += `${i + 1}. ${addresses[i]}: ${formatEther(amounts[i])} ETH\n`;
+                    }
+                }
+                
+                document.getElementById('bankResults').textContent = results;
+                document.getElementById('bankResults').style.display = 'block';
+                showStatus('bankStatus', '✅ 排行榜查询成功', 'success');
+            } catch (error) {
+                showStatus('bankStatus', '❌ 查询排行榜失败: ' + error.message, 'error');
+            }
+        };
+
+        // ===== 新增的分离ETH和ERC20的函数 =====
+
+        // 查询我的ETH存款
+        window.getMyETHDeposit = async function() {
+            if (!window.bankContract || !window.currentAccount) {
+                showStatus('bankStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('bankStatus', '🔄 正在查询ETH存款记录...', 'info');
+                
+                const bankAddress = document.getElementById('bankAddress').value;
+                const currentBlock = await window.viemClient.getBlockNumber();
+                
+                // 查询ETH存款事件 (Deposit事件)
+                const ethDepositLogs = await window.viemClient.getLogs({
+                    address: bankAddress,
+                    event: {
+                        type: 'event',
+                        name: 'Deposit',
+                        inputs: [
+                            { name: 'depositor', type: 'address', indexed: true },
+                            { name: 'amount', type: 'uint256', indexed: false }
+                        ]
+                    },
+                    args: {
+                        depositor: window.currentAccount
+                    },
+                    fromBlock: 0n,
+                    toBlock: currentBlock
+                });
+                
+                // 计算ETH存款总额
+                let totalETHDeposit = 0n;
+                ethDepositLogs.forEach(log => {
+                    totalETHDeposit += log.args.amount;
+                });
+                
+                const results = `我的ETH存款: ${formatEther(totalETHDeposit)} ETH\n` +
+                    `存款次数: ${ethDepositLogs.length} 次`;
+                
+                document.getElementById('bankResults').textContent = results;
+                document.getElementById('bankResults').style.display = 'block';
+                showStatus('bankStatus', '✅ ETH存款查询成功', 'success');
+            } catch (error) {
+                console.error('查询ETH存款失败:', error);
+                showStatus('bankStatus', '❌ 查询ETH存款失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询合约ETH余额
+        window.getContractETHBalance = async function() {
+            if (!window.bankContract) {
+                showStatus('bankStatus', '❌ 请先初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                const balance = await window.bankContract.read.getContractBalance();
+                const results = `合约ETH余额: ${formatEther(balance)} ETH`;
+                
+                document.getElementById('bankResults').textContent = results;
+                document.getElementById('bankResults').style.display = 'block';
+                showStatus('bankStatus', '✅ 合约ETH余额查询成功', 'success');
+            } catch (error) {
+                showStatus('bankStatus', '❌ 查询合约ETH余额失败: ' + error.message, 'error');
+            }
+        };
+
+        // ERC20代币存款（使用Permit2方式）
+        window.depositERC20 = async function() {
+            if (!window.tokenContract || !window.bankContract || !window.currentAccount) {
+                showStatus('bankStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            const amount = document.getElementById('erc20DepositAmount').value;
+            if (!amount) {
+                showStatus('bankStatus', '❌ 请输入存款数量', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('bankStatus', '🔄 正在处理ERC20存款...', 'info');
+                
+                // 使用现有的Permit2存款功能
+                const originalAmount = document.getElementById('permit2Amount').value;
+                document.getElementById('permit2Amount').value = amount;
+                
+                // 调用Permit2存款函数
+                await window.depositWithPermit2();
+                
+                // 恢复原始值
+                document.getElementById('permit2Amount').value = originalAmount;
+                
+            } catch (error) {
+                showStatus('bankStatus', '❌ ERC20存款失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询我的ERC20存款
+        window.getMyERC20Deposit = async function() {
+            if (!window.bankContract || !window.currentAccount) {
+                showStatus('bankStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('bankStatus', '🔄 正在查询ERC20存款记录...', 'info');
+                
+                const bankAddress = document.getElementById('bankAddress').value;
+                const currentBlock = await window.viemClient.getBlockNumber();
+                
+                // 查询ERC20存款事件 (DepositWithPermit2事件)
+                const erc20DepositLogs = await window.viemClient.getLogs({
+                    address: bankAddress,
+                    event: {
+                        type: 'event',
+                        name: 'DepositWithPermit2',
+                        inputs: [
+                            { name: 'depositor', type: 'address', indexed: true },
+                            { name: 'token', type: 'address', indexed: true },
+                            { name: 'amount', type: 'uint256', indexed: false }
+                        ]
+                    },
+                    args: {
+                        depositor: window.currentAccount
+                    },
+                    fromBlock: 0n,
+                    toBlock: currentBlock
+                });
+                
+                // 计算ERC20存款总额
+                let totalERC20Deposit = 0n;
+                erc20DepositLogs.forEach(log => {
+                    totalERC20Deposit += log.args.amount;
+                });
+                
+                const results = `我的ERC20存款: ${formatEther(totalERC20Deposit)} SUI\n` +
+                    `存款次数: ${erc20DepositLogs.length} 次`;
+                
+                document.getElementById('bankResults').textContent = results;
+                document.getElementById('bankResults').style.display = 'block';
+                showStatus('bankStatus', '✅ ERC20存款查询成功', 'success');
+            } catch (error) {
+                console.error('查询ERC20存款失败:', error);
+                showStatus('bankStatus', '❌ 查询ERC20存款失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询合约ERC20余额
+        window.getContractERC20Balance = async function() {
+            if (!window.tokenContract) {
+                showStatus('bankStatus', '❌ 请先初始化Token合约', 'error');
+                return;
+            }
+            
+            try {
+                const bankAddress = document.getElementById('bankAddress').value;
+                const balance = await window.tokenContract.read.balanceOf([bankAddress]);
+                const results = `合约ERC20余额: ${formatEther(balance)} SUI`;
+                
+                document.getElementById('bankResults').textContent = results;
+                document.getElementById('bankResults').style.display = 'block';
+                showStatus('bankStatus', '✅ 合约ERC20余额查询成功', 'success');
+            } catch (error) {
+                showStatus('bankStatus', '❌ 查询合约ERC20余额失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询我的所有存款（分离ETH和ERC20）
+        window.getAllMyDeposits = async function() {
+            if (!window.bankContract || !window.tokenContract || !window.currentAccount) {
+                showStatus('bankStatus', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('bankStatus', '🔄 正在查询存款记录...', 'info');
+                
+                const bankAddress = document.getElementById('bankAddress').value;
+                
+                // 获取当前区块号
+                const currentBlock = await window.viemClient.getBlockNumber();
+                
+                // 查询ETH存款事件 (Deposit事件)
+                const ethDepositLogs = await window.viemClient.getLogs({
+                    address: bankAddress,
+                    event: {
+                        type: 'event',
+                        name: 'Deposit',
+                        inputs: [
+                            { name: 'depositor', type: 'address', indexed: true },
+                            { name: 'amount', type: 'uint256', indexed: false }
+                        ]
+                    },
+                    args: {
+                        depositor: window.currentAccount
+                    },
+                    fromBlock: 0n,
+                    toBlock: currentBlock
+                });
+                
+                // 查询ERC20存款事件 (DepositWithPermit2事件)
+                const erc20DepositLogs = await window.viemClient.getLogs({
+                    address: bankAddress,
+                    event: {
+                        type: 'event',
+                        name: 'DepositWithPermit2',
+                        inputs: [
+                            { name: 'depositor', type: 'address', indexed: true },
+                            { name: 'token', type: 'address', indexed: true },
+                            { name: 'amount', type: 'uint256', indexed: false }
+                        ]
+                    },
+                    args: {
+                        depositor: window.currentAccount
+                    },
+                    fromBlock: 0n,
+                    toBlock: currentBlock
+                });
+                
+                // 计算ETH存款总额
+                let totalETHDeposit = 0n;
+                ethDepositLogs.forEach(log => {
+                    totalETHDeposit += log.args.amount;
+                });
+                
+                // 计算ERC20存款总额
+                let totalERC20Deposit = 0n;
+                erc20DepositLogs.forEach(log => {
+                    totalERC20Deposit += log.args.amount;
+                });
+                
+                // 查询我的钱包余额
+                const myETHBalance = await window.viemClient.getBalance({
+                    address: window.currentAccount
+                });
+                const myTokenBalance = await window.tokenContract.read.balanceOf([window.currentAccount]);
+                
+                // 查询Bank合约中的总存款（用于验证）
+                const bankTotalDeposit = await window.bankContract.read.getDeposit([window.currentAccount]);
+                
+                const results = `我的存款情况 (分离显示):\n` +
+                    `📊 Bank合约中的存款:\n` +
+                    `  • ETH存款: ${formatEther(totalETHDeposit)} ETH\n` +
+                    `  • ERC20存款: ${formatEther(totalERC20Deposit)} SUI\n` +
+                    `  • 总计: ${formatEther(bankTotalDeposit)} (验证: ${formatEther(totalETHDeposit + totalERC20Deposit)})\n\n` +
+                    `💰 我的钱包余额:\n` +
+                    `  • ETH余额: ${formatEther(myETHBalance)} ETH\n` +
+                    `  • Token余额: ${formatEther(myTokenBalance)} SUI\n\n` +
+                    `📈 存款记录统计:\n` +
+                    `  • ETH存款次数: ${ethDepositLogs.length} 次\n` +
+                    `  • ERC20存款次数: ${erc20DepositLogs.length} 次`;
+                
+                document.getElementById('bankResults').textContent = results;
+                document.getElementById('bankResults').style.display = 'block';
+                showStatus('bankStatus', '✅ 存款查询成功（已分离ETH和ERC20）', 'success');
+            } catch (error) {
+                console.error('查询存款失败:', error);
+                showStatus('bankStatus', '❌ 查询所有存款失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询合约所有余额
+        window.getAllContractBalances = async function() {
+            if (!window.bankContract || !window.tokenContract) {
+                showStatus('bankStatus', '❌ 请先初始化合约', 'error');
+                return;
+            }
+            
+            try {
+                const bankAddress = document.getElementById('bankAddress').value;
+                
+                // 查询合约ETH余额
+                const ethBalance = await window.bankContract.read.getContractBalance();
+                
+                // 查询合约ERC20余额
+                const erc20Balance = await window.tokenContract.read.balanceOf([bankAddress]);
+                
+                const results = `合约余额情况:\n` +
+                    `• ETH余额: ${formatEther(ethBalance)} ETH\n` +
+                    `• ERC20余额: ${formatEther(erc20Balance)} SUI`;
+                
+                document.getElementById('bankResults').textContent = results;
+                document.getElementById('bankResults').style.display = 'block';
+                showStatus('bankStatus', '✅ 合约余额查询成功', 'success');
+            } catch (error) {
+                showStatus('bankStatus', '❌ 查询合约余额失败: ' + error.message, 'error');
+            }
+        };
+
+        // 查询Permit2授权
+        window.checkPermit2Allowance = async function() {
+            if (!window.permit2Contract || !window.currentAccount) {
+                showStatus('permit2Status', '❌ 请先连接钱包并初始化合约', 'error');
+                return;
+            }
+            
+            const tokenAddress = document.getElementById('tokenAddress').value;
+            const bankAddress = document.getElementById('bankAddress').value;
+            
+            if (!tokenAddress || !bankAddress) {
+                showStatus('permit2Status', '❌ 请输入Token和Bank地址', 'error');
+                return;
+            }
+            
+            try {
+                const [amount, expiration, nonce] = await window.permit2Contract.read.allowance([
+                    window.currentAccount,
+                    tokenAddress,
+                    bankAddress
+                ]);
+                
+                const results = `
+                    授权数量: ${formatEther(amount)}
+                    过期时间: ${expiration}
+                    Nonce: ${nonce}
+                `;
+                
+                document.getElementById('permit2Results').textContent = results;
+                document.getElementById('permit2Results').style.display = 'block';
+                showStatus('permit2Status', '✅ Permit2授权查询成功', 'success');
+            } catch (error) {
+                showStatus('permit2Status', '❌ 查询Permit2授权失败: ' + error.message, 'error');
+            }
+        };
+
+        // EIP-712 签名生成函数
+        window.generatePermit2Signature = async function(tokenAddress, amount, spender, deadline, nonce, permit2Address) {
+            // EIP-712 域分隔符
+            const domain = {
+                name: 'Permit2',
+                version: '1',
+                chainId: await window.walletClient.getChainId(),
+                verifyingContract: permit2Address
+            };
+
+            // EIP-712 类型定义
+            const types = {
+                PermitSingle: [
+                    { name: 'details', type: 'PermitDetails' },
+                    { name: 'spender', type: 'address' },
+                    { name: 'sigDeadline', type: 'uint256' }
+                ],
+                PermitDetails: [
+                    { name: 'token', type: 'address' },
+                    { name: 'amount', type: 'uint160' },
+                    { name: 'expiration', type: 'uint48' },
+                    { name: 'nonce', type: 'uint48' }
+                ]
+            };
+
+            // 结构化数据
+            const value = {
+                details: {
+                    token: tokenAddress,
+                    amount: amount,
+                    expiration: deadline,
+                    nonce: nonce
+                },
+                spender: spender,
+                sigDeadline: deadline
+            };
+
+            // 生成签名
+            const signature = await window.walletClient.signTypedData({
+                account: window.currentAccount,
+                domain,
+                types,
+                primaryType: 'PermitSingle',
+                message: value
+            });
+
+            return { signature, permitSingle: value };
+        };
+
+        // Permit2存款功能
+        window.depositWithPermit2 = async function() {
+            const amount = document.getElementById('permit2Amount').value;
+            if (!amount || amount <= 0) {
+                showStatus('permit2Status', '请输入有效的存款数量', 'error');
+                return;
+            }
+
+            if (!window.tokenContract || !window.currentAccount || !window.bankContract) {
+                showStatus('permit2Status', '❌ 请先连接钱包并初始化所有合约', 'error');
+                return;
+            }
+
+            try {
+                showStatus('permit2Status', '正在生成Permit2签名...', 'warning');
+                
+                // 获取必要的地址和参数
+                const permit2Address = document.getElementById('permit2Address').value;
+                const tokenAddress = document.getElementById('tokenAddress').value;
+                const bankAddress = document.getElementById('bankAddress').value;
+                
+                if (!permit2Address || !tokenAddress || !bankAddress) {
+                    showStatus('permit2Status', '❌ 请确保所有合约地址都已填写', 'error');
+                    return;
+                }
+                
+                const amountWei = parseEther(amount);
+                const deadline = Math.floor(Date.now() / 1000) + 3600; // 1小时后过期
+                
+                // 获取当前nonce
+                console.log('Creating permit2Contract with:', {
+                    address: permit2Address,
+                    abi: window.PERMIT2_ABI,
+                    publicClient: window.viemClient,
+                    walletClient: window.walletClient
+                });
+                
+                const permit2Contract = getContract({
+                    address: permit2Address,
+                    abi: window.PERMIT2_ABI,
+                    client: { public: window.viemClient, wallet: window.walletClient }
+                });
+                
+                console.log('permit2Contract created:', permit2Contract);
+                console.log('permit2Contract.read:', permit2Contract.read);
+                console.log('permit2Contract.read.nonces:', permit2Contract.read.nonces);
+                
+                const nonce = await permit2Contract.read.nonces([window.currentAccount, tokenAddress, bankAddress]);
+                
+                showStatus('permit2Status', '正在请求用户签名...', 'warning');
+                
+                // 生成EIP-712签名
+                const { signature, permitSingle } = await generatePermit2Signature(
+                    tokenAddress,
+                    amountWei,
+                    bankAddress,
+                    deadline,
+                    nonce,
+                    permit2Address
+                );
+                
+                showStatus('permit2Status', '正在执行Permit2存款...', 'warning');
+                
+                // 调用Bank合约的depositWithPermit2方法
+                const hash = await window.bankContract.write.depositWithPermit2([
+                    tokenAddress,
+                    amountWei,
+                    permitSingle,
+                    signature
+                ], {
+                    account: window.currentAccount
+                });
+                
+                showStatus('permit2Status', `✅ Permit2存款成功！交易哈希: ${hash}`, 'success');
+                
+                // 更新余额显示
+                setTimeout(() => {
+                    if (window.updateTokenBalance) window.updateTokenBalance();
+                    if (window.updateBankBalance) window.updateBankBalance();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Permit2存款错误:', error);
+                if (error.message.includes('User rejected')) {
+                    showStatus('permit2Status', '❌ 用户取消了签名', 'error');
+                } else {
+                    showStatus('permit2Status', '❌ 操作失败: ' + error.message, 'error');
+                }
+            }
+        };
+
+        // 显示状态信息
+        window.showStatus = function(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'status ' + type;
+            element.style.display = 'block';
+            
+            // 3秒后隐藏成功消息
+            if (type === 'success') {
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 3000);
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .step-card {
+            position: relative;
+            border-left: 4px solid #667eea;
+        }
+         
+         .step-header {
+             display: flex;
+             align-items: center;
+             margin-bottom: 15px;
+         }
+         
+         .step-badge {
+             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             color: white;
+             padding: 6px 12px;
+             border-radius: 20px;
+             font-size: 12px;
+             font-weight: bold;
+             margin-right: 15px;
+             text-transform: uppercase;
+         }
+         
+         .step-header h3 {
+             margin: 0;
+             color: #333;
+         }
+         
+         .step-description {
+             color: #666;
+             font-size: 14px;
+             margin-bottom: 20px;
+             line-height: 1.5;
+             background: #f8f9fa;
+             padding: 12px;
+             border-radius: 6px;
+             border-left: 3px solid #667eea;
+         }
+        
+        .explanation-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .explanation-card h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .architecture-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .flow-step {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .flow-step h4 {
+            margin: 10px 0;
+            color: white;
+        }
+        
+        .flow-step p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .flow-arrow {
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0 10px;
+        }
+        
+        .usage-guide {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .usage-guide h4 {
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .usage-guide ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .usage-guide li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 768px) {
+            .architecture-flow {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+        }
+        
+        .card h3 {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: 500;
+        }
+        
+        .flex {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+            color: #2d3436;
+        }
+        
+        input[type="text"], input[type="number"] {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            flex: 1;
+            min-width: 400px;
+            width: 100%;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-line;
+            color: #495057;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .info-value {
+            font-family: 'Courier New', monospace;
+            color: #6c757d;
+            word-break: break-all;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .flex {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Permit2 授权存款演示</h1>
+        
+        <!-- 系统说明 -->
+        <div class="card explanation-card">
+            <h3>📖 系统架构说明</h3>
+            <div class="architecture-flow">
+                <div class="flow-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>🪙 ERC20 Token</h4>
+                        <p>SUI代币合约，用户需要先获取代币才能进行后续操作</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>🔐 Permit2 合约</h4>
+                        <p>统一授权管理合约，用户授权后可以安全地进行代币操作</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>🏦 Bank 合约</h4>
+                        <p>银行合约，可以存储ETH和通过Permit2安全地处理ERC20代币</p>
+                    </div>
+                </div>
+            </div>
+            <div class="usage-guide">
+                <h4>🚀 使用流程：</h4>
+                <ol>
+                    <li><strong>连接钱包</strong> → 初始化合约</li>
+                    <li><strong>获取测试代币</strong> → 从部署者地址获取SUI代币</li>
+                    <li><strong>授权Permit2</strong> → 允许Permit2合约管理你的代币</li>
+                    <li><strong>使用Bank功能</strong> → 存储ETH或通过Permit2进行代币操作</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- 连接状态 -->
+        <div class="card">
+            <h3>📱 连接状态</h3>
+            <div class="flex">
+                <button class="btn" onclick="connectWallet()">连接钱包</button>
+                <button class="btn btn-secondary" onclick="initContracts()">初始化合约</button>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">当前账户:</span>
+                <span class="info-value" id="currentAccount">未连接</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">网络信息:</span>
+                <span class="info-value" id="networkInfo">未连接</span>
+            </div>
+            
+            <div class="input-group">
+                <label>Bank合约地址:</label>
+                <input type="text" id="bankAddress" value="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0" placeholder="Bank合约地址">
+            </div>
+            <div class="input-group">
+                <label>ERC20 Token地址:</label>
+                <input type="text" id="tokenAddress" value="0x5FbDB2315678afecb367f032d93F642f64180aa3" placeholder="Token合约地址">
+            </div>
+            <div class="input-group">
+                <label>Permit2合约地址:</label>
+                <input type="text" id="permit2Address" value="0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" placeholder="Permit2合约地址">
+            </div>
+            <div id="connectionStatus" class="status"></div>
+        </div>
+
+        <!-- 第一步：ERC20 Token 测试 -->
+        <div class="card step-card">
+            <div class="step-header">
+                <span class="step-badge">步骤 1</span>
+                <h3>🪙 获取 ERC20代币</h3>
+            </div>
+            <p class="step-description">首先需要获取一些测试代币，然后可以查看余额和进行基本的转账操作</p>
+            <div class="flex">
+                <button class="btn" onclick="getTokenInfo()">获取Token信息</button>
+                <button class="btn" onclick="getMyTokenBalance()">查询我的余额</button>
+                <button class="btn btn-warning" onclick="mintTokens()">获取测试代币</button>
+            </div>
+            <div class="input-group" style="margin-top: 15px;">
+                <label>转账地址:</label>
+                <input type="text" id="transferTo" placeholder="接收方地址">
+            </div>
+            <div class="flex">
+                <input type="number" id="transferAmount" placeholder="转账数量" step="0.001" min="0" style="flex: 1;">
+                <button class="btn btn-success" onclick="transferToken()">转账</button>
+            </div>
+            <div id="tokenStatus" class="status"></div>
+            <div id="tokenResults" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- 第二步：Permit2 授权 -->
+        <div class="card step-card">
+            <div class="step-header">
+                <span class="step-badge">步骤 2</span>
+                <h3>🔐 Permit2 授权管理</h3>
+            </div>
+            <p class="step-description">授权Permit2合约管理你的代币，这样就可以使用更安全的签名方式进行操作</p>
+            <div class="flex">
+                <button class="btn btn-secondary" onclick="approveToken()">授权给Permit2</button>
+                <button class="btn btn-success" onclick="depositWithPermit2()">Permit2签名存款</button>
+            </div>
+            <div class="flex" style="margin-top: 10px;">
+                <input type="number" id="permit2Amount" placeholder="Permit2存款数量" step="0.001" min="0" style="flex: 1;">
+                <button class="btn" onclick="checkPermit2Allowance()" style="margin-left: 10px;">查询Permit2授权</button>
+            </div>
+            <div id="permit2Status" class="status"></div>
+            <div id="permit2Results" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- 第三步：Bank 合约操作 -->
+        <div class="card step-card">
+            <div class="step-header">
+                <span class="step-badge">步骤 3</span>
+                <h3>🏦 Bank 合约操作</h3>
+            </div>
+            <p class="step-description">使用Bank合约存储ETH和ERC20代币，查看存款记录和排行榜</p>
+            
+            <!-- ETH 存款操作 -->
+            <div style="border: 2px solid #4CAF50; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                <h4 style="color: #4CAF50; margin-top: 0;">💰 ETH 存款操作</h4>
+                <div class="flex">
+                    <input type="number" id="depositAmount" placeholder="存款金额 (ETH)" step="0.001" min="0" style="flex: 1;">
+                    <button class="btn" onclick="depositETH()">存款ETH</button>
+                </div>
+                <div class="flex" style="margin-top: 10px;">
+                    <input type="number" id="withdrawAmount" placeholder="提款金额 (ETH)" step="0.001" min="0" style="flex: 1;">
+                    <button class="btn btn-secondary" onclick="withdrawETH()">提款ETH</button>
+                </div>
+                <div class="flex" style="margin-top: 10px;">
+                    <button class="btn" onclick="getMyETHDeposit()">查询我的ETH存款</button>
+                    <button class="btn" onclick="getContractETHBalance()">查询合约ETH余额</button>
+                </div>
+            </div>
+
+            <!-- ERC20 存款操作 -->
+            <div style="border: 2px solid #2196F3; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                <h4 style="color: #2196F3; margin-top: 0;">🪙 ERC20 代币存款操作</h4>
+                <div class="flex">
+                    <input type="number" id="erc20DepositAmount" placeholder="存款数量 (ERC20)" step="0.001" min="0" style="flex: 1;">
+                    <button class="btn" onclick="depositERC20()">普通存款ERC20</button>
+                </div>
+                <div class="flex" style="margin-top: 10px;">
+                    <button class="btn" onclick="getMyERC20Deposit()">查询我的ERC20存款</button>
+                    <button class="btn" onclick="getContractERC20Balance()">查询合约ERC20余额</button>
+                </div>
+            </div>
+
+            <!-- 综合查询 -->
+            <div style="border: 2px solid #FF9800; border-radius: 8px; padding: 15px;">
+                <h4 style="color: #FF9800; margin-top: 0;">📊 综合查询</h4>
+                <div class="flex">
+                    <button class="btn" onclick="getAllMyDeposits()">查询我的所有存款</button>
+                    <button class="btn" onclick="getAllContractBalances()">查询合约所有余额</button>
+                    <button class="btn btn-success" onclick="getTopDepositors()">查询排行榜</button>
+                </div>
+            </div>
+
+            <div id="bankStatus" class="status"></div>
+            <div id="bankResults" class="result-box" style="display: none;"></div>
+        </div>
+            <div id="permit2Status" class="status"></div>
+            <div id="permit2Results" class="result-box" style="display: none;"></div>
+        </div>
+    </div>
+</body>
+</html>
