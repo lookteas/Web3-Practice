@@ -68,6 +68,15 @@ chainLink/
 - Node.js >= 16.0.0
 - MetaMask 钱包
 - Sepolia 测试网 ETH
+- 合约地址 ： 0xcE3BE1592Ec695FF5c311839f3b1399158f6AbaB
+
+### 技术栈更新
+
+- **前端框架**: 原生 HTML/CSS/JavaScript
+- **Web3 库**: Ethers.js v6.x
+- **智能合约**: Solidity 0.8.25
+- **自动化服务**: ChainLink Automation
+- **测试网络**: Sepolia
 
 ### 1. 安装依赖
 
@@ -101,11 +110,7 @@ DEFAULT_THRESHOLD=1000000000000000000  # 1 ETH
 4. 连接 MetaMask 到 Sepolia 测试网
 5. 部署合约，设置初始阈值（如 1 ETH = 1000000000000000000 wei）
 
-#### 使用部署脚本
 
-```bash
-# 编辑 deploy.js 添加合约字节码后运行
-npm run deploy
 ```
 
 ### 4. 启动前端界面
@@ -119,6 +124,12 @@ python -m http.server 8000
 # 或使用 Node.js
 npx http-server
 ```
+
+**注意**: 前端已升级到 Ethers.js v6，具有以下改进：
+- 更现代的 API 设计
+- 更好的类型安全性
+- 优化的性能表现
+- 使用 CDN 加载，无需本地安装
 
 ## 📖 使用指南
 
@@ -246,30 +257,19 @@ event Withdrawal(address indexed user, uint256 amount);
 ### 调试工具
 
 ```javascript
-// 在浏览器控制台中检查合约状态
+// 在浏览器控制台中检查合约状态（Ethers.js v6 语法）
+const provider = new ethers.BrowserProvider(window.ethereum);
 const contract = new ethers.Contract(address, abi, provider);
 await contract.getUpkeepStatus();
+
+// 检查钱包连接状态
+const signer = await provider.getSigner();
+console.log('当前账户:', await signer.getAddress());
+
+// 格式化金额显示
+const balance = await contract.balances(userAddress);
+console.log('用户余额:', ethers.formatEther(balance), 'ETH');
 ```
-
-## 📚 扩展功能
-
-### 可能的改进方向
-
-1. **多种自动化条件**
-   - 基于时间的定期转账
-   - 基于价格的动态阈值
-
-2. **更复杂的资金管理**
-   - 多个受益人地址
-   - 按比例分配资金
-
-3. **治理功能**
-   - DAO 投票决定参数
-   - 多签名管理
-
-4. **集成其他 DeFi 协议**
-   - 自动投资到流动性池
-   - 收益农场自动复投
 
 ## 🤝 贡献指南
 
@@ -286,17 +286,13 @@ MIT License - 详见 LICENSE 文件
 
 ## 🔗 相关链接
 
-- [ChainLink Automation 文档](https://docs.chain.link/chainlink-automation/introduction) <mcreference link="https://learnblockchain.cn/article/5618" index="0">0</mcreference>
+- [ChainLink Automation 文档](https://docs.chain.link/chainlink-automation/introduction)
 - [Solidity 官方文档](https://docs.soliditylang.org/)
-- [ethers.js 文档](https://docs.ethers.io/)
-- [Sepolia 测试网水龙头](https://sepoliafaucet.com/)
+- [Ethers.js v6 文档](https://docs.ethers.org/v6/)
+
 
 ## ⚠️ 免责声明
 
 本项目仅用于学习和演示目的。请勿在主网使用真实资金进行测试。使用前请充分了解智能合约的风险。
 
 ---
-
-**开发者**: Web3 Practice Team  
-**最后更新**: 2024年  
-**版本**: 1.0.0

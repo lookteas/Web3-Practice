@@ -10,23 +10,456 @@ class AutomatedBankDApp {
         
         // 合约 ABI
         this.contractABI = [
-            "function deposit() external payable",
-            "function withdraw(uint256 amount) external",
-            "function checkUpkeep(bytes calldata) external view returns (bool upkeepNeeded, bytes memory)",
-            "function performUpkeep(bytes calldata) external",
-            "function updateThreshold(uint256 _newThreshold) external",
-            "function getContractBalance() external view returns (uint256)",
-            "function getUserBalance(address user) external view returns (uint256)",
-            "function getUpkeepStatus() external view returns (bool, bool, bool, uint256, uint256, uint256)",
-            "function totalDeposits() external view returns (uint256)",
-            "function threshold() external view returns (uint256)",
-            "function owner() external view returns (address)",
-            "function getTimeUntilNextTransfer() external view returns (uint256)",
-            "event Deposit(address indexed user, uint256 amount, uint256 newTotal)",
-            "event AutoTransfer(uint256 amount, uint256 remainingBalance, uint256 timestamp)",
-            "event ThresholdUpdated(uint256 oldThreshold, uint256 newThreshold)",
-            "event Withdrawal(address indexed user, uint256 amount)"
-        ];
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_threshold",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "InsufficientBalance",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidThreshold",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "TransferAmountTooSmall",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "UpkeepConditionsNotMet",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ZeroAddressNotAllowed",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "remainingBalance",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "AutoTransfer",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newTotal",
+				"type": "uint256"
+			}
+		],
+		"name": "Deposit",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "oldThreshold",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newThreshold",
+				"type": "uint256"
+			}
+		],
+		"name": "ThresholdUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Withdrawal",
+		"type": "event"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"inputs": [],
+		"name": "MIN_INTERVAL",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MIN_TRANSFER_AMOUNT",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "checkUpkeep",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "deposit",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "deposits",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "emergencyWithdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getContractBalance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getExpectedTransferAmount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getTimeUntilNextTransfer",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getUpkeepStatus",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "thresholdMet",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "intervalMet",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "balanceSufficient",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "amountValid",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "currentDeposits",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "currentThreshold",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timeRemaining",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "calculatedTransferAmount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getUserBalance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastTransferTime",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "threshold",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalDeposits",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_newThreshold",
+				"type": "uint256"
+			}
+		],
+		"name": "updateThreshold",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
+];
         
         this.init();
     }
@@ -93,8 +526,8 @@ class AutomatedBankDApp {
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             
             // 创建 provider 和 signer
-            this.provider = new ethers.providers.Web3Provider(window.ethereum);
-            this.signer = this.provider.getSigner();
+            this.provider = new ethers.BrowserProvider(window.ethereum);
+            this.signer = await this.provider.getSigner();
             this.userAddress = accounts[0];
             
             // 检查网络
@@ -170,7 +603,7 @@ class AutomatedBankDApp {
             
             document.getElementById('walletInfo').innerHTML = `
                 <p><strong>地址:</strong> ${this.userAddress.slice(0, 6)}...${this.userAddress.slice(-4)}</p>
-                <p><strong>余额:</strong> ${ethers.utils.formatEther(balance)} ETH</p>
+                <p><strong>余额:</strong> ${ethers.formatEther(balance)} ETH</p>
                 <p><strong>网络:</strong> ${network.name} (${network.chainId})</p>
             `;
         } catch (error) {
@@ -180,7 +613,7 @@ class AutomatedBankDApp {
     
     setContractAddress(address) {
         this.contractAddress = address;
-        if (address && ethers.utils.isAddress(address) && this.signer) {
+        if (address && ethers.isAddress(address) && this.signer) {
             this.contract = new ethers.Contract(address, this.contractABI, this.signer);
             this.enableButtons();
             this.updateContractStatus();
@@ -222,7 +655,7 @@ class AutomatedBankDApp {
             this.showLoading('depositBtn', true);
             
             const tx = await this.contract.deposit({
-                value: ethers.utils.parseEther(amount)
+                value: ethers.parseEther(amount)
             });
             
             this.showMessage('交易已提交，等待确认...', 'info');
@@ -255,7 +688,7 @@ class AutomatedBankDApp {
             // 获取用户余额
             const userBalance = await this.contract.getUserBalance(this.userAddress);
             
-            if (userBalance.eq(0)) {
+            if (userBalance === 0n) {
                 this.showMessage('您没有可提取的存款', 'error');
                 return;
             }
@@ -265,7 +698,7 @@ class AutomatedBankDApp {
             this.showMessage('交易已提交，等待确认...', 'info');
             await tx.wait();
             
-            this.showMessage(`成功提取 ${ethers.utils.formatEther(userBalance)} ETH`, 'success');
+            this.showMessage(`成功提取 ${ethers.formatEther(userBalance)} ETH`, 'success');
             
             // 更新状态
             await this.updateContractStatus();
@@ -294,7 +727,7 @@ class AutomatedBankDApp {
         try {
             this.showLoading('updateThresholdBtn', true);
             
-            const tx = await this.contract.updateThreshold(ethers.utils.parseEther(newThreshold));
+            const tx = await this.contract.updateThreshold(ethers.parseEther(newThreshold));
             
             this.showMessage('交易已提交，等待确认...', 'info');
             await tx.wait();
@@ -386,21 +819,32 @@ class AutomatedBankDApp {
             ]);
             
             // 更新显示
-            document.getElementById('contractBalance').textContent = ethers.utils.formatEther(contractBalance) + ' ETH';
-            document.getElementById('totalDeposits').textContent = ethers.utils.formatEther(totalDeposits) + ' ETH';
-            document.getElementById('userBalance').textContent = ethers.utils.formatEther(userBalance) + ' ETH';
-            document.getElementById('threshold').textContent = ethers.utils.formatEther(threshold) + ' ETH';
+            document.getElementById('contractBalance').textContent = ethers.formatEther(contractBalance) + ' ETH';
+            document.getElementById('totalDeposits').textContent = ethers.formatEther(totalDeposits) + ' ETH';
+            document.getElementById('userBalance').textContent = ethers.formatEther(userBalance) + ' ETH';
+            document.getElementById('threshold').textContent = ethers.formatEther(threshold) + ' ETH';
             document.getElementById('owner').textContent = owner.slice(0, 6) + '...' + owner.slice(-4);
             
             // 格式化时间显示
-            const timeRemainingNum = timeRemaining.toNumber();
+            const timeRemainingNum = Number(timeRemaining);
             if (timeRemainingNum === 0) {
                 document.getElementById('timeRemaining').textContent = '可立即执行';
+                document.getElementById('timeRemaining').className = 'status-value status-success';
             } else {
                 const hours = Math.floor(timeRemainingNum / 3600);
                 const minutes = Math.floor((timeRemainingNum % 3600) / 60);
-                const seconds = timeRemainingNum % 60;
-                document.getElementById('timeRemaining').textContent = `${hours}h ${minutes}m ${seconds}s`;
+                document.getElementById('timeRemaining').textContent = `${hours}小时${minutes}分钟`;
+                document.getElementById('timeRemaining').className = 'status-value';
+            }
+            
+            // 检查是否需要执行 upkeep
+            const upkeepStatusElement = document.getElementById('upkeepStatus').querySelector('.value');
+            if (totalDeposits >= threshold && timeRemainingNum <= 0) {
+                upkeepStatusElement.textContent = '是';
+                upkeepStatusElement.className = 'value status-warning';
+            } else {
+                upkeepStatusElement.textContent = '否';
+                upkeepStatusElement.className = 'value';
             }
             
         } catch (error) {
