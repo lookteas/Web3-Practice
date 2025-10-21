@@ -26,6 +26,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [15 ：Permit2 银行合约项目](#15-permit2-银行合约项目)
 - [16 ：EIP-7702 账户抽象授权](#16-eip-7702-账户抽象授权)
 - [17 ：合约安全审计](#17-合约安全审计)
+- [18 ：ChainLink 自动化银行项目](#18-chainlink-automation-项目)
 
 
 
@@ -168,6 +169,14 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   - 位置：contractAudit
   - 包含一个存在安全漏洞的 Vault 合约，以及相应的攻击测试用例
   - 可以学习到 delegatecall 存储槽冲突漏洞的成因和利用方式，以及如何编写安全审计测试用例
+
+  -------
+
+### **18 ：ChainLink Automation 项目**
+  - 基于 ChainLink Automation 平台的自动化合约项目，演示如何使用 ChainLink 自动化触发机制。详情请查看[chainLink/README.md](chainLink)
+  - 位置：chainLink
+  - 包含一个基于 ChainLink Automation 的自动化合约，实现基于阈值的自动化触发机制
+  - 可以学习到 ChainLink Automation 的工作原理和集成方法
 
   -------
   

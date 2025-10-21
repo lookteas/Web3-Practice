@@ -12,6 +12,8 @@
 - ✅ 安全的资金管理
 - ✅ 现代化的 Web 前端界面
 
+<img src="./1.jpg" style="zoom:80%;" />
+
 ## 🏗️ 项目结构
 
 ```
@@ -60,6 +62,10 @@ chainLink/
 - 实现了 `checkUpkeep()` 接口用于条件检查
 - 实现了 `performUpkeep()` 接口用于自动执行
 - 支持链下计算和链上执行的分离
+
+
+
+<img src="./2.jpg" style="zoom:80%;" />
 
 ## 🚀 快速开始
 
@@ -187,6 +193,8 @@ npm run check-upkeep <合约地址>
 ## 📊 ChainLink Automation 设置
 
 ### 在 ChainLink Automation 平台注册
+
+> 运行需要20个link代币,可以通过节水来获取，或者通过uniswapv3 来用ETH 测试代币兑换
 
 1. 访问 [ChainLink Automation](https://automation.chain.link/)
 2. 连接钱包并选择 Sepolia 网络
