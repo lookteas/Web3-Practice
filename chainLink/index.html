@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChainLink 自动化银行 DApp</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+
+        .status-grid {
+            grid-column: 1 / -1;
+        }
+
+        .status-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .status-item h4 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-item .value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .wallet-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .automation-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .automation-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .automation-item.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .automation-item.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 ChainLink 自动化银行</h1>
+            <p>基于 ChainLink Automation 的智能合约自动化演示</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 钱包连接状态 -->
+            <div class="card">
+                <h3>🔗 钱包连接</h3>
+                <div id="walletInfo" class="wallet-info">
+                    <p>请连接您的 MetaMask 钱包</p>
+                </div>
+                <button id="connectWallet" class="btn">连接钱包</button>
+                <button id="switchNetwork" class="btn btn-secondary" style="display: none;">切换到 Sepolia 测试网</button>
+            </div>
+
+            <!-- 合约交互 -->
+            <div class="card">
+                <h3>💰 存款操作</h3>
+                <div class="input-group">
+                    <label for="contractAddress">合约地址:</label>
+                    <input type="text" id="contractAddress" placeholder="输入已部署的合约地址">
+                </div>
+                <div class="input-group">
+                    <label for="depositAmount">存款金额 (ETH):</label>
+                    <input type="number" id="depositAmount" placeholder="0.1" step="0.01" min="0">
+                </div>
+                <button id="depositBtn" class="btn" disabled>存款</button>
+                <button id="withdrawBtn" class="btn btn-secondary" disabled>提取全部存款</button>
+                <div class="input-group" style="margin-top: 15px;">
+                    <label for="thresholdAmount">更新阈值 (ETH):</label>
+                    <input type="number" id="thresholdAmount" placeholder="1.0" step="0.1" min="0">
+                </div>
+                <button id="updateThresholdBtn" class="btn btn-secondary" disabled>更新阈值</button>
+            </div>
+
+            <!-- 合约状态 -->
+            <div class="card status-grid">
+                <h3>📊 合约状态</h3>
+                <div class="status-items">
+                    <div class="status-item">
+                        <h4>合约余额</h4>
+                        <div class="value" id="contractBalance">0 ETH</div>
+                    </div>
+                    <div class="status-item">
+                        <h4>总存款</h4>
+                        <div class="value" id="totalDeposits">0 ETH</div>
+                    </div>
+                    <div class="status-item">
+                        <h4>我的存款</h4>
+                        <div class="value" id="userBalance">0 ETH</div>
+                    </div>
+                    <div class="status-item">
+                        <h4>触发阈值</h4>
+                        <div class="value" id="threshold">0 ETH</div>
+                    </div>
+                    <div class="status-item">
+                        <h4>合约所有者</h4>
+                        <div class="value" id="owner">未连接</div>
+                    </div>
+                    <div class="status-item">
+                        <h4>下次转账倒计时</h4>
+                        <div class="value" id="timeRemaining">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 自动化状态 -->
+            <div class="card status-grid">
+                <h3>🤖 ChainLink Automation 状态</h3>
+                <div class="automation-status">
+                    <div class="automation-item" id="thresholdStatus">
+                        <h4>阈值检查</h4>
+                        <div class="value">未检查</div>
+                    </div>
+                    <div class="automation-item" id="intervalStatus">
+                        <h4>时间间隔</h4>
+                        <div class="value">未检查</div>
+                    </div>
+                    <div class="automation-item" id="balanceStatus">
+                        <h4>余额充足</h4>
+                        <div class="value">未检查</div>
+                    </div>
+                    <div class="automation-item" id="upkeepStatus">
+                        <h4>需要执行</h4>
+                        <div class="value">未检查</div>
+                    </div>
+                </div>
+                <button id="checkUpkeepBtn" class="btn" disabled style="margin-top: 20px;">检查 Upkeep 状态</button>
+                <button id="performUpkeepBtn" class="btn btn-danger" disabled>手动执行 Upkeep</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 ChainLink 自动化银行演示 | 基于 Solidity 0.8.25 开发</p>
+            <p>⚠️ 仅用于学习和演示目的，请勿在主网使用真实资金</p>
+        </div>
+    </div>
+
+    <!-- 消息提示区域 -->
+    <div id="messageArea" style="position: fixed; top: 20px; right: 20px; z-index: 1000; max-width: 400px;"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

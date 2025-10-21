@@ -1,0 +1,35 @@
+{
+  "name": "chainlink-automated-bank",
+  "version": "1.0.0",
+  "description": "一个使用 ChainLink Automation 的自动化银行合约",
+  "main": "deploy.js",
+  "scripts": {
+    "deploy": "node deploy.js",
+    "verify": "node -e \"require('./deploy.js').verifyContract(process.argv[1])\"",
+    "test-deposit": "node -e \"require('./deploy.js').testDeposit(process.argv[1], require('ethers').parseEther(process.argv[2]))\"",
+    "check-upkeep": "node -e \"require('./deploy.js').checkUpkeepStatus(process.argv[1])\"",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "chainlink",
+    "automation",
+    "smart-contract",
+    "ethereum",
+    "defi",
+    "bank"
+  ],
+  "author": "Web3 Developer",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.8.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

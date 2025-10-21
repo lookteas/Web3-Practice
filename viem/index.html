@@ -1,0 +1,30 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Viem 钱包余额示例</title>
+</head>
+<body>
+  <h2>连接钱包查询 Sepolia 余额</h2>
+  <button id="connectBtn">连接钱包</button>
+  <p id="result"></p>
+
+  <!-- USDC 转账 -->
+<h3>发送 USDC</h3>
+<input id="usdcTo" placeholder="接收地址" size="50">
+<input id="usdcAmount" placeholder="金额" type="number" step="0.01">
+<button id="sendUsdcBtn">发送 USDC</button>
+
+<!-- 银行操作 -->
+<h3>TokenBankV2 操作</h3>
+<input id="depositAmount" placeholder="存款金额" type="number" step="0.01">
+<button id="depositBtn">存款</button>
+
+<input id="withdrawAmount" placeholder="提款金额" type="number" step="0.01">
+<button id="withdrawBtn">提款</button>
+
+  <!-- 使用 ESM 方式引入（需本地开发服务器） -->
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

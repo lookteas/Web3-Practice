@@ -1,0 +1,19 @@
+{
+  "name": "viem",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "viem": "^2.38.3"
+  },
+  "devDependencies": {
+    "vite": "^7.1.11"
+  }
+}
