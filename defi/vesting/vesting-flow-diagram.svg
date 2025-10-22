@@ -1,0 +1,121 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font: bold 20px sans-serif; fill: #2c3e50; }
+      .subtitle { font: 16px sans-serif; fill: #34495e; }
+      .text { font: 12px sans-serif; fill: #2c3e50; }
+      .phase-text { font: bold 14px sans-serif; fill: white; }
+      .cliff-phase { fill: #e74c3c; }
+      .vesting-phase { fill: #27ae60; }
+      .complete-phase { fill: #3498db; }
+      .arrow { stroke: #2c3e50; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .timeline { stroke: #34495e; stroke-width: 3; }
+      .milestone { fill: #f39c12; stroke: #e67e22; stroke-width: 2; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="title">Token Vesting 合约流程图</text>
+  <text x="400" y="55" text-anchor="middle" class="subtitle">36个月代币释放周期</text>
+  
+  <!-- Timeline -->
+  <line x1="100" y1="150" x2="700" y2="150" class="timeline"/>
+  
+  <!-- Phase 1: Cliff Period (0-12 months) -->
+  <rect x="100" y="120" width="200" height="60" class="cliff-phase" rx="5"/>
+  <text x="200" y="140" text-anchor="middle" class="phase-text">悬崖期 (Cliff)</text>
+  <text x="200" y="155" text-anchor="middle" class="phase-text">0-12个月</text>
+  <text x="200" y="170" text-anchor="middle" class="phase-text">释放量: 0%</text>
+  
+  <!-- Phase 2: Linear Vesting (12-36 months) -->
+  <rect x="300" y="120" width="300" height="60" class="vesting-phase" rx="5"/>
+  <text x="450" y="140" text-anchor="middle" class="phase-text">线性释放期</text>
+  <text x="450" y="155" text-anchor="middle" class="phase-text">12-36个月</text>
+  <text x="450" y="170" text-anchor="middle" class="phase-text">释放量: 0-100%</text>
+  
+  <!-- Phase 3: Complete -->
+  <rect x="600" y="120" width="100" height="60" class="complete-phase" rx="5"/>
+  <text x="650" y="140" text-anchor="middle" class="phase-text">完成</text>
+  <text x="650" y="155" text-anchor="middle" class="phase-text">36个月+</text>
+  <text x="650" y="170" text-anchor="middle" class="phase-text">100%</text>
+  
+  <!-- Milestones -->
+  <circle cx="100" cy="150" r="8" class="milestone"/>
+  <text x="100" y="200" text-anchor="middle" class="text">开始</text>
+  <text x="100" y="215" text-anchor="middle" class="text">0个月</text>
+  
+  <circle cx="300" cy="150" r="8" class="milestone"/>
+  <text x="300" y="200" text-anchor="middle" class="text">悬崖期结束</text>
+  <text x="300" y="215" text-anchor="middle" class="text">12个月</text>
+  
+  <circle cx="600" cy="150" r="8" class="milestone"/>
+  <text x="600" y="200" text-anchor="middle" class="text">释放期结束</text>
+  <text x="600" y="215" text-anchor="middle" class="text">36个月</text>
+  
+  <circle cx="700" cy="150" r="8" class="milestone"/>
+  <text x="700" y="200" text-anchor="middle" class="text">完全释放</text>
+  
+  <!-- Process Flow -->
+  <g transform="translate(50, 280)">
+    <text x="350" y="20" text-anchor="middle" class="subtitle">合约执行流程</text>
+    
+    <!-- Step 1: Deploy -->
+    <rect x="50" y="40" width="120" height="50" fill="#3498db" rx="5"/>
+    <text x="110" y="60" text-anchor="middle" class="phase-text">1. 部署合约</text>
+    <text x="110" y="75" text-anchor="middle" class="phase-text">设置参数</text>
+    
+    <!-- Arrow 1 -->
+    <line x1="170" y1="65" x2="210" y2="65" class="arrow"/>
+    
+    <!-- Step 2: Transfer Tokens -->
+    <rect x="220" y="40" width="120" height="50" fill="#9b59b6" rx="5"/>
+    <text x="280" y="60" text-anchor="middle" class="phase-text">2. 转入代币</text>
+    <text x="280" y="75" text-anchor="middle" class="phase-text">锁定资金</text>
+    
+    <!-- Arrow 2 -->
+    <line x1="340" y1="65" x2="380" y2="65" class="arrow"/>
+    
+    <!-- Step 3: Wait Cliff -->
+    <rect x="390" y="40" width="120" height="50" fill="#e74c3c" rx="5"/>
+    <text x="450" y="60" text-anchor="middle" class="phase-text">3. 等待悬崖期</text>
+    <text x="450" y="75" text-anchor="middle" class="phase-text">12个月</text>
+    
+    <!-- Arrow 3 (down) -->
+    <line x1="450" y1="90" x2="450" y2="130" class="arrow"/>
+    
+    <!-- Step 4: Linear Release -->
+    <rect x="390" y="140" width="120" height="50" fill="#27ae60" rx="5"/>
+    <text x="450" y="160" text-anchor="middle" class="phase-text">4. 线性释放</text>
+    <text x="450" y="175" text-anchor="middle" class="phase-text">24个月</text>
+    
+    <!-- Arrow 4 (left) -->
+    <line x1="390" y1="165" x2="350" y2="165" class="arrow"/>
+    
+    <!-- Step 5: Release Tokens -->
+    <rect x="220" y="140" width="120" height="50" fill="#f39c12" rx="5"/>
+    <text x="280" y="160" text-anchor="middle" class="phase-text">5. 释放代币</text>
+    <text x="280" y="175" text-anchor="middle" class="phase-text">调用 release()</text>
+    
+    <!-- Arrow 5 (left) -->
+    <line x1="220" y1="165" x2="180" y2="165" class="arrow"/>
+    
+    <!-- Step 6: Complete -->
+    <rect x="50" y="140" width="120" height="50" fill="#2c3e50" rx="5"/>
+    <text x="110" y="160" text-anchor="middle" class="phase-text">6. 完成释放</text>
+    <text x="110" y="175" text-anchor="middle" class="phase-text">100%</text>
+  </g>
+  
+  <!-- Legend -->
+  <g transform="translate(50, 520)">
+    <text x="0" y="0" class="subtitle">图例说明:</text>
+    <rect x="0" y="10" width="15" height="15" class="cliff-phase"/>
+    <text x="25" y="22" class="text">悬崖期 - 代币完全锁定</text>
+    <rect x="150" y="10" width="15" height="15" class="vesting-phase"/>
+    <text x="175" y="22" class="text">线性释放期 - 按时间比例释放</text>
+    <rect x="350" y="10" width="15" height="15" class="complete-phase"/>
+    <text x="375" y="22" class="text">完成期 - 全部代币可用</text>
+  </g>
+</svg>

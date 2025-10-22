@@ -1,0 +1,250 @@
+<svg width="900" height="500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font: bold 18px sans-serif; fill: #2c3e50; }
+      .subtitle { font: 14px sans-serif; fill: #34495e; }
+      .text { font: 12px sans-serif; fill: #2c3e50; }
+      .axis-text { font: 10px sans-serif; fill: #7f8c8d; }
+      .cliff-area { fill: #e74c3c; opacity: 0.3; }
+      .vesting-area { fill: #27ae60; opacity: 0.3; }
+      .progress-line { stroke: #3498db; stroke-width: 3; fill: none; }
+      .axis { stroke: #34495e; stroke-width: 2; }
+      .grid { stroke: #bdc3c7; stroke-width: 1; opacity: 0.5; }
+      .token-released { fill: #f39c12; }
+      .token-locked { fill: #95a5a6; }
+      .progress-dot { fill: #e74c3c; r: 5; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="450" y="25" text-anchor="middle" class="title">Token Vesting 线性释放动画演示</text>
+  <text x="450" y="45" text-anchor="middle" class="subtitle">1,000,000 代币 - 36个月释放周期</text>
+  
+  <!-- Chart Area -->
+  <g transform="translate(80, 80)">
+    <!-- Grid Lines -->
+    <g class="grid">
+      <!-- Vertical grid lines (months) -->
+      <line x1="0" y1="0" x2="0" y2="300"/>
+      <line x1="60" y1="0" x2="60" y2="300"/>
+      <line x1="120" y1="0" x2="120" y2="300"/>
+      <line x1="180" y1="0" x2="180" y2="300"/>
+      <line x1="240" y1="0" x2="240" y2="300"/>
+      <line x1="300" y1="0" x2="300" y2="300"/>
+      <line x1="360" y1="0" x2="360" y2="300"/>
+      <line x1="420" y1="0" x2="420" y2="300"/>
+      <line x1="480" y1="0" x2="480" y2="300"/>
+      <line x1="540" y1="0" x2="540" y2="300"/>
+      <line x1="600" y1="0" x2="600" y2="300"/>
+      <line x1="660" y1="0" x2="660" y2="300"/>
+      <line x1="720" y1="0" x2="720" y2="300"/>
+      
+      <!-- Horizontal grid lines (percentage) -->
+      <line x1="0" y1="0" x2="720" y2="0"/>
+      <line x1="0" y1="75" x2="720" y2="75"/>
+      <line x1="0" y1="150" x2="720" y2="150"/>
+      <line x1="0" y1="225" x2="720" y2="225"/>
+      <line x1="0" y1="300" x2="720" y2="300"/>
+    </g>
+    
+    <!-- Axes -->
+    <line x1="0" y1="300" x2="720" y2="300" class="axis"/>
+    <line x1="0" y1="0" x2="0" y2="300" class="axis"/>
+    
+    <!-- Phase Areas -->
+    <!-- Cliff Period (0-12 months) -->
+    <rect x="0" y="0" width="240" height="300" class="cliff-area"/>
+    <text x="120" y="20" text-anchor="middle" class="subtitle">悬崖期</text>
+    <text x="120" y="35" text-anchor="middle" class="text">0-12个月</text>
+    <text x="120" y="50" text-anchor="middle" class="text">释放: 0%</text>
+    
+    <!-- Linear Vesting Period (12-36 months) -->
+    <rect x="240" y="0" width="480" height="300" class="vesting-area"/>
+    <text x="480" y="20" text-anchor="middle" class="subtitle">线性释放期</text>
+    <text x="480" y="35" text-anchor="middle" class="text">12-36个月</text>
+    <text x="480" y="50" text-anchor="middle" class="text">释放: 0-100%</text>
+    
+    <!-- Vesting Progress Line -->
+    <path d="M 0,300 L 240,300 L 720,0" class="progress-line">
+      <animate attributeName="d" 
+               values="M 0,300 L 240,300 L 240,300;
+                       M 0,300 L 240,300 L 240,300;
+                       M 0,300 L 240,300 L 360,225;
+                       M 0,300 L 240,300 L 480,150;
+                       M 0,300 L 240,300 L 600,75;
+                       M 0,300 L 240,300 L 720,0"
+               dur="8s" 
+               repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Progress Dot -->
+    <circle class="progress-dot">
+      <animateMotion dur="8s" repeatCount="indefinite">
+        <mpath href="#progress-path"/>
+      </animateMotion>
+    </circle>
+    
+    <!-- Hidden path for animation -->
+    <path id="progress-path" d="M 0,300 L 240,300 L 240,300 L 240,300 L 360,225 L 480,150 L 600,75 L 720,0" opacity="0"/>
+    
+    <!-- X-axis labels (months) -->
+    <text x="0" y="320" text-anchor="middle" class="axis-text">0</text>
+    <text x="120" y="320" text-anchor="middle" class="axis-text">6</text>
+    <text x="240" y="320" text-anchor="middle" class="axis-text">12</text>
+    <text x="360" y="320" text-anchor="middle" class="axis-text">18</text>
+    <text x="480" y="320" text-anchor="middle" class="axis-text">24</text>
+    <text x="600" y="320" text-anchor="middle" class="axis-text">30</text>
+    <text x="720" y="320" text-anchor="middle" class="axis-text">36</text>
+    <text x="360" y="340" text-anchor="middle" class="text">时间 (月)</text>
+    
+    <!-- Y-axis labels (percentage) -->
+    <text x="-15" y="305" text-anchor="middle" class="axis-text">0%</text>
+    <text x="-15" y="230" text-anchor="middle" class="axis-text">25%</text>
+    <text x="-15" y="155" text-anchor="middle" class="axis-text">50%</text>
+    <text x="-15" y="80" text-anchor="middle" class="axis-text">75%</text>
+    <text x="-15" y="5" text-anchor="middle" class="axis-text">100%</text>
+    <text x="-40" y="150" text-anchor="middle" class="text" transform="rotate(-90, -40, 150)">释放进度</text>
+  </g>
+  
+  <!-- Token Visualization -->
+  <g transform="translate(80, 400)">
+    <text x="0" y="0" class="subtitle">代币释放可视化:</text>
+    
+    <!-- Total Tokens -->
+    <rect x="0" y="10" width="200" height="20" class="token-locked" rx="3"/>
+    <text x="210" y="25" class="text">总代币: 1,000,000</text>
+    
+    <!-- Released Tokens (animated) -->
+    <rect x="0" y="10" width="0" height="20" class="token-released" rx="3">
+      <animate attributeName="width" 
+               values="0;0;0;50;100;150;200" 
+               dur="8s" 
+               repeatCount="indefinite"/>
+    </rect>
+    
+    <!-- Progress Text -->
+    <g>
+      <!-- Month 0 -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="0" y="50" class="text">已释放: <tspan class="token-released">0</tspan> 代币</text>
+      </g>
+      
+      <!-- Month 12 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="0" y="50" class="text">已释放: <tspan class="token-released">0</tspan> 代币</text>
+      </g>
+      
+      <!-- Month 18 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="0" y="50" class="text">已释放: <tspan class="token-released">250,000</tspan> 代币</text>
+      </g>
+      
+      <!-- Month 24 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="0" y="50" class="text">已释放: <tspan class="token-released">500,000</tspan> 代币</text>
+      </g>
+      
+      <!-- Month 30 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="0" y="50" class="text">已释放: <tspan class="token-released">750,000</tspan> 代币</text>
+      </g>
+      
+      <!-- Month 36 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0" dur="8s" repeatCount="indefinite"/>
+        <text x="0" y="50" class="text">已释放: <tspan class="token-released">1,000,000</tspan> 代币</text>
+      </g>
+    </g>
+    
+    <!-- Time Display -->
+    <g>
+      <!-- Month 0 -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="25" class="text">当前时间: 第 <tspan class="progress-dot">0</tspan> 个月</text>
+      </g>
+      
+      <!-- Month 12 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="25" class="text">当前时间: 第 <tspan class="progress-dot">12</tspan> 个月</text>
+      </g>
+      
+      <!-- Month 18 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="25" class="text">当前时间: 第 <tspan class="progress-dot">18</tspan> 个月</text>
+      </g>
+      
+      <!-- Month 24 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="25" class="text">当前时间: 第 <tspan class="progress-dot">24</tspan> 个月</text>
+      </g>
+      
+      <!-- Month 30 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="25" class="text">当前时间: 第 <tspan class="progress-dot">30</tspan> 个月</text>
+      </g>
+      
+      <!-- Month 36 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="25" class="text">当前时间: 第 <tspan class="progress-dot">36</tspan> 个月</text>
+      </g>
+    </g>
+    
+    <!-- Progress Percentage -->
+    <g>
+      <!-- Month 0 -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="50" class="text">释放进度: <tspan class="vesting-area">0%</tspan></text>
+      </g>
+      
+      <!-- Month 12 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="50" class="text">释放进度: <tspan class="vesting-area">0%</tspan></text>
+      </g>
+      
+      <!-- Month 18 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="50" class="text">释放进度: <tspan class="vesting-area">25%</tspan></text>
+      </g>
+      
+      <!-- Month 24 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="50" class="text">释放进度: <tspan class="vesting-area">50%</tspan></text>
+      </g>
+      
+      <!-- Month 30 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="50" class="text">释放进度: <tspan class="vesting-area">75%</tspan></text>
+      </g>
+      
+      <!-- Month 36 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0" dur="8s" repeatCount="indefinite"/>
+        <text x="300" y="50" class="text">释放进度: <tspan class="vesting-area">100%</tspan></text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Formula Display -->
+  <g transform="translate(500, 400)">
+    <text x="0" y="0" class="subtitle">线性释放公式:</text>
+    <text x="0" y="20" class="text">已释放 = 总量 × (当前时间 - 悬崖结束时间) / 线性释放时间</text>
+    <text x="0" y="35" class="text">当 时间 > 12个月 时:</text>
+    <text x="0" y="50" class="text">已释放 = 1,000,000 × (t - 12) / 24</text>
+  </g>
+</svg>

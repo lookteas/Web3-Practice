@@ -1,0 +1,344 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font: bold 24px sans-serif; fill: #2c3e50; }
+      .subtitle { font: bold 18px sans-serif; fill: #34495e; }
+      .text { font: 14px sans-serif; fill: #2c3e50; }
+      .formula { font: bold 16px monospace; fill: #e74c3c; }
+      .calculation { font: 14px monospace; fill: #27ae60; }
+      .highlight { font: bold 14px sans-serif; fill: #f39c12; }
+      .phase-text { font: bold 12px sans-serif; fill: white; }
+      .axis { stroke: #34495e; stroke-width: 2; }
+      .grid { stroke: #ecf0f1; stroke-width: 1; }
+      .cliff-area { fill: #e74c3c; opacity: 0.7; }
+      .vesting-area { fill: #27ae60; opacity: 0.7; }
+      .formula-box { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; rx: 8; }
+      .calculation-box { fill: #e8f5e8; stroke: #27ae60; stroke-width: 2; rx: 5; }
+      .timeline-marker { fill: #3498db; stroke: #2980b9; stroke-width: 2; }
+      .progress-line { stroke: #e74c3c; stroke-width: 4; fill: none; }
+      .example-dot { fill: #f39c12; stroke: #e67e22; stroke-width: 2; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" class="title">Token Vesting 线性释放数学原理动画演示</text>
+  <text x="600" y="55" text-anchor="middle" class="subtitle">公式推导 · 计算过程 · 实例演示</text>
+  
+  <!-- Main Timeline Chart -->
+  <g transform="translate(100, 100)">
+    <!-- Chart Background -->
+    <rect x="0" y="0" width="800" height="300" fill="#fafafa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+    
+    <!-- Grid Lines -->
+    <g class="grid">
+      <!-- Vertical lines for months -->
+      <line x1="0" y1="0" x2="0" y2="300"/>
+      <line x1="133" y1="0" x2="133" y2="300"/>
+      <line x1="267" y1="0" x2="267" y2="300"/>
+      <line x1="400" y1="0" x2="400" y2="300"/>
+      <line x1="533" y1="0" x2="533" y2="300"/>
+      <line x1="667" y1="0" x2="667" y2="300"/>
+      <line x1="800" y1="0" x2="800" y2="300"/>
+      
+      <!-- Horizontal lines for percentage -->
+      <line x1="0" y1="0" x2="800" y2="0"/>
+      <line x1="0" y1="75" x2="800" y2="75"/>
+      <line x1="0" y1="150" x2="800" y2="150"/>
+      <line x1="0" y1="225" x2="800" y2="225"/>
+      <line x1="0" y1="300" x2="800" y2="300"/>
+    </g>
+    
+    <!-- Phase Areas -->
+    <!-- Cliff Period -->
+    <rect x="0" y="0" width="267" height="300" class="cliff-area"/>
+    <text x="133" y="20" text-anchor="middle" class="phase-text">悬崖期 (Cliff Period)</text>
+    <text x="133" y="35" text-anchor="middle" class="phase-text">0 - 12个月</text>
+    
+    <!-- Linear Vesting Period -->
+    <rect x="267" y="0" width="533" height="300" class="vesting-area"/>
+    <text x="533" y="20" text-anchor="middle" class="phase-text">线性释放期 (Linear Vesting)</text>
+    <text x="533" y="35" text-anchor="middle" class="phase-text">12 - 36个月</text>
+    
+    <!-- Axes -->
+    <line x1="0" y1="300" x2="800" y2="300" class="axis"/>
+    <line x1="0" y1="0" x2="0" y2="300" class="axis"/>
+    
+    <!-- Vesting Progress Line (Animated) -->
+    <path d="M 0,300 L 267,300 L 800,0" class="progress-line">
+      <animate attributeName="d" 
+               values="M 0,300 L 267,300 L 267,300;
+                       M 0,300 L 267,300 L 267,300;
+                       M 0,300 L 267,300 L 267,300;
+                       M 0,300 L 267,300 L 400,225;
+                       M 0,300 L 267,300 L 533,150;
+                       M 0,300 L 267,300 L 667,75;
+                       M 0,300 L 267,300 L 800,0"
+               dur="14s" 
+               repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Timeline Marker (Moving) -->
+    <circle r="8" class="timeline-marker">
+      <animateTransform attributeName="transform" 
+                        type="translate" 
+                        values="0,310;133,310;267,310;400,310;533,310;667,310;800,310" 
+                        dur="14s" 
+                        repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Example Points -->
+    <circle cx="267" cy="300" r="6" class="example-dot" opacity="0">
+      <animate attributeName="opacity" values="0;0;0;1;1;1;1" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="400" cy="225" r="6" class="example-dot" opacity="0">
+      <animate attributeName="opacity" values="0;0;0;0;1;1;1" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="533" cy="150" r="6" class="example-dot" opacity="0">
+      <animate attributeName="opacity" values="0;0;0;0;0;1;1" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="667" cy="75" r="6" class="example-dot" opacity="0">
+      <animate attributeName="opacity" values="0;0;0;0;0;0;1" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="800" cy="0" r="6" class="example-dot" opacity="0">
+      <animate attributeName="opacity" values="0;0;0;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- X-axis labels -->
+    <text x="0" y="320" text-anchor="middle" class="text">0</text>
+    <text x="133" y="320" text-anchor="middle" class="text">6</text>
+    <text x="267" y="320" text-anchor="middle" class="text">12</text>
+    <text x="400" y="320" text-anchor="middle" class="text">18</text>
+    <text x="533" y="320" text-anchor="middle" class="text">24</text>
+    <text x="667" y="320" text-anchor="middle" class="text">30</text>
+    <text x="800" y="320" text-anchor="middle" class="text">36</text>
+    <text x="400" y="340" text-anchor="middle" class="text">时间 (月)</text>
+    
+    <!-- Y-axis labels -->
+    <text x="-15" y="305" text-anchor="middle" class="text">0%</text>
+    <text x="-15" y="230" text-anchor="middle" class="text">25%</text>
+    <text x="-15" y="155" text-anchor="middle" class="text">50%</text>
+    <text x="-15" y="80" text-anchor="middle" class="text">75%</text>
+    <text x="-15" y="5" text-anchor="middle" class="text">100%</text>
+    <text x="-40" y="150" text-anchor="middle" class="text" transform="rotate(-90, -40, 150)">释放进度</text>
+  </g>
+  
+  <!-- Mathematical Formula Section -->
+  <g transform="translate(100, 450)">
+    <!-- Formula Box -->
+    <rect x="0" y="0" width="800" height="120" class="formula-box"/>
+    
+    <text x="20" y="25" class="subtitle">📐 数学公式推导</text>
+    
+    <!-- Phase 1: Cliff Period -->
+    <text x="20" y="50" class="text">阶段一：悬崖期 (0 &lt;= t &lt;= 12个月)</text>
+    <text x="40" y="70" class="formula">已释放代币 = 0</text>
+    <text x="40" y="85" class="text">说明：在悬崖期内，无论时间如何变化，释放量始终为0</text>
+    
+    <!-- Phase 2: Linear Vesting -->
+    <text x="420" y="50" class="text">阶段二：线性释放期 (12 &lt; t &lt;= 36个月)</text>
+    <text x="440" y="70" class="formula">已释放代币 = 总量 × (t - 12) / 24</text>
+    <text x="440" y="85" class="text">说明：释放量与时间成正比，线性增长</text>
+    
+    <!-- Current Time Display -->
+    <g>
+      <!-- Month 0 -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;1;1;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="110" class="highlight">当前时间: 第0个月</text>
+      </g>
+      
+      <!-- Month 6 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="110" class="highlight">当前时间: 第6个月</text>
+      </g>
+      
+      <!-- Month 12 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="110" class="highlight">当前时间: 第12个月</text>
+      </g>
+      
+      <!-- Month 18 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="110" class="highlight">当前时间: 第18个月</text>
+      </g>
+      
+      <!-- Month 24 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="110" class="highlight">当前时间: 第24个月</text>
+      </g>
+      
+      <!-- Month 30 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="110" class="highlight">当前时间: 第30个月</text>
+      </g>
+      
+      <!-- Month 36 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;1" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="110" class="highlight">当前时间: 第36个月</text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Calculation Examples Section -->
+  <g transform="translate(100, 590)">
+    <!-- Calculation Box -->
+    <rect x="0" y="0" width="800" height="180" class="calculation-box"/>
+    
+    <text x="20" y="25" class="subtitle">🧮 实时计算演示 (总量: 1,000,000 代币)</text>
+    
+    <!-- Dynamic Calculation Display -->
+    <g>
+      <!-- Month 0 -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;1;1;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="50" class="text">当前月份: 第0个月</text>
+        <text x="20" y="75" class="calculation">计算公式: 已释放 = 0 (悬崖期)</text>
+        <text x="20" y="100" class="calculation">计算过程: 悬崖期内无释放</text>
+        <text x="20" y="125" class="highlight">已释放代币: 0 代币</text>
+        <text x="20" y="150" class="text">释放进度: 0%</text>
+      </g>
+      
+      <!-- Month 6 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="50" class="text">当前月份: 第6个月</text>
+        <text x="20" y="75" class="calculation">计算公式: 已释放 = 0 (悬崖期)</text>
+        <text x="20" y="100" class="calculation">计算过程: 悬崖期内无释放</text>
+        <text x="20" y="125" class="highlight">已释放代币: 0 代币</text>
+        <text x="20" y="150" class="text">释放进度: 0%</text>
+      </g>
+      
+      <!-- Month 12 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="50" class="text">当前月份: 第12个月</text>
+        <text x="20" y="75" class="calculation">计算公式: 已释放 = 0 (悬崖期结束)</text>
+        <text x="20" y="100" class="calculation">计算过程: 悬崖期内无释放</text>
+        <text x="20" y="125" class="highlight">已释放代币: 0 代币</text>
+        <text x="20" y="150" class="text">释放进度: 0%</text>
+      </g>
+      
+      <!-- Month 18 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="50" class="text">当前月份: 第18个月</text>
+        <text x="20" y="75" class="calculation">计算公式: 已释放 = 1,000,000 × (18-12)/24</text>
+        <text x="20" y="100" class="calculation">计算过程: = 1,000,000 × 6/24 = 250,000</text>
+        <text x="20" y="125" class="highlight">已释放代币: 250,000 代币</text>
+        <text x="20" y="150" class="text">释放进度: 25%</text>
+      </g>
+      
+      <!-- Month 24 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="50" class="text">当前月份: 第24个月</text>
+        <text x="20" y="75" class="calculation">计算公式: 已释放 = 1,000,000 × (24-12)/24</text>
+        <text x="20" y="100" class="calculation">计算过程: = 1,000,000 × 12/24 = 500,000</text>
+        <text x="20" y="125" class="highlight">已释放代币: 500,000 代币</text>
+        <text x="20" y="150" class="text">释放进度: 50%</text>
+      </g>
+      
+      <!-- Month 30 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="50" class="text">当前月份: 第30个月</text>
+        <text x="20" y="75" class="calculation">计算公式: 已释放 = 1,000,000 × (30-12)/24</text>
+        <text x="20" y="100" class="calculation">计算过程: = 1,000,000 × 18/24 = 750,000</text>
+        <text x="20" y="125" class="highlight">已释放代币: 750,000 代币</text>
+        <text x="20" y="150" class="text">释放进度: 75%</text>
+      </g>
+      
+      <!-- Month 36 -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;1" dur="14s" repeatCount="indefinite"/>
+        <text x="20" y="50" class="text">当前月份: 第36个月</text>
+        <text x="20" y="75" class="calculation">计算公式: 已释放 = 1,000,000 × (36-12)/24</text>
+        <text x="20" y="100" class="calculation">计算过程: = 1,000,000 × 24/24 = 1,000,000</text>
+        <text x="20" y="125" class="highlight">已释放代币: 1,000,000 代币</text>
+        <text x="20" y="150" class="text">释放进度: 100%</text>
+      </g>
+    </g>
+    
+    <!-- Right side: Key Parameters -->
+    <g transform="translate(450, 40)">
+      <text x="0" y="0" class="subtitle">📊 关键参数</text>
+      <text x="0" y="25" class="text">• 总代币量: 1,000,000</text>
+      <text x="0" y="40" class="text">• 悬崖期: 12个月</text>
+      <text x="0" y="55" class="text">• 线性释放期: 24个月</text>
+      <text x="0" y="70" class="text">• 总周期: 36个月</text>
+      <text x="0" y="85" class="text">• 每月释放率: 1/24 ≈ 4.17%</text>
+      
+      <g>
+        <!-- Month 0 -->
+        <g opacity="1">
+          <animate attributeName="opacity" values="1;1;1;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+          <text x="0" y="110" class="highlight">实时释放量: 0 代币</text>
+          <text x="0" y="130" class="highlight">实时进度: 0%</text>
+        </g>
+        
+        <!-- Month 6 -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;1;1;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+          <text x="0" y="110" class="highlight">实时释放量: 0 代币</text>
+          <text x="0" y="130" class="highlight">实时进度: 0%</text>
+        </g>
+        
+        <!-- Month 12 -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0;1;0;0;0;0" dur="14s" repeatCount="indefinite"/>
+          <text x="0" y="110" class="highlight">实时释放量: 0 代币</text>
+          <text x="0" y="130" class="highlight">实时进度: 0%</text>
+        </g>
+        
+        <!-- Month 18 -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0;0;1;0;0;0" dur="14s" repeatCount="indefinite"/>
+          <text x="0" y="110" class="highlight">实时释放量: 250,000 代币</text>
+          <text x="0" y="130" class="highlight">实时进度: 25%</text>
+        </g>
+        
+        <!-- Month 24 -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0;0;0;1;0;0" dur="14s" repeatCount="indefinite"/>
+          <text x="0" y="110" class="highlight">实时释放量: 500,000 代币</text>
+          <text x="0" y="130" class="highlight">实时进度: 50%</text>
+        </g>
+        
+        <!-- Month 30 -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0;0;0;0;1;0" dur="14s" repeatCount="indefinite"/>
+          <text x="0" y="110" class="highlight">实时释放量: 750,000 代币</text>
+          <text x="0" y="130" class="highlight">实时进度: 75%</text>
+        </g>
+        
+        <!-- Month 36 -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0;0;0;0;0;1" dur="14s" repeatCount="indefinite"/>
+          <text x="0" y="110" class="highlight">实时释放量: 1,000,000 代币</text>
+          <text x="0" y="130" class="highlight">实时进度: 100%</text>
+        </g>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Legend -->
+  <g transform="translate(950, 100)">
+    <text x="0" y="0" class="subtitle">图例</text>
+    <rect x="0" y="10" width="15" height="15" class="cliff-area"/>
+    <text x="20" y="22" class="text">悬崖期</text>
+    <rect x="0" y="35" width="15" height="15" class="vesting-area"/>
+    <text x="20" y="47" class="text">线性释放期</text>
+    <line x1="0" y1="60" x2="15" y2="60" class="progress-line"/>
+    <text x="20" y="65" class="text">释放进度线</text>
+    <circle cx="7" cy="80" r="4" class="timeline-marker"/>
+    <text x="20" y="85" class="text">时间指示器</text>
+    <circle cx="7" cy="100" r="4" class="example-dot"/>
+    <text x="20" y="105" class="text">计算示例点</text>
+  </g>
+</svg>

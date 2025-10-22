@@ -1,0 +1,1218 @@
+<svg width="1000" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font: bold 20px sans-serif; fill: #2c3e50; }
+      .subtitle { font: 16px sans-serif; fill: #34495e; }
+      .text { font: 12px sans-serif; fill: #2c3e50; }
+      .small-text { font: 10px sans-serif; fill: #7f8c8d; }
+      .month-text { font: bold 14px sans-serif; fill: #e74c3c; }
+      .progress-text { font: bold 12px sans-serif; fill: #27ae60; }
+      .axis { stroke: #34495e; stroke-width: 2; }
+      .grid { stroke: #ecf0f1; stroke-width: 1; }
+      .cliff-bar { fill: #e74c3c; opacity: 0.8; }
+      .vesting-bar { fill: #27ae60; opacity: 0.8; }
+      .progress-line { stroke: #3498db; stroke-width: 3; fill: none; }
+      .time-marker { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; }
+      .data-box { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 1; rx: 5; }
+      .highlight { fill: #f39c12; opacity: 0.3; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="500" y="25" text-anchor="middle" class="title">Token Vesting 时间周期模拟</text>
+  <text x="500" y="45" text-anchor="middle" class="subtitle">36个月完整释放周期 - 实时数据展示</text>
+  
+  <!-- Main Chart Area -->
+  <g transform="translate(80, 80)">
+    <!-- Grid -->
+    <g class="grid">
+      <!-- Vertical lines for each month -->
+      <line x1="0" y1="0" x2="0" y2="300"/>
+      <line x1="25" y1="0" x2="25" y2="300"/>
+      <line x1="50" y1="0" x2="50" y2="300"/>
+      <line x1="75" y1="0" x2="75" y2="300"/>
+      <line x1="100" y1="0" x2="100" y2="300"/>
+      <line x1="125" y1="0" x2="125" y2="300"/>
+      <line x1="150" y1="0" x2="150" y2="300"/>
+      <line x1="175" y1="0" x2="175" y2="300"/>
+      <line x1="200" y1="0" x2="200" y2="300"/>
+      <line x1="225" y1="0" x2="225" y2="300"/>
+      <line x1="250" y1="0" x2="250" y2="300"/>
+      <line x1="275" y1="0" x2="275" y2="300"/>
+      <line x1="300" y1="0" x2="300" y2="300"/>
+      <line x1="325" y1="0" x2="325" y2="300"/>
+      <line x1="350" y1="0" x2="350" y2="300"/>
+      <line x1="375" y1="0" x2="375" y2="300"/>
+      <line x1="400" y1="0" x2="400" y2="300"/>
+      <line x1="425" y1="0" x2="425" y2="300"/>
+      <line x1="450" y1="0" x2="450" y2="300"/>
+      <line x1="475" y1="0" x2="475" y2="300"/>
+      <line x1="500" y1="0" x2="500" y2="300"/>
+      <line x1="525" y1="0" x2="525" y2="300"/>
+      <line x1="550" y1="0" x2="550" y2="300"/>
+      <line x1="575" y1="0" x2="575" y2="300"/>
+      <line x1="600" y1="0" x2="600" y2="300"/>
+      <line x1="625" y1="0" x2="625" y2="300"/>
+      <line x1="650" y1="0" x2="650" y2="300"/>
+      <line x1="675" y1="0" x2="675" y2="300"/>
+      <line x1="700" y1="0" x2="700" y2="300"/>
+      <line x1="725" y1="0" x2="725" y2="300"/>
+      <line x1="750" y1="0" x2="750" y2="300"/>
+      <line x1="775" y1="0" x2="775" y2="300"/>
+      <line x1="800" y1="0" x2="800" y2="300"/>
+      <line x1="825" y1="0" x2="825" y2="300"/>
+      <line x1="850" y1="0" x2="850" y2="300"/>
+      <line x1="875" y1="0" x2="875" y2="300"/>
+      <line x1="900" y1="0" x2="900" y2="300"/>
+      
+      <!-- Horizontal lines -->
+      <line x1="0" y1="0" x2="900" y2="0"/>
+      <line x1="0" y1="75" x2="900" y2="75"/>
+      <line x1="0" y1="150" x2="900" y2="150"/>
+      <line x1="0" y1="225" x2="900" y2="225"/>
+      <line x1="0" y1="300" x2="900" y2="300"/>
+    </g>
+    
+    <!-- Axes -->
+    <line x1="0" y1="300" x2="900" y2="300" class="axis"/>
+    <line x1="0" y1="0" x2="0" y2="300" class="axis"/>
+    
+    <!-- Phase Indicators -->
+    <rect x="0" y="-20" width="300" height="15" class="cliff-bar"/>
+    <text x="150" y="-8" text-anchor="middle" class="text" fill="white">悬崖期 (0-12个月)</text>
+    
+    <rect x="300" y="-20" width="600" height="15" class="vesting-bar"/>
+    <text x="600" y="-8" text-anchor="middle" class="text" fill="white">线性释放期 (12-36个月)</text>
+    
+    <!-- Vesting Progress Bars (animated) -->
+    <g id="progress-bars">
+      <!-- Month 0-12: No release -->
+      <rect x="0" y="300" width="25" height="0" class="cliff-bar">
+        <animate attributeName="height" values="0;0;0;0;0;0;0;0;0;0;0;0;0;12.5;25;37.5;50;62.5;75;87.5;100;112.5;125;137.5;150;162.5;175;187.5;200;212.5;225;237.5;250;262.5;275;287.5;300" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="300;300;300;300;300;300;300;300;300;300;300;300;300;287.5;275;262.5;250;237.5;225;212.5;200;187.5;175;162.5;150;137.5;125;112.5;100;87.5;75;62.5;50;37.5;25;12.5;0" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="class" values="cliff-bar;cliff-bar;cliff-bar;cliff-bar;cliff-bar;cliff-bar;cliff-bar;cliff-bar;cliff-bar;cliff-bar;cliff-bar;cliff-bar;cliff-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar;vesting-bar" dur="18s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    
+    <!-- Time Marker (moving dot) -->
+    <circle r="8" class="time-marker">
+      <animateTransform attributeName="transform" 
+                        type="translate" 
+                        values="0,310;25,310;50,310;75,310;100,310;125,310;150,310;175,310;200,310;225,310;250,310;275,310;300,310;325,310;350,310;375,310;400,310;425,310;450,310;475,310;500,310;525,310;550,310;575,310;600,310;625,310;650,310;675,310;700,310;725,310;750,310;775,310;800,310;825,310;850,310;875,310;900,310" 
+                        dur="18s" 
+                        repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- X-axis labels -->
+    <text x="0" y="320" text-anchor="middle" class="small-text">0</text>
+    <text x="150" y="320" text-anchor="middle" class="small-text">6</text>
+    <text x="300" y="320" text-anchor="middle" class="small-text">12</text>
+    <text x="450" y="320" text-anchor="middle" class="small-text">18</text>
+    <text x="600" y="320" text-anchor="middle" class="small-text">24</text>
+    <text x="750" y="320" text-anchor="middle" class="small-text">30</text>
+    <text x="900" y="320" text-anchor="middle" class="small-text">36</text>
+    <text x="450" y="340" text-anchor="middle" class="text">时间 (月)</text>
+    
+    <!-- Y-axis labels -->
+    <text x="-15" y="305" text-anchor="middle" class="small-text">0%</text>
+    <text x="-15" y="230" text-anchor="middle" class="small-text">25%</text>
+    <text x="-15" y="155" text-anchor="middle" class="small-text">50%</text>
+    <text x="-15" y="80" text-anchor="middle" class="small-text">75%</text>
+    <text x="-15" y="5" text-anchor="middle" class="small-text">100%</text>
+    <text x="-40" y="150" text-anchor="middle" class="text" transform="rotate(-90, -40, 150)">释放进度</text>
+  </g>
+  
+  <!-- Real-time Data Display -->
+  <g transform="translate(80, 420)">
+    <rect x="0" y="0" width="840" height="120" class="data-box"/>
+    
+    <!-- Current Month Display -->
+    <text x="20" y="25" class="subtitle">当前状态:</text>
+    <g>
+      <!-- Month display with opacity animation -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">1</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">2</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">3</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">4</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">5</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">6</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">7</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">8</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">9</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">10</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">11</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">12</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">13</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">14</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">15</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">16</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">17</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">18</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">19</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">20</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">21</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">22</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">23</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">24</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">25</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">26</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">27</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">28</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">29</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">30</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">31</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">32</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">33</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">34</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">35</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="45" class="text">月份: <tspan class="month-text">36</tspan></text>
+      </g>
+    </g>
+    
+    <!-- Vested Amount -->
+    <g>
+      <!-- Vested amount display with opacity animation -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">41,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">83,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">125,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">166,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">208,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">250,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">291,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">333,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">375,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">416,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">458,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">500,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">541,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">583,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">625,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">666,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">708,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">750,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">791,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">833,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">875,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">916,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">958,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="65" class="text">已释放代币: <tspan class="progress-text">1,000,000</tspan></text>
+      </g>
+    </g>
+    
+    <!-- Releasable Amount -->
+    <g>
+      <!-- Releasable amount display with opacity animation -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">0</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">41,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">83,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">125,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">166,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">208,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">250,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">291,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">333,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">375,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">416,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">458,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">500,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">541,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">583,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">625,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">666,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">708,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">750,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">791,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">833,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">875,000</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">916,667</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">958,333</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="85" class="text">可释放代币: <tspan class="progress-text">1,000,000</tspan></text>
+      </g>
+    </g>
+    
+    <!-- Progress Percentage -->
+    <g>
+      <!-- Progress percentage display with opacity animation -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">0.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">4.17%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">8.33%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">12.50%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">16.67%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">20.83%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">25.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">29.17%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">33.33%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">37.50%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">41.67%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">45.83%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">50.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">54.17%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">58.33%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">62.50%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">66.67%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">70.83%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">75.00%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">79.17%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">83.33%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">87.50%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">91.67%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">95.83%</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1" dur="18s" repeatCount="indefinite"/>
+        <text x="20" y="105" class="text">释放进度: <tspan class="progress-text">100.00%</tspan></text>
+      </g>
+    </g>
+    
+    <!-- Status Indicators -->
+    <text x="300" y="25" class="subtitle">阶段状态:</text>
+    <g>
+      <!-- Cliff period display with opacity animation -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">是</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="45" class="text">悬崖期: <tspan class="month-text">否</tspan></text>
+      </g>
+    </g>
+    
+    <g>
+      <!-- Release complete display with opacity animation -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">否</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1" dur="18s" repeatCount="indefinite"/>
+        <text x="300" y="65" class="text">释放完成: <tspan class="progress-text">是</tspan></text>
+      </g>
+    </g>
+    
+    <!-- Mathematical Formula -->
+    <text x="500" y="25" class="subtitle">计算公式:</text>
+    <text x="500" y="45" class="text">当前时间 &lt;= 12个月: 已释放 = 0</text>
+<text x="500" y="65" class="text">当前时间 &gt; 12个月: 已释放 = 总量 × (t - 12) / 24</text>
+    <text x="500" y="85" class="text">其中 t = 当前月份, 总量 = 1,000,000 代币</text>
+    
+    <!-- Time Remaining -->
+    <g>
+      <!-- Time remaining display with opacity animation -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">36个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">35个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">34个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">33个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">32个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">31个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">30个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">29个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">28个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">27个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">26个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">25个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">24个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">23个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">22个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">21个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">20个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">19个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">18个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">17个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">16个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">15个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">14个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">13个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">12个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">11个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">10个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">9个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">8个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">7个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">6个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">5个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">4个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">3个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">2个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">1个月</tspan></text>
+      </g>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1" dur="18s" repeatCount="indefinite"/>
+        <text x="500" y="105" class="text">剩余时间: <tspan class="month-text">完成</tspan></text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Legend -->
+  <g transform="translate(80, 560)">
+    <text x="0" y="0" class="subtitle">图例说明:</text>
+    <rect x="0" y="10" width="15" height="15" class="cliff-bar"/>
+    <text x="20" y="22" class="text">悬崖期 (无代币释放)</text>
+    <rect x="150" y="10" width="15" height="15" class="vesting-bar"/>
+    <text x="170" y="22" class="text">线性释放期 (按比例释放)</text>
+    <circle cx="300" cy="17" r="6" class="time-marker"/>
+    <text x="315" y="22" class="text">当前时间指示器</text>
+  </g>
+</svg>

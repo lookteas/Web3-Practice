@@ -19,3 +19,6 @@
 [submodule "merkleTree/lib/openzeppelin-contracts"]
 	path = merkleTree/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "defi/vesting/lib/openzeppelin-contracts"]
+	path = defi/vesting/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
