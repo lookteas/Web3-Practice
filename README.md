@@ -27,6 +27,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [16 ：EIP-7702 账户抽象授权](#16-eip-7702-账户抽象授权)
 - [17 ：合约安全审计](#17-合约安全审计)
 - [18 ：ChainLink 自动化银行项目](#18-chainlink-automation-项目)
+- [19 ：Token Vesting 线性释放机制](#19-token-vesting-线性释放机制)
 
 
 
@@ -179,7 +180,16 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   - 可以学习到 ChainLink Automation 的工作原理和集成方法
 
   -------
-  
+
+### **19 ：Token Vesting 线性释放机制**
+  - 基于 solidity 开发的 Token Vesting 合约项目，实现代币延迟释放机制。详情请查看[defi/vesting/README.md](defi/vesting)
+  - 位置：defi/vesting
+  - 包含一个基于 solidity 的 Token Vesting 合约，实现代币延迟释放机制
+  - 可以学习到 代币合约线性释放机制和foundry工具模拟时间测试方法
+
+  -------
+
+
 ### 新增目录说明
 
 
