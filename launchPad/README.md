@@ -4,9 +4,9 @@
 
 ## 📋 项目概述
 
-MemeToken LaunchPad 是一个去中心化的代币发射平台，允许用户轻松创建和管理 Meme 代币。该项目集成了 Uniswap V3 协议，提供自动流动性添加功能，为新创建的代币提供即时的交易能力。
+MemeToken LaunchPad 是一个去中心化的代币发射平台，允许用户轻松创建和管理 Meme 代币。该项目修改了之前[最小化代理工厂](https://github.com/lookteas/Web3-Practice/blob/main/memeFactory) 1% 费用修改为 5%， 以 5% 的 ETH 与相应的 Token 调用 Uniswap V3Router AddLiquidity 添加MyToken与 ETH 的流动性（如果是第一次添加流动性按mint 价格作为流动性价格）。
 
-## 🚀 核心功能
+## 🚀 核心功
 
 ### 1. 代币工厂 (MemeFactory)
 - **代币部署**: 使用克隆模式部署新的 Meme 代币
@@ -91,6 +91,10 @@ launchPad/
 
 ## 📊 测试用例详情
 
+
+
+<img src="./images/test1.jpg" style="zoom:90%;" />
+
 ### 测试覆盖范围
 
 我们的测试套件包含 **23 个测试用例**，覆盖了所有核心功能：
@@ -131,6 +135,8 @@ launchPad/
 - `testWithdrawNoFunds`: 测试无资金提取
 
 ## 📈 测试报告
+
+<img src="./images/test.jpg" style="zoom:80%;" />
 
 ### 测试执行结果
 
