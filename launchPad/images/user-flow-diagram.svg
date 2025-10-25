@@ -1,0 +1,166 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #34495e; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; fill: #2c3e50; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; fill: #7f8c8d; }
+      .box { fill: #ecf0f1; stroke: #34495e; stroke-width: 2; rx: 8; }
+      .user-box { fill: #3498db; stroke: #2980b9; stroke-width: 2; rx: 8; }
+      .factory-box { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; rx: 8; }
+      .token-box { fill: #f39c12; stroke: #e67e22; stroke-width: 2; rx: 8; }
+      .uniswap-box { fill: #9b59b6; stroke: #8e44ad; stroke-width: 2; rx: 8; }
+      .arrow { stroke: #2c3e50; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .decision-diamond { fill: #f1c40f; stroke: #f39c12; stroke-width: 2; }
+      .success-box { fill: #2ecc71; stroke: #27ae60; stroke-width: 2; rx: 8; }
+      .white-text { fill: white; font-weight: bold; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50" />
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="600" y="30" text-anchor="middle" class="title">MemeToken LaunchPad 用户交互流程图</text>
+  
+  <!-- 用户 -->
+  <rect x="50" y="80" width="120" height="60" class="user-box"/>
+  <text x="110" y="105" text-anchor="middle" class="white-text">用户</text>
+  <text x="110" y="120" text-anchor="middle" class="white-text">User</text>
+  
+  <!-- 流程1: 部署代币 -->
+  <text x="50" y="170" class="subtitle">1. 部署代币流程</text>
+  
+  <!-- 用户操作 -->
+  <rect x="50" y="190" width="140" height="40" class="box"/>
+  <text x="120" y="210" text-anchor="middle" class="text">调用 deployMeme()</text>
+  <text x="120" y="222" text-anchor="middle" class="small-text">支付部署费用</text>
+  
+  <!-- 箭头 -->
+  <line x1="190" y1="210" x2="230" y2="210" class="arrow"/>
+  
+  <!-- 工厂合约 -->
+  <rect x="230" y="180" width="160" height="70" class="factory-box"/>
+  <text x="310" y="200" text-anchor="middle" class="white-text">MemeFactory</text>
+  <text x="310" y="220" text-anchor="middle" class="white-text">验证参数</text>
+  <text x="310" y="240" text-anchor="middle" class="white-text">克隆代币合约</text>
+  
+  <!-- 箭头 -->
+  <line x1="390" y1="210" x2="430" y2="210" class="arrow"/>
+  
+  <!-- 代币合约 -->
+  <rect x="430" y="190" width="140" height="50" class="token-box"/>
+  <text x="500" y="210" text-anchor="middle" class="white-text">MemeToken</text>
+  <text x="500" y="232" text-anchor="middle" class="white-text">初始化</text>
+  
+  <!-- 流程2: 铸造代币 -->
+  <text x="50" y="290" class="subtitle">2. 铸造代币流程</text>
+  
+  <!-- 用户操作 -->
+  <rect x="50" y="310" width="140" height="50" class="box"/>
+  <text x="120" y="330" text-anchor="middle" class="text">调用 mintMeme()</text>
+  <text x="120" y="352" text-anchor="middle" class="small-text">支付铸造费用</text>
+  
+  <!-- 箭头 -->
+  <line x1="190" y1="330" x2="230" y2="330" class="arrow"/>
+  
+  <!-- 工厂合约验证 -->
+  <rect x="230" y="300" width="160" height="70" class="factory-box"/>
+  <text x="310" y="320" text-anchor="middle" class="white-text">MemeFactory</text>
+  <text x="310" y="340" text-anchor="middle" class="white-text">验证代币地址</text>
+  <text x="310" y="360" text-anchor="middle" class="white-text">检查铸造权限</text>
+  
+  <!-- 决策菱形 -->
+  <polygon points="430,310 470,330 430,350 390,330" class="decision-diamond"/>
+  <text x="430" y="335" text-anchor="middle" class="text">可以铸造?</text>
+  
+  <!-- 成功路径 -->
+  <line x1="470" y1="330" x2="510" y2="330" class="arrow"/>
+  <text x="490" y="325" text-anchor="middle" class="small-text">是</text>
+  
+  <!-- 费用分配 -->
+  <rect x="510" y="300" width="140" height="60" class="success-box"/>
+  <text x="580" y="320" text-anchor="middle" class="white-text">费用分配</text>
+  <text x="580" y="335" text-anchor="middle" class="white-text">95% → 部署者</text>
+  <text x="580" y="350" text-anchor="middle" class="white-text">5% → 流动性</text>
+  
+  <!-- 箭头到代币铸造 -->
+  <line x1="650" y1="330" x2="690" y2="330" class="arrow"/>
+  
+  <!-- 代币铸造 -->
+  <rect x="690" y="310" width="120" height="50" class="token-box"/>
+  <text x="750" y="330" text-anchor="middle" class="white-text">铸造代币</text>
+  <text x="750" y="352" text-anchor="middle" class="white-text">给用户</text>
+  
+  <!-- 失败路径 -->
+  <line x1="430" y1="350" x2="430" y2="380" class="arrow"/>
+  <text x="440" y="375" class="small-text">否</text>
+  
+  <rect x="360" y="380" width="140" height="30" class="subtitle" fill="#e74c3c"/>
+  <text x="430" y="400" text-anchor="middle" class="white-text">交易回滚</text>
+  
+  <!-- 流程3: 购买代币 -->
+  <text x="50" y="450" class="subtitle">3. 购买代币流程 (Uniswap集成)</text>
+  
+  <!-- 用户操作 -->
+  <rect x="50" y="470" width="140" height="40" class="box"/>
+  <text x="120" y="490" text-anchor="middle" class="text">调用 buyMeme()</text>
+  <text x="120" y="502" text-anchor="middle" class="small-text">支付 ETH</text>
+  
+  <!-- 箭头 -->
+  <line x1="190" y1="490" x2="230" y2="490" class="arrow"/>
+  
+  <!-- 工厂合约 -->
+  <rect x="230" y="460" width="160" height="70" class="factory-box"/>
+  <text x="310" y="480" text-anchor="middle" class="white-text">MemeFactory</text>
+  <text x="310" y="500" text-anchor="middle" class="white-text">验证代币</text>
+  <text x="310" y="520" text-anchor="middle" class="white-text">调用 SwapRouter</text>
+  
+  <!-- 箭头 -->
+  <line x1="390" y1="490" x2="430" y2="490" class="arrow"/>
+  
+  <!-- Uniswap -->
+  <rect x="430" y="470" width="140" height="50" class="uniswap-box"/>
+  <text x="500" y="490" text-anchor="middle" class="white-text">Uniswap V3</text>
+  <text x="500" y="512" text-anchor="middle" class="white-text">ETH → Token</text>
+  
+  <!-- 流程4: 流动性管理 -->
+  <text x="50" y="570" class="subtitle">4. 流动性管理</text>
+  
+  <!-- 自动添加流动性 -->
+  <rect x="50" y="590" width="160" height="70" class="uniswap-box"/>
+  <text x="130" y="610" text-anchor="middle" class="white-text">自动添加流动性</text>
+  <text x="130" y="630" text-anchor="middle" class="white-text">使用项目费用(5%)</text>
+  <text x="130" y="650" text-anchor="middle" class="white-text">创建 ETH/Token 池</text>
+  
+  <!-- 箭头 -->
+  <line x1="210" y1="620" x2="250" y2="620" class="arrow"/>
+  
+  <!-- 流动性池 -->
+  <rect x="250" y="600" width="140" height="50" class="success-box"/>
+  <text x="320" y="620" text-anchor="middle" class="white-text">Uniswap V3 池</text>
+  <text x="320" y="642" text-anchor="middle" class="white-text">提供交易流动性</text>
+  
+  <!-- 关键特性说明 -->
+  <text x="650" y="570" class="subtitle">关键特性</text>
+  
+  <rect x="650" y="590" width="200" height="120" class="box"/>
+  <text x="660" y="610" class="text">• 每个地址最多铸造 10 次</text>
+  <text x="660" y="630" class="text">• 严格的总供应量限制</text>
+  <text x="660" y="650" class="text">• 重入攻击保护</text>
+  <text x="660" y="670" class="text">• 自动费用分配</text>
+  <text x="660" y="690" class="text">• EIP-1167 克隆模式</text>
+  
+  <!-- 安全机制 -->
+  <text x="900" y="570" class="subtitle">安全机制</text>
+  
+  <rect x="900" y="590" width="200" height="120" class="box"/>
+  <text x="910" y="610" class="text">• 参数验证</text>
+  <text x="910" y="630" class="text">• 权限检查</text>
+  <text x="910" y="650" class="text">• 状态验证</text>
+  <text x="910" y="670" class="text">• 失败回滚</text>
+  <text x="910" y="690" class="text">• 事件记录</text>
+  
+  <!-- 底部说明 -->
+  <text x="600" y="760" text-anchor="middle" class="small-text">此流程图展示了 MemeToken LaunchPad 的完整用户交互流程，包括代币部署、铸造、购买和流动性管理</text>
+</svg>

@@ -28,6 +28,9 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [17 ：合约安全审计](#17-合约安全审计)
 - [18 ：ChainLink 自动化银行项目](#18-chainlink-automation-项目)
 - [19 ：Token Vesting 线性释放机制](#19-token-vesting-线性释放机制)
+- [20 ：最小化代理合约](#20-最小化代理合约)
+- [21 ：实现一个 LaunchPad 平台](#21-实现一个-launchpad-平台)
+- [22 ：获取 Uniswap 中 TWAP 价格](#22-获取-uniswap-中-twap-价格)
 
 
 
@@ -188,6 +191,30 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   - 可以学习到 代币合约线性释放机制和foundry工具模拟时间测试方法
 
   -------
+
+### **20 ：最小化代理合约**
+  - 基于 solidity 开发的最小化代理合约项目，允许用户以极低的 gas 成本部署和铸造 Meme 代币。通过使用 EIP-1167 最小代理模式，每个新代币的部署成本大大降低。详情请查看[memeFactory/README.md](memeFactory)
+  - 位置：memeFactory
+  - 包含一个基于 solidity 的最小化代理合约，集成 ReentrancyGuard 和 Ownable
+  - 可以学习到 代理模式的工作原理和实现方法
+
+  -------
+
+### **21 ：实现一个 LaunchPad 平台**
+  - LaunchPad 是一个去中心化的代币发射平台，允许用户轻松创建和管理 Meme 代币。该项目集成了 Uniswap V3 协议，提供自动流动性添加功能，为新创建的代币提供即时的交易能力。详情请查看[launchPad/README.md](launchPad)
+  - 位置：launchPad
+  - 包含一个基于 solidity 的 LaunchPad 合约，实现代币部署和铸造功能
+  - 可以学习到 合约工厂模式的工作原理和实现方法
+
+  -------
+
+### **22 ：获取 Uniswap 中 TWAP 价格**
+  - 基于 solidity 开发的获取 Uniswap 中 TWAP 价格合约项目，允许用户查询 Uniswap 中指定代币对的 TWAP 价格。详情请查看[twap/README.md](twap)
+  - 位置：twap
+  - 包含一个基于 solidity 的获取 Uniswap 中 TWAP 价格合约，实现查询 TWAP 价格功能
+  - 可以学习到 合约交互模式的工作原理和实现方法
+
+    -------
 
 
 ### 新增目录说明

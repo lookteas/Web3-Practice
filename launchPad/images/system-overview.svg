@@ -1,0 +1,242 @@
+<svg width="1600" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 32px; font-weight: bold; fill: #2c3e50; }
+      .section-title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; fill: #34495e; }
+      .text { font-family: Arial, sans-serif; font-size: 14px; fill: #2c3e50; }
+      .small-text { font-family: Arial, sans-serif; font-size: 12px; fill: #7f8c8d; }
+      .code-text { font-family: 'Courier New', monospace; font-size: 11px; fill: #2c3e50; }
+      
+      .user-layer { fill: #3498db; stroke: #2980b9; stroke-width: 2; rx: 10; }
+      .frontend-layer { fill: #e67e22; stroke: #d35400; stroke-width: 2; rx: 10; }
+      .contract-layer { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; rx: 10; }
+      .protocol-layer { fill: #9b59b6; stroke: #8e44ad; stroke-width: 2; rx: 10; }
+      .blockchain-layer { fill: #2ecc71; stroke: #27ae60; stroke-width: 2; rx: 10; }
+      
+      .component-box { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 1; rx: 5; }
+      .highlight-box { fill: #f39c12; stroke: #e67e22; stroke-width: 2; rx: 8; }
+      
+      .arrow { stroke: #2c3e50; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .data-flow { stroke: #3498db; stroke-width: 3; fill: none; marker-end: url(#arrowhead-blue); stroke-dasharray: 8,4; }
+      .interaction { stroke: #e74c3c; stroke-width: 2; fill: none; marker-end: url(#arrowhead-red); }
+      
+      .white-text { fill: white; font-weight: bold; }
+      .layer-text { fill: white; font-size: 16px; font-weight: bold; }
+    </style>
+    
+    <marker id="arrowhead" markerWidth="12" markerHeight="8" refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#2c3e50" />
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="12" markerHeight="8" refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#3498db" />
+    </marker>
+    <marker id="arrowhead-red" markerWidth="12" markerHeight="8" refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#e74c3c" />
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="800" y="40" text-anchor="middle" class="title">MemeToken LaunchPad 系统架构总览</text>
+  
+  <!-- 用户层 -->
+  <rect x="50" y="80" width="1500" height="120" class="user-layer"/>
+  <text x="100" y="110" class="layer-text">用户层 (User Layer)</text>
+  
+  <!-- 用户类型 -->
+  <rect x="100" y="130" width="150" height="50" class="component-box"/>
+  <text x="175" y="150" text-anchor="middle" class="text">代币创建者</text>
+  <text x="175" y="165" text-anchor="middle" class="small-text">Token Creator</text>
+  
+  <rect x="300" y="130" width="150" height="50" class="component-box"/>
+  <text x="375" y="150" text-anchor="middle" class="text">代币铸造者</text>
+  <text x="375" y="165" text-anchor="middle" class="small-text">Token Minter</text>
+  
+  <rect x="500" y="130" width="150" height="50" class="component-box"/>
+  <text x="575" y="150" text-anchor="middle" class="text">代币交易者</text>
+  <text x="575" y="165" text-anchor="middle" class="small-text">Token Trader</text>
+  
+  <rect x="700" y="130" width="150" height="50" class="component-box"/>
+  <text x="775" y="150" text-anchor="middle" class="text">流动性提供者</text>
+  <text x="775" y="165" text-anchor="middle" class="small-text">LP Provider</text>
+  
+  <rect x="900" y="130" width="150" height="50" class="component-box"/>
+  <text x="975" y="150" text-anchor="middle" class="text">项目管理员</text>
+  <text x="975" y="165" text-anchor="middle" class="small-text">Admin</text>
+  
+  <!-- 前端层 -->
+  <rect x="50" y="220" width="1500" height="120" class="frontend-layer"/>
+  <text x="100" y="250" class="layer-text">前端交互层 (Frontend Layer)</text>
+  
+  <!-- Web3 接口 -->
+  <rect x="100" y="270" width="200" height="50" class="component-box"/>
+  <text x="200" y="290" text-anchor="middle" class="text">Web3 钱包连接</text>
+  <text x="200" y="305" text-anchor="middle" class="small-text">MetaMask / WalletConnect</text>
+  
+  <rect x="350" y="270" width="200" height="50" class="component-box"/>
+  <text x="450" y="290" text-anchor="middle" class="text">交易界面</text>
+  <text x="450" y="305" text-anchor="middle" class="small-text">Deploy / Mint / Trade UI</text>
+  
+  <rect x="600" y="270" width="200" height="50" class="component-box"/>
+  <text x="700" y="290" text-anchor="middle" class="text">数据展示</text>
+  <text x="700" y="305" text-anchor="middle" class="small-text">Token Info / Charts</text>
+  
+  <rect x="850" y="270" width="200" height="50" class="component-box"/>
+  <text x="950" y="290" text-anchor="middle" class="text">事件监听</text>
+  <text x="950" y="305" text-anchor="middle" class="small-text">Real-time Updates</text>
+  
+  <!-- 智能合约层 -->
+  <rect x="50" y="360" width="1500" height="200" class="contract-layer"/>
+  <text x="100" y="390" class="layer-text">智能合约层 (Smart Contract Layer)</text>
+  
+  <!-- 核心合约 -->
+  <rect x="100" y="410" width="250" height="120" class="highlight-box"/>
+  <text x="225" y="435" text-anchor="middle" class="white-text" font-size="16">MemeFactory</text>
+  <text x="110" y="455" class="white-text">核心功能:</text>
+  <text x="110" y="470" class="code-text" fill="white">• deployMeme()</text>
+  <text x="110" y="485" class="code-text" fill="white">• mintMeme()</text>
+  <text x="110" y="500" class="code-text" fill="white">• buyMeme()</text>
+  <text x="110" y="515" class="code-text" fill="white">• 费用管理</text>
+  
+  <rect x="380" y="410" width="200" height="120" class="highlight-box"/>
+  <text x="480" y="435" text-anchor="middle" class="white-text" font-size="16">MemeToken</text>
+  <text x="390" y="455" class="white-text">ERC20 实现:</text>
+  <text x="390" y="470" class="code-text" fill="white">• initialize()</text>
+  <text x="390" y="485" class="code-text" fill="white">• mint()</text>
+  <text x="390" y="500" class="code-text" fill="white">• canMint()</text>
+  <text x="390" y="515" class="code-text" fill="white">• 铸造限制</text>
+  
+  <!-- 安全机制 -->
+  <rect x="610" y="410" width="180" height="120" class="component-box"/>
+  <text x="700" y="435" text-anchor="middle" class="text" font-weight="bold">安全机制</text>
+  <text x="620" y="455" class="text">• ReentrancyGuard</text>
+  <text x="620" y="470" class="text">• Ownable</text>
+  <text x="620" y="485" class="text">• 参数验证</text>
+  <text x="620" y="500" class="text">• 权限控制</text>
+  <text x="620" y="515" class="text">• 状态检查</text>
+  
+  <!-- 存储系统 -->
+  <rect x="820" y="410" width="180" height="120" class="component-box"/>
+  <text x="910" y="435" text-anchor="middle" class="text" font-weight="bold">存储系统</text>
+  <text x="830" y="455" class="text">• 代币映射</text>
+  <text x="830" y="470" class="text">• 价格记录</text>
+  <text x="830" y="485" class="text">• 部署历史</text>
+  <text x="830" y="500" class="text">• 铸造记录</text>
+  <text x="830" y="515" class="text">• 费用配置</text>
+  
+  <!-- 事件系统 -->
+  <rect x="1030" y="410" width="180" height="120" class="component-box"/>
+  <text x="1120" y="435" text-anchor="middle" class="text" font-weight="bold">事件系统</text>
+  <text x="1040" y="455" class="text">• TokenDeployed</text>
+  <text x="1040" y="470" class="text">• TokenMinted</text>
+  <text x="1040" y="485" class="text">• FeesUpdated</text>
+  <text x="1040" y="500" class="text">• Transfer</text>
+  <text x="1040" y="515" class="text">• Approval</text>
+  
+  <!-- 协议集成层 -->
+  <rect x="50" y="580" width="1500" height="150" class="protocol-layer"/>
+  <text x="100" y="610" class="layer-text">协议集成层 (Protocol Integration Layer)</text>
+  
+  <!-- Uniswap V3 -->
+  <rect x="100" y="630" width="300" height="80" class="component-box"/>
+  <text x="250" y="655" text-anchor="middle" class="text" font-size="16" font-weight="bold">Uniswap V3 协议</text>
+  <text x="110" y="675" class="text">• SwapRouter - 代币交易</text>
+  <text x="110" y="690" class="text">• PositionManager - 流动性管理</text>
+  <text x="110" y="705" class="text">• Pool - 价格发现与交易</text>
+  
+  <!-- OpenZeppelin -->
+  <rect x="450" y="630" width="250" height="80" class="component-box"/>
+  <text x="575" y="655" text-anchor="middle" class="text" font-size="16" font-weight="bold">OpenZeppelin</text>
+  <text x="460" y="675" class="text">• ERC20 标准实现</text>
+  <text x="460" y="690" class="text">• 安全合约库</text>
+  <text x="460" y="705" class="text">• 访问控制</text>
+  
+  <!-- EIP-1167 -->
+  <rect x="750" y="630" width="200" height="80" class="component-box"/>
+  <text x="850" y="655" text-anchor="middle" class="text" font-size="16" font-weight="bold">EIP-1167</text>
+  <text x="760" y="675" class="text">• 最小代理模式</text>
+  <text x="760" y="690" class="text">• 节省 Gas 费用</text>
+  <text x="760" y="705" text-anchor="middle" class="text">• 克隆工厂</text>
+  
+  <!-- WETH -->
+  <rect x="1000" y="630" width="150" height="80" class="component-box"/>
+  <text x="1075" y="655" text-anchor="middle" class="text" font-size="16" font-weight="bold">WETH</text>
+  <text x="1010" y="675" class="text">• 包装以太坊</text>
+  <text x="1010" y="690" class="text">• ERC20 兼容</text>
+  <text x="1010" y="705" text-anchor="middle" class="text">• 流动性配对</text>
+  
+  <!-- 区块链层 -->
+  <rect x="50" y="750" width="1500" height="120" class="blockchain-layer"/>
+  <text x="100" y="780" class="layer-text">区块链基础层 (Blockchain Layer)</text>
+  
+  <!-- 以太坊网络 -->
+  <rect x="100" y="800" width="200" height="50" class="component-box"/>
+  <text x="200" y="820" text-anchor="middle" class="text">以太坊主网</text>
+  <text x="200" y="835" text-anchor="middle" class="small-text">Ethereum Mainnet</text>
+  
+  <rect x="350" y="800" width="200" height="50" class="component-box"/>
+  <text x="450" y="820" text-anchor="middle" class="text">测试网络</text>
+  <text x="450" y="835" text-anchor="middle" class="small-text">Sepolia / Goerli</text>
+  
+  <rect x="600" y="800" width="200" height="50" class="component-box"/>
+  <text x="700" y="820" text-anchor="middle" class="text">本地开发</text>
+  <text x="700" y="835" text-anchor="middle" class="small-text">Anvil / Hardhat</text>
+  
+  <rect x="850" y="800" width="200" height="50" class="component-box"/>
+  <text x="950" y="820" text-anchor="middle" class="text">Layer 2</text>
+  <text x="950" y="835" text-anchor="middle" class="small-text">Polygon / Arbitrum</text>
+  
+  <!-- 数据流箭头 -->
+  <!-- 用户到前端 -->
+  <line x1="175" y1="180" x2="200" y2="270" class="data-flow"/>
+  <line x1="375" y1="180" x2="450" y2="270" class="data-flow"/>
+  <line x1="575" y1="180" x2="700" y2="270" class="data-flow"/>
+  <line x1="775" y1="180" x2="950" y2="270" class="data-flow"/>
+  
+  <!-- 前端到合约 -->
+  <line x1="200" y1="320" x2="225" y2="410" class="interaction"/>
+  <line x1="450" y1="320" x2="480" y2="410" class="interaction"/>
+  <line x1="700" y1="320" x2="700" y2="410" class="interaction"/>
+  <line x1="950" y1="320" x2="1120" y2="410" class="interaction"/>
+  
+  <!-- 合约到协议 -->
+  <line x1="225" y1="530" x2="250" y2="630" class="interaction"/>
+  <line x1="480" y1="530" x2="575" y2="630" class="interaction"/>
+  <line x1="225" y1="530" x2="850" y2="630" class="arrow"/>
+  <line x1="480" y1="530" x2="1075" y2="630" class="arrow"/>
+  
+  <!-- 协议到区块链 -->
+  <line x1="250" y1="710" x2="200" y2="800" class="arrow"/>
+  <line x1="575" y1="710" x2="450" y2="800" class="arrow"/>
+  <line x1="850" y1="710" x2="700" y2="800" class="arrow"/>
+  <line x1="1075" y1="710" x2="950" y2="800" class="arrow"/>
+  
+  <!-- 右侧信息面板 -->
+  <rect x="1250" y="410" width="300" height="320" class="component-box" stroke="#34495e" stroke-width="2"/>
+  <text x="1400" y="435" text-anchor="middle" class="section-title">系统特性</text>
+  
+  <!-- 核心特性 -->
+  <text x="1260" y="460" class="text" font-weight="bold">🚀 核心特性</text>
+  <text x="1260" y="480" class="small-text">• 一键部署 Meme 代币</text>
+  <text x="1260" y="495" class="small-text">• 自动流动性管理</text>
+  <text x="1260" y="510" class="small-text">• 费用自动分配</text>
+  <text x="1260" y="525" class="small-text">• 批量铸造支持</text>
+  
+  <!-- 安全特性 -->
+  <text x="1260" y="550" class="text" font-weight="bold">🔒 安全特性</text>
+  <text x="1260" y="570" class="small-text">• 重入攻击保护</text>
+  <text x="1260" y="585" class="small-text">• 权限访问控制</text>
+  <text x="1260" y="600" class="small-text">• 参数严格验证</text>
+  <text x="1260" y="615" class="small-text">• 铸造数量限制</text>
+  
+  <!-- 经济模型 -->
+  <text x="1260" y="640" class="text" font-weight="bold">💰 经济模型</text>
+  <text x="1260" y="660" class="small-text">• 部署者获得 95% 费用</text>
+  <text x="1260" y="675" class="small-text">• 项目方获得 5% 费用</text>
+  <text x="1260" y="690" class="small-text">• 自动流动性注入</text>
+  <text x="1260" y="705" class="small-text">• Gas 费用优化</text>
+  
+  <!-- 底部说明 -->
+  <text x="800" y="920" text-anchor="middle" class="small-text">此系统架构图展示了 MemeToken LaunchPad 的完整技术栈，从用户交互到区块链基础设施的各个层次</text>
+  <text x="800" y="940" text-anchor="middle" class="small-text">数据流向：用户操作 → 前端界面 → 智能合约 → 协议集成 → 区块链网络</text>
+  <text x="800" y="960" text-anchor="middle" class="small-text">支持多种网络部署：以太坊主网、测试网络、Layer 2 解决方案</text>
+</svg>
