@@ -2,7 +2,7 @@
 
 ## 📖 项目简介
 
-MemeTWAP 是一个专门为 Meme 代币提供时间加权平均价格（TWAP）计算服务。该合约能够跟踪多个代币的价格历史，并提供准确的 TWAP 计算功能。
+MemeTWAP 是一个专门为 [Meme](https://github.com/lookteas/Web3-Practice/tree/main/launchPad) 代币提供时间加权平均价格（TWAP）计算服务。该合约能够跟踪多个代币的价格历史，并提供准确的 TWAP 计算功能。
 
 ## ✨ 主要功能
 
