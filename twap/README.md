@@ -2,7 +2,7 @@
 
 ## 📖 项目简介
 
-MemeTWAP 是一个专门为 [Meme](https://github.com/lookteas/Web3-Practice/tree/main/launchPad) 代币提供时间加权平均价格（TWAP）计算服务。该合约能够跟踪多个代币的价格历史，并提供准确的 TWAP 计算功能。
+MemeTWAP 是一个专门为 **[Meme](https://github.com/lookteas/Web3-Practice/tree/main/launchPad)** 代币提供时间加权平均价格（TWAP）计算服务。该合约能够跟踪多个代币的价格历史，并提供准确的 TWAP 计算功能。
 
 ## ✨ 主要功能
 
@@ -269,12 +269,53 @@ twap/
 - **溢出保护**: 使用 Solidity 0.8+ 内置保护
 - **重入保护**: 合理的状态管理
 
-## 📊 Gas 优化
 
-- 批量操作减少交易成本
-- 优化的数据结构
-- 高效的TWAP计算算法
-- 合理的存储布局
+
+## 🧪 时间模拟测试工具
+
+本项目包含了完整的时间模拟测试工具,详情见[**时间模拟测试工具文档**](./时间模拟测试工具文档.md)，用于验证各种复杂交易场景下的TWAP计算准确性。
+
+### 📋 测试工具功能
+
+- **基础时间跳跃**：支持秒、分钟、小时、天、周的时间跳跃
+- **批量操作**：支持多代币并发价格更新和时间模拟
+- **复杂场景模拟**：牛市、熊市、闪崩、高频交易等11种市场场景
+- **精度验证**：确保TWAP计算的数学准确性
+
+### 🎯 支持的测试场景
+
+| 测试类型 | 场景描述 | 验证目标 |
+|---------|---------|----------|
+| 时间间隔测试 | 不规则间隔、高频交易、市场时间 | 时间加权计算准确性 |
+| 市场场景测试 | 牛市、熊市、横盘、闪崩恢复 | 不同市场条件下的TWAP表现 |
+| 边界条件测试 | 极端时间跳跃、大数值处理 | 系统鲁棒性和稳定性 |
+| 精度验证测试 | 数学计算验证、多时间框架对比 | 算法正确性和精度 |
+
+### 📖 详细文档
+
+完整的时间模拟测试工具使用说明请参考：[**时间模拟测试工具文档**](./时间模拟测试工具文档.md)
+
+文档包含：
+- 🛠️ 核心工具函数详解
+- 📊 TWAP计算原理和公式
+- 🎯 11种复杂交易场景的实现方法
+- 📈 精度验证和性能分析
+- 🚀 扩展功能和最佳实践
+
+### 🏃‍♂️ 快速开始测试
+
+```bash
+# 运行所有时间模拟测试
+forge test --match-test "testIrregular|testHighFrequency|testMarketHours|testBull|testBear" -vv
+
+# 运行时间工具函数示例
+forge test --match-test "testTimeUtilitiesExample|testBatchUpdateUtilities" -vv
+
+# 运行精度验证测试
+forge test --match-test "testTWAPCalculationPrecision|testBoundaryTimeTWAP" -vv
+```
+
+
 
 ## 🤝 贡献指南
 
@@ -294,13 +335,7 @@ twap/
 - [OpenZeppelin 合约](https://docs.openzeppelin.com/contracts/)
 - [Solidity 文档](https://docs.soliditylang.org/)
 
-## 📞 联系方式
-
-如有问题或建议，请通过以下方式联系：
-
-- 创建 Issue
-- 发起 Discussion
-- 提交 Pull Request
+*本项目遵循 MIT 开源协议，欢迎贡献代码和提出改进建议！*
 
 ---
 
