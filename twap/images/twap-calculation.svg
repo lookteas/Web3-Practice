@@ -1,0 +1,141 @@
+<svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 14px; fill: #34495e; }
+      .step-title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #2c3e50; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; fill: #2c3e50; }
+      .formula { font-family: 'Courier New', monospace; font-size: 11px; fill: #e74c3c; }
+      .code { font-family: 'Courier New', monospace; font-size: 10px; fill: #2c3e50; }
+      .step-box { fill: #ecf0f1; stroke: #34495e; stroke-width: 2; rx: 8; }
+      .formula-box { fill: #fff3cd; stroke: #ffc107; stroke-width: 2; rx: 5; }
+      .example-box { fill: #d1ecf1; stroke: #17a2b8; stroke-width: 2; rx: 5; }
+      .result-box { fill: #d4edda; stroke: #28a745; stroke-width: 2; rx: 5; }
+      .arrow { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e"/>
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="500" y="30" text-anchor="middle" class="title">TWAP 计算过程详解</text>
+  <text x="500" y="50" text-anchor="middle" class="subtitle">Time-Weighted Average Price Calculation Process</text>
+  
+  <!-- 步骤1: 数据收集 -->
+  <rect x="50" y="80" width="200" height="100" class="step-box"/>
+  <text x="150" y="100" text-anchor="middle" class="step-title">步骤1: 数据收集</text>
+  <text x="60" y="120" class="text">• 获取指定时间范围内的</text>
+  <text x="60" y="135" class="text">  所有价格数据点</text>
+  <text x="60" y="150" class="text">• 按时间戳排序</text>
+  <text x="60" y="165" class="text">• 验证数据完整性</text>
+  
+  <!-- 步骤2: 时间段计算 -->
+  <rect x="300" y="80" width="200" height="100" class="step-box"/>
+  <text x="400" y="100" text-anchor="middle" class="step-title">步骤2: 时间段计算</text>
+  <text x="310" y="120" class="text">• 计算相邻价格点之间</text>
+  <text x="310" y="135" class="text">  的时间差</text>
+  <text x="310" y="150" class="text">• 确定每个价格的</text>
+  <text x="310" y="165" class="text">  有效时间长度</text>
+  
+  <!-- 步骤3: 加权计算 -->
+  <rect x="550" y="80" width="200" height="100" class="step-box"/>
+  <text x="650" y="100" text-anchor="middle" class="step-title">步骤3: 加权计算</text>
+  <text x="560" y="120" class="text">• 价格 × 时间长度</text>
+  <text x="560" y="135" class="text">• 累加所有加权值</text>
+  <text x="560" y="150" class="text">• 累加总时间长度</text>
+  <text x="560" y="165" class="text">• 计算最终TWAP</text>
+  
+  <!-- 箭头 -->
+  <line x1="250" y1="130" x2="300" y2="130" class="arrow"/>
+  <line x1="500" y1="130" x2="550" y2="130" class="arrow"/>
+  
+  <!-- 公式说明 -->
+  <rect x="800" y="80" width="180" height="100" class="formula-box"/>
+  <text x="890" y="100" text-anchor="middle" class="step-title">TWAP公式</text>
+  <text x="810" y="120" class="formula">TWAP = Σ(Pi × Ti) / Σ(Ti)</text>
+  <text x="810" y="140" class="text">Pi: 第i个价格</text>
+  <text x="810" y="155" class="text">Ti: 第i个时间段</text>
+  <text x="810" y="170" class="text">Σ: 求和符号</text>
+  
+  <!-- 详细计算示例 -->
+  <rect x="50" y="220" width="900" height="200" class="example-box"/>
+  <text x="500" y="240" text-anchor="middle" class="step-title">计算示例</text>
+  
+  <!-- 数据表格 -->
+  <text x="70" y="260" class="text" font-weight="bold">时间点</text>
+  <text x="170" y="260" class="text" font-weight="bold">价格</text>
+  <text x="270" y="260" class="text" font-weight="bold">时间段</text>
+  <text x="370" y="260" class="text" font-weight="bold">权重计算</text>
+  <text x="570" y="260" class="text" font-weight="bold">累计值</text>
+  
+  <line x1="60" y1="270" x2="920" y2="270" stroke="#17a2b8" stroke-width="1"/>
+  
+  <!-- 数据行 -->
+  <text x="70" y="290" class="text">T1 (10:00)</text>
+  <text x="170" y="290" class="text">$100</text>
+  <text x="270" y="290" class="text">1小时</text>
+  <text x="370" y="290" class="formula">$100 × 1h = $100h</text>
+  <text x="570" y="290" class="text">价格权重: $100h</text>
+  
+  <text x="70" y="310" class="text">T2 (11:00)</text>
+  <text x="170" y="310" class="text">$120</text>
+  <text x="270" y="310" class="text">2小时</text>
+  <text x="370" y="310" class="formula">$120 × 2h = $240h</text>
+  <text x="570" y="310" class="text">价格权重: $340h</text>
+  
+  <text x="70" y="330" class="text">T3 (13:00)</text>
+  <text x="170" y="330" class="text">$80</text>
+  <text x="270" y="330" class="text">1小时</text>
+  <text x="370" y="330" class="formula">$80 × 1h = $80h</text>
+  <text x="570" y="330" class="text">价格权重: $420h</text>
+  
+  <text x="70" y="350" class="text">T4 (14:00)</text>
+  <text x="170" y="350" class="text">$110</text>
+  <text x="270" y="350" class="text">-</text>
+  <text x="370" y="350" class="text">-</text>
+  <text x="570" y="350" class="text">总时间: 4h</text>
+  
+  <line x1="60" y1="360" x2="920" y2="360" stroke="#17a2b8" stroke-width="1"/>
+  
+  <text x="70" y="380" class="text" font-weight="bold">最终计算:</text>
+  <text x="200" y="380" class="formula">TWAP = $420h ÷ 4h = $105</text>
+  
+  <text x="70" y="400" class="text">对比简单平均:</text>
+  <text x="200" y="400" class="formula">($100 + $120 + $80 + $110) ÷ 4 = $102.5</text>
+  
+  <!-- 代码实现 -->
+  <rect x="50" y="450" width="450" height="220" class="step-box"/>
+  <text x="275" y="470" text-anchor="middle" class="step-title">Solidity 实现代码</text>
+  
+  <text x="60" y="490" class="code">function calculateTWAP(</text>
+  <text x="70" y="505" class="code">    address token,</text>
+  <text x="70" y="520" class="code">    uint256 startTime,</text>
+  <text x="70" y="535" class="code">    uint256 endTime</text>
+  <text x="60" y="550" class="code">) external view returns (uint256) {</text>
+  <text x="70" y="565" class="code">    PricePoint[] memory points = </text>
+  <text x="80" y="580" class="code">        getPriceHistory(token);</text>
+  <text x="70" y="595" class="code">    uint256 weightedSum = 0;</text>
+  <text x="70" y="610" class="code">    uint256 totalTime = 0;</text>
+  <text x="70" y="625" class="code">    </text>
+  <text x="70" y="640" class="code">    for (uint i = 0; i &lt; points.length - 1; i++) {</text>
+  <text x="80" y="655" class="code">        uint256 timeDiff = points[i+1].timestamp</text>
+  
+  <!-- 算法优势 -->
+  <rect x="520" y="450" width="430" height="220" class="result-box"/>
+  <text x="735" y="470" text-anchor="middle" class="step-title">TWAP 的优势</text>
+  
+  <text x="530" y="495" class="text" font-weight="bold">1. 抗操纵性</text>
+  <text x="540" y="510" class="text">• 短期价格波动影响有限</text>
+  <text x="540" y="525" class="text">• 需要长时间维持高价才能影响TWAP</text>
+  
+  <text x="530" y="545" class="text" font-weight="bold">2. 更准确的价格反映</text>
+  <text x="540" y="560" class="text">• 考虑价格持续时间</text>
+  <text x="540" y="575" class="text">• 减少异常值影响</text>
+  
+  <text x="530" y="595" class="text" font-weight="bold">3. 适用场景</text>
+  <text x="540" y="610" class="text">• DeFi协议价格预言机</text>
+  <text x="540" y="625" class="text">• 自动做市商(AMM)</text>
+  <text x="540" y="640" class="text">• 期权定价</text>
+  <text x="540" y="655" class="text">• 风险管理</text>
+</svg>

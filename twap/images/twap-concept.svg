@@ -1,0 +1,102 @@
+<svg width="800" height="500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 14px; fill: #34495e; }
+      .label { font-family: Arial, sans-serif; font-size: 12px; fill: #2c3e50; }
+      .formula { font-family: 'Courier New', monospace; font-size: 11px; fill: #e74c3c; }
+      .axis { stroke: #34495e; stroke-width: 2; }
+      .grid { stroke: #bdc3c7; stroke-width: 0.5; stroke-dasharray: 2,2; }
+      .price-line { stroke: #3498db; stroke-width: 3; fill: none; }
+      .price-point { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; }
+      .time-segment { fill: rgba(52, 152, 219, 0.2); stroke: #3498db; stroke-width: 1; }
+      .explanation { font-family: Arial, sans-serif; font-size: 11px; fill: #2c3e50; }
+    </style>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="400" y="30" text-anchor="middle" class="title">TWAP (时间加权平均价格) 概念图</text>
+  <text x="400" y="50" text-anchor="middle" class="subtitle">Time-Weighted Average Price</text>
+  
+  <!-- 坐标轴 -->
+  <line x1="80" y1="380" x2="720" y2="380" class="axis"/>
+  <line x1="80" y1="380" x2="80" y2="100" class="axis"/>
+  
+  <!-- 网格线 -->
+  <line x1="80" y1="340" x2="720" y2="340" class="grid"/>
+  <line x1="80" y1="300" x2="720" y2="300" class="grid"/>
+  <line x1="80" y1="260" x2="720" y2="260" class="grid"/>
+  <line x1="80" y1="220" x2="720" y2="220" class="grid"/>
+  <line x1="80" y1="180" x2="720" y2="180" class="grid"/>
+  <line x1="80" y1="140" x2="720" y2="140" class="grid"/>
+  
+  <line x1="180" y1="380" x2="180" y2="100" class="grid"/>
+  <line x1="280" y1="380" x2="280" y2="100" class="grid"/>
+  <line x1="380" y1="380" x2="380" y2="100" class="grid"/>
+  <line x1="480" y1="380" x2="480" y2="100" class="grid"/>
+  <line x1="580" y1="380" x2="580" y2="100" class="grid"/>
+  <line x1="680" y1="380" x2="680" y2="100" class="grid"/>
+  
+  <!-- 轴标签 -->
+  <text x="400" y="410" text-anchor="middle" class="label">时间 (Time)</text>
+  <text x="50" y="240" text-anchor="middle" class="label" transform="rotate(-90 50 240)">价格 (Price)</text>
+  
+  <!-- 时间刻度 -->
+  <text x="80" y="400" text-anchor="middle" class="label">T0</text>
+  <text x="180" y="400" text-anchor="middle" class="label">T1</text>
+  <text x="280" y="400" text-anchor="middle" class="label">T2</text>
+  <text x="380" y="400" text-anchor="middle" class="label">T3</text>
+  <text x="480" y="400" text-anchor="middle" class="label">T4</text>
+  <text x="580" y="400" text-anchor="middle" class="label">T5</text>
+  <text x="680" y="400" text-anchor="middle" class="label">T6</text>
+  
+  <!-- 价格刻度 -->
+  <text x="70" y="385" text-anchor="end" class="label">$0</text>
+  <text x="70" y="345" text-anchor="end" class="label">$10</text>
+  <text x="70" y="305" text-anchor="end" class="label">$20</text>
+  <text x="70" y="265" text-anchor="end" class="label">$30</text>
+  <text x="70" y="225" text-anchor="end" class="label">$40</text>
+  <text x="70" y="185" text-anchor="end" class="label">$50</text>
+  <text x="70" y="145" text-anchor="end" class="label">$60</text>
+  
+  <!-- 价格线和数据点 -->
+  <polyline points="80,300 180,260 280,200 380,240 480,180 580,220 680,160" class="price-line"/>
+  
+  <!-- 价格点 -->
+  <circle cx="80" cy="300" r="4" class="price-point"/>
+  <circle cx="180" cy="260" r="4" class="price-point"/>
+  <circle cx="280" cy="200" r="4" class="price-point"/>
+  <circle cx="380" cy="240" r="4" class="price-point"/>
+  <circle cx="480" cy="180" r="4" class="price-point"/>
+  <circle cx="580" cy="220" r="4" class="price-point"/>
+  <circle cx="680" cy="160" r="4" class="price-point"/>
+  
+  <!-- 价格标签 -->
+  <text x="85" y="295" class="label">$20</text>
+  <text x="185" y="255" class="label">$30</text>
+  <text x="285" y="195" class="label">$50</text>
+  <text x="385" y="235" class="label">$35</text>
+  <text x="485" y="175" class="label">$55</text>
+  <text x="585" y="215" class="label">$40</text>
+  <text x="685" y="155" class="label">$60</text>
+  
+  <!-- 时间段高亮 -->
+  <rect x="180" y="100" width="200" height="280" class="time-segment"/>
+  <text x="280" y="120" text-anchor="middle" class="explanation">TWAP计算区间</text>
+  <text x="280" y="135" text-anchor="middle" class="explanation">(T1 到 T3)</text>
+  
+  <!-- TWAP公式 -->
+  <rect x="450" y="80" width="320" height="120" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1" rx="5"/>
+  <text x="460" y="100" class="label" font-weight="bold">TWAP 计算公式:</text>
+  <text x="460" y="120" class="formula">TWAP = Σ(Price_i × Time_i) / Σ(Time_i)</text>
+  <text x="460" y="140" class="explanation">其中:</text>
+  <text x="460" y="155" class="explanation">• Price_i: 第i个时间段的价格</text>
+  <text x="460" y="170" class="explanation">• Time_i: 第i个时间段的持续时间</text>
+  <text x="460" y="185" class="explanation">• 价格按时间长度加权平均</text>
+  
+  <!-- 示例计算 -->
+  <rect x="80" y="430" width="640" height="60" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <text x="90" y="450" class="label" font-weight="bold">示例计算 (T1-T3区间):</text>
+  <text x="90" y="465" class="formula">TWAP = ($30×1h + $50×1h + $35×1h) / (1h + 1h + 1h) = $115/3h = $38.33</text>
+  <text x="90" y="480" class="explanation">相比简单平均价格 ($30+$50+$35)/3 = $38.33，TWAP考虑了时间权重</text>
+</svg>

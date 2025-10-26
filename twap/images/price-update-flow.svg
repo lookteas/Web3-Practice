@@ -1,0 +1,112 @@
+<svg width="900" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 14px; fill: #34495e; }
+      .box { fill: #ecf0f1; stroke: #34495e; stroke-width: 2; rx: 8; }
+      .process-box { fill: #3498db; stroke: #2980b9; stroke-width: 2; rx: 8; }
+      .decision-box { fill: #f39c12; stroke: #e67e22; stroke-width: 2; }
+      .success-box { fill: #27ae60; stroke: #229954; stroke-width: 2; rx: 8; }
+      .error-box { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; rx: 8; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; fill: #2c3e50; text-anchor: middle; }
+      .white-text { font-family: Arial, sans-serif; font-size: 12px; fill: white; text-anchor: middle; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; fill: #2c3e50; text-anchor: middle; }
+      .arrow { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .success-arrow { stroke: #27ae60; stroke-width: 2; fill: none; marker-end: url(#arrowhead-green); }
+      .error-arrow { stroke: #e74c3c; stroke-width: 2; fill: none; marker-end: url(#arrowhead-red); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e"/>
+    </marker>
+    <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#27ae60"/>
+    </marker>
+    <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#e74c3c"/>
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="450" y="30" text-anchor="middle" class="title">MemeTWAP 价格更新流程图</text>
+  <text x="450" y="50" text-anchor="middle" class="subtitle">Price Update Flow Diagram</text>
+  
+  <!-- 开始 -->
+  <ellipse cx="450" cy="90" rx="60" ry="25" class="box"/>
+  <text x="450" y="95" class="text">开始更新价格</text>
+  
+  <!-- 权限检查 -->
+  <polygon points="400,140 500,140 520,170 500,200 400,200 380,170" class="decision-box"/>
+  <text x="450" y="165" class="text">权限检查</text>
+  <text x="450" y="180" class="small-text">onlyUpdater</text>
+  
+  <!-- 权限失败 -->
+  <rect x="200" y="140" width="120" height="60" class="error-box"/>
+  <text x="260" y="165" class="white-text">权限验证失败</text>
+  <text x="260" y="180" class="white-text">抛出异常</text>
+  
+  <!-- 频率检查 -->
+  <polygon points="400,240 500,240 520,270 500,300 400,300 380,270" class="decision-box"/>
+  <text x="450" y="265" class="text">频率限制检查</text>
+  <text x="450" y="280" class="small-text">updateFrequency</text>
+  
+  <!-- 频率限制失败 -->
+  <rect x="600" y="240" width="120" height="60" class="error-box"/>
+  <text x="660" y="265" class="white-text">更新过于频繁</text>
+  <text x="660" y="280" class="white-text">抛出异常</text>
+  
+  <!-- 价格验证 -->
+  <polygon points="400,340 500,340 520,370 500,400 400,400 380,370" class="decision-box"/>
+  <text x="450" y="365" class="text">价格有效性</text>
+  <text x="450" y="380" class="small-text">price > 0</text>
+  
+  <!-- 价格无效 -->
+  <rect x="200" y="340" width="120" height="60" class="error-box"/>
+  <text x="260" y="365" class="white-text">价格无效</text>
+  <text x="260" y="380" class="white-text">price = 0</text>
+  
+  <!-- 更新价格数据 -->
+  <rect x="380" y="440" width="140" height="60" class="process-box"/>
+  <text x="450" y="465" class="white-text">更新价格数据</text>
+  <text x="450" y="480" class="white-text">存储到区块链</text>
+  
+  <!-- 发出事件 -->
+  <rect x="380" y="520" width="140" height="60" class="success-box"/>
+  <text x="450" y="545" class="white-text">发出PriceUpdated</text>
+  <text x="450" y="560" class="white-text">事件</text>
+  
+  <!-- 箭头连接 -->
+  <line x1="450" y1="115" x2="450" y2="140" class="arrow"/>
+  <line x1="380" y1="170" x2="320" y2="170" class="error-arrow"/>
+  <line x1="450" y1="200" x2="450" y2="240" class="arrow"/>
+  <line x1="520" y1="270" x2="600" y2="270" class="error-arrow"/>
+  <line x1="450" y1="300" x2="450" y2="340" class="arrow"/>
+  <line x1="380" y1="370" x2="320" y2="370" class="error-arrow"/>
+  <line x1="450" y1="400" x2="450" y2="440" class="success-arrow"/>
+  <line x1="450" y1="500" x2="450" y2="520" class="success-arrow"/>
+  
+  <!-- 标签 -->
+  <text x="340" y="160" class="small-text" fill="#e74c3c">失败</text>
+  <text x="560" y="260" class="small-text" fill="#e74c3c">失败</text>
+  <text x="340" y="360" class="small-text" fill="#e74c3c">失败</text>
+  <text x="470" y="220" class="small-text" fill="#27ae60">通过</text>
+  <text x="470" y="320" class="small-text" fill="#27ae60">通过</text>
+  <text x="470" y="420" class="small-text" fill="#27ae60">通过</text>
+  
+  <!-- 批量更新说明 -->
+  <rect x="50" y="450" width="280" height="120" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <text x="60" y="470" class="text" text-anchor="start" font-weight="bold">批量更新 (batchUpdatePrices):</text>
+  <text x="60" y="490" class="small-text" text-anchor="start">1. 验证数组长度一致</text>
+  <text x="60" y="505" class="small-text" text-anchor="start">2. 循环处理每个代币价格</text>
+  <text x="60" y="520" class="small-text" text-anchor="start">3. 单个失败不影响其他更新</text>
+  <text x="60" y="535" class="small-text" text-anchor="start">4. 发出BatchPriceUpdated事件</text>
+  <text x="60" y="550" class="small-text" text-anchor="start">5. Gas优化：减少交易次数</text>
+  
+  <!-- 数据结构说明 -->
+  <rect x="570" y="450" width="280" height="120" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <text x="580" y="470" class="text" text-anchor="start" font-weight="bold">存储的数据结构:</text>
+  <text x="580" y="490" class="small-text" text-anchor="start">struct PricePoint {</text>
+  <text x="590" y="505" class="small-text" text-anchor="start">uint256 price;     // 价格</text>
+  <text x="590" y="520" class="small-text" text-anchor="start">uint256 timestamp; // 时间戳</text>
+  <text x="580" y="535" class="small-text" text-anchor="start">}</text>
+  <text x="580" y="550" class="small-text" text-anchor="start">mapping(address => PricePoint[])</text>
+</svg>
