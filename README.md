@@ -31,6 +31,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [20 ：最小化代理合约](#20-最小化代理合约)
 - [21 ：实现一个 LaunchPad 平台](#21-实现一个-launchpad-平台)
 - [22 ：获取 Uniswap 中 TWAP 价格](#22-获取-uniswap-中-twap-价格)
+- [23 ：实现一个 Rebase Deflation Token (RDT)](#23-实现一个-rebase-deflation-token-rdt)
 
 
 
@@ -215,7 +216,14 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
   - 可以学习到 合约交互模式的工作原理和实现方法
 
     -------
+### **23 ：实现一个 Rebase Deflation Token (RDT)**
+- 基于 ERC-20 标准的 rebase 型通缩 Token，参考 Ampleforth (AMPL) 的设计理念。该 Token 具有自动通缩机制，每年在上一年发行量基础上下降 1%。详情请查看[stablecoin/README.md](stablecoin)
+- 位置：stablecoin
+- 包含 Rebase Token 合约和前端界面，实现通缩机制和用户交互功能
+- 可以学习到 Rebase Token来追踪其对存款者应付的资产金额——包括协议获得的利润
 
+
+   -------
 
 ### 新增目录说明
 
