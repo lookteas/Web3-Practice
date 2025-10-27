@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>TWAP 预言机：价格曲线 + 实时计算</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f9f9ff;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #4a6cf7;
+    }
+    .chart-container {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      margin: 20px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    canvas {
+      width: 100%;
+      height: 200px;
+      background: #fafafa;
+    }
+    .controls {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    input {
+      width: 200px;
+      text-align: center;
+    }
+    button {
+      background: #4a6cf7;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #3a5bf5;
+    }
+    .result {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #2e8b57;
+    }
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .legend div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot.instant { background: #ff6b6b; }
+    .dot.twap { background: #4a6cf7; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📈 TWAP 预言机：抗操纵的价格计算</h1>
+
+    <div class="chart-container">
+      <canvas id="priceChart" height="200"></canvas>
+      <div class="legend">
+        <div><div class="dot instant"></div> 瞬时价格（可被操纵）</div>
+        <div><div class="dot twap"></div> TWAP（时间加权平均）</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input type="number" id="memeInput" placeholder="输入 Meme 数量（如 1000）" value="1000" min="0" step="100">
+      <button onclick="calculateEth()">计算 ETH 价值</button>
+    </div>
+    <div class="result" id="result">ETH 价值: 0.0</div>
+  </div>
+
+  <script>
+    // 模拟数据
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    let time = 0; // 模拟时间（秒）
+    let cumulativePrice = 0; // 累积价格
+    let lastTimestamp = 0;
+    let lastCumulative = 0;
+    let twap = 0.001; // 初始 TWAP（ETH per Meme）
+
+    // 存储最近 100 个点用于绘图
+    const history = [];
+    const MAX_POINTS = 100;
+
+    // 生成瞬时价格（带随机波动 + 偶尔尖峰模拟闪电贷）
+    function getInstantPrice() {
+      const base = 0.001; // 1 Meme ≈ 0.001 ETH
+      let noise = (Math.random() - 0.5) * 0.0004;
+      // 每 20 秒左右模拟一次价格尖峰（闪电贷）
+      if (time % 18 === 0 && time > 0) {
+        noise += 0.003; // 瞬间拉高
+      }
+      return Math.max(0.0001, base + noise);
+    }
+
+    // 更新 TWAP（模拟 update() 调用）
+    function updateTwap() {
+      const instant = getInstantPrice();
+      const newCumulative = cumulativePrice + instant;
+      const deltaP = newCumulative - lastCumulative;
+      const deltaTime = time - lastTimestamp;
+
+      if (deltaTime > 0) {
+        twap = deltaP / deltaTime;
+      }
+
+      // 更新记录
+      cumulativePrice = newCumulative;
+      lastCumulative = newCumulative;
+      lastTimestamp = time;
+    }
+
+    // 绘图
+    function drawChart() {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+      if (history.length === 0) return;
+
+      const width = ctx.canvas.width;
+      const height = ctx.canvas.height;
+
+      // 找出价格范围
+      const prices = history.map(h => h.instant);
+      const twaps = history.map(h => h.twap);
+      const minP = Math.min(...prices, ...twaps) * 0.95;
+      const maxP = Math.max(...prices, ...twaps) * 1.05;
+      const range = maxP - minP || 1;
+
+      // 绘制瞬时价格（红色）
+      ctx.beginPath();
+      ctx.strokeStyle = '#ff6b6b';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < history.length; i++) {
+        const x = (i / (MAX_POINTS - 1)) * width;
+        const y = height - ((history[i].instant - minP) / range) * height;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // 绘制 TWAP（蓝色）
+      ctx.beginPath();
+      ctx.strokeStyle = '#4a6cf7';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < history.length; i++) {
+        const x = (i / (MAX_POINTS - 1)) * width;
+        const y = height - ((history[i].twap - minP) / range) * height;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // 主循环：每秒推进
+    function simulate() {
+      time++;
+      updateTwap();
+
+      // 记录历史
+      history.push({ instant: getInstantPrice(), twap });
+      if (history.length > MAX_POINTS) history.shift();
+
+      drawChart();
+      setTimeout(simulate, 2000); // 每 2 秒更新一次（模拟区块时间）
+    }
+
+    // 计算 ETH 价值
+    function calculateEth() {
+      const input = document.getElementById('memeInput').value;
+      const memeAmount = parseFloat(input) || 0;
+      const ethValue = memeAmount * twap;
+      document.getElementById('result').innerText = 
+        `ETH 价值: ${ethValue.toFixed(6)} ETH`;
+    }
+
+    // 初始化
+    lastTimestamp = 0;
+    lastCumulative = 0;
+    simulate();
+    calculateEth(); // 初始计算
+  </script>
+</body>
+</html>

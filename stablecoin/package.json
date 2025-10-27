@@ -1,0 +1,25 @@
+{
+  "name": "rebase-token-test",
+  "version": "1.0.0",
+  "description": "Test script for RebaseToken contract",
+  "type": "module",
+  "main": "test_interaction_viem.js",
+  "scripts": {
+    "test": "node test_interaction_viem.js",
+    "test:ethers": "node test_interaction.js",
+    "test:simple": "node test_interaction_simple.js"
+  },
+  "dependencies": {
+    "ethers": "^6.8.0",
+    "viem": "^2.38.4"
+  },
+  "keywords": [
+    "ethereum",
+    "rebase",
+    "token",
+    "test",
+    "viem"
+  ],
+  "author": "",
+  "license": "MIT"
+}
