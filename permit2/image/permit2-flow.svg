@@ -1,0 +1,116 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font: bold 18px sans-serif; fill: #2c3e50; }
+      .subtitle { font: bold 14px sans-serif; fill: #34495e; }
+      .text { font: 12px sans-serif; fill: #2c3e50; }
+      .step-box { fill: #3498db; stroke: #2980b9; stroke-width: 2; rx: 8; }
+      .actor-box { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; rx: 8; }
+      .contract-box { fill: #27ae60; stroke: #229954; stroke-width: 2; rx: 8; }
+      .arrow { stroke: #2c3e50; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .step-text { fill: white; font: bold 11px sans-serif; }
+      .actor-text { fill: white; font: bold 12px sans-serif; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="title">Permit2 工作流程图</text>
+  
+  <!-- Actors -->
+  <rect x="50" y="60" width="80" height="40" class="actor-box"/>
+  <text x="90" y="85" text-anchor="middle" class="actor-text">用户钱包</text>
+  
+  <rect x="200" y="60" width="80" height="40" class="contract-box"/>
+  <text x="240" y="85" text-anchor="middle" class="actor-text">ERC20合约</text>
+  
+  <rect x="350" y="60" width="80" height="40" class="contract-box"/>
+  <text x="390" y="85" text-anchor="middle" class="actor-text">Permit2合约</text>
+  
+  <rect x="500" y="60" width="80" height="40" class="contract-box"/>
+  <text x="540" y="85" text-anchor="middle" class="actor-text">Bank合约</text>
+  
+  <rect x="650" y="60" width="80" height="40" class="actor-box"/>
+  <text x="690" y="85" text-anchor="middle" class="actor-text">前端界面</text>
+  
+  <!-- Step 1: 用户授权 -->
+  <rect x="30" y="140" width="120" height="50" class="step-box"/>
+  <text x="90" y="160" text-anchor="middle" class="step-text">步骤1: 用户授权</text>
+  <text x="90" y="175" text-anchor="middle" class="step-text">Permit2管理代币</text>
+  
+  <!-- Arrow 1 -->
+  <line x1="150" y1="165" x2="190" y2="165" class="arrow"/>
+  
+  <!-- Step 2: ERC20授权 -->
+  <rect x="200" y="140" width="120" height="50" class="step-box"/>
+  <text x="260" y="160" text-anchor="middle" class="step-text">步骤2: ERC20</text>
+  <text x="260" y="175" text-anchor="middle" class="step-text">approve Permit2</text>
+  
+  <!-- Arrow 2 -->
+  <line x1="320" y1="165" x2="360" y2="165" class="arrow"/>
+  
+  <!-- Step 3: 生成签名 -->
+  <rect x="370" y="140" width="120" height="50" class="step-box"/>
+  <text x="430" y="160" text-anchor="middle" class="step-text">步骤3: 用户签名</text>
+  <text x="430" y="175" text-anchor="middle" class="step-text">Permit2消息</text>
+  
+  <!-- Arrow back to user -->
+  <line x1="370" y1="150" x2="150" y2="150" class="arrow"/>
+  
+  <!-- Step 4: 调用Bank -->
+  <rect x="30" y="230" width="120" height="50" class="step-box"/>
+  <text x="90" y="250" text-anchor="middle" class="step-text">步骤4: 调用Bank</text>
+  <text x="90" y="265" text-anchor="middle" class="step-text">depositWithPermit2</text>
+  
+  <!-- Arrow 4 -->
+  <line x1="150" y1="255" x2="490" y2="255" class="arrow"/>
+  
+  <!-- Step 5: Bank验证 -->
+  <rect x="500" y="230" width="120" height="50" class="step-box"/>
+  <text x="560" y="250" text-anchor="middle" class="step-text">步骤5: Bank验证</text>
+  <text x="560" y="265" text-anchor="middle" class="step-text">并调用Permit2</text>
+  
+  <!-- Arrow 5 -->
+  <line x1="500" y1="245" x2="440" y2="245" class="arrow"/>
+  
+  <!-- Step 6: Permit2验证 -->
+  <rect x="350" y="320" width="120" height="50" class="step-box"/>
+  <text x="410" y="340" text-anchor="middle" class="step-text">步骤6: Permit2</text>
+  <text x="410" y="355" text-anchor="middle" class="step-text">验证签名和权限</text>
+  
+  <!-- Arrow 6 -->
+  <line x1="350" y1="335" x2="290" y2="335" class="arrow"/>
+  
+  <!-- Step 7: 转账 -->
+  <rect x="200" y="320" width="120" height="50" class="step-box"/>
+  <text x="260" y="340" text-anchor="middle" class="step-text">步骤7: ERC20</text>
+  <text x="260" y="355" text-anchor="middle" class="step-text">transferFrom</text>
+  
+  <!-- Arrow 7 -->
+  <line x1="320" y1="345" x2="490" y2="345" class="arrow"/>
+  
+  <!-- Step 8: 完成存款 -->
+  <rect x="500" y="410" width="120" height="50" class="step-box"/>
+  <text x="560" y="430" text-anchor="middle" class="step-text">步骤8: Bank</text>
+  <text x="560" y="445" text-anchor="middle" class="step-text">完成存款记录</text>
+  
+  <!-- Arrow 8 -->
+  <line x1="620" y1="435" x2="650" y2="435" class="arrow"/>
+  
+  <!-- Step 9: 更新界面 -->
+  <rect x="650" y="410" width="120" height="50" class="step-box"/>
+  <text x="710" y="430" text-anchor="middle" class="step-text">步骤9: 前端</text>
+  <text x="710" y="445" text-anchor="middle" class="step-text">更新余额显示</text>
+  
+  <!-- Key Features Box -->
+  <rect x="50" y="500" width="700" height="80" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <text x="400" y="520" text-anchor="middle" class="subtitle">🔑 Permit2 核心特性</text>
+  <text x="70" y="540" class="text">• 无需预先授权：用户签名即可完成代币转账</text>
+  <text x="70" y="555" class="text">• 批量操作：支持一次签名多个代币操作</text>
+  <text x="400" y="540" class="text">• 时间限制：签名可设置过期时间</text>
+  <text x="400" y="555" class="text">• 防重放攻击：每个签名都有唯一的nonce</text>
+  <text x="70" y="570" class="text">• 安全性：基于EIP-712标准化签名</text>
+  <text x="400" y="570" class="text">• 兼容性：与现有ERC20代币完全兼容</text>
+</svg>
