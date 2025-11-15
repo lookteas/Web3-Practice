@@ -65,7 +65,7 @@ foundry/nft-market
   - `cd Web3-Practice\foundry\nft-market`
 - 运行测试（详细日志）：
   - `forge test -vvv`
-- 生成测试输出 TXT（用于提交挑战）：
+- 生成测试输出 TXT 文件：
   - Git Bash：`forge test -vvv | tee forge-test-result.txt`
   - PowerShell：`forge test -vvv | Tee-Object -FilePath forge-test-result.txt`
 - 测试输出保存于：`foundry/nft-market/forge-test-result.txt`
