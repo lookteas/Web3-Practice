@@ -1,0 +1,30 @@
+No files changed, compilation skipped
+
+Ran 11 tests for test/NFTMarket.t.sol:NFTMarketTest
+[PASS] testBuyFail_PayTooLittle() (gas: 215449)
+[PASS] testBuyFail_PayTooMuch() (gas: 215447)
+[PASS] testBuyFail_RepeatPurchase() (gas: 255728)
+[PASS] testBuyFail_SelfPurchase() (gas: 243570)
+[PASS] testBuySuccess() (gas: 260689)
+[PASS] testFuzz_ListAndBuy(uint256,address) (runs: 257, μ: 282115, ~: 282203)
+[PASS] testListFail_InvalidPaymentToken() (gas: 114870)
+[PASS] testListFail_InvalidPrice() (gas: 117038)
+[PASS] testListFail_NotApproved() (gas: 100811)
+[PASS] testListFail_NotOwner() (gas: 94015)
+[PASS] testListSuccess() (gas: 190643)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 64.45ms (68.63ms CPU time)
+
+Ran 1 test for test/NFTMarket.t.sol:InvariantTest
+[PASS] invariant_NoTokenBalance() (runs: 256, calls: 128000, reverts: 2935)
+
+╭----------+----------+-------+---------+----------╮
+| Contract | Selector | Calls | Reverts | Discards |
++==================================================+
+| Handler  | buy      | 63748 | 2935    | 0        |
+|----------+----------+-------+---------+----------|
+| Handler  | list     | 64252 | 0       | 0        |
+╰----------+----------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 10.57s (10.57s CPU time)
+
+Ran 2 test suites in 10.57s (10.63s CPU time): 12 tests passed, 0 failed, 0 skipped (12 total tests)

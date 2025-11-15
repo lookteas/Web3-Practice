@@ -1,0 +1,9 @@
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+libs = ["lib", "../../contractAudit/lib", "../../defi/vesting/lib"]
+remappings = [
+  "forge-std/=../../contractAudit/lib/forge-std/src/",
+  "@openzeppelin/=../../defi/vesting/lib/openzeppelin-contracts/"
+]
