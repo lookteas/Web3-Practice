@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERC20 转账索引展示</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; }
+    button { padding: 8px 12px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #f3f4f6; }
+    .row { margin: 8px 0; }
+  </style>
+  <script>
+    const backendBase = 'http://localhost:3001'
+  </script>
+</head>
+<body>
+  <h2>ERC20 转账记录</h2>
+  <div class="row">
+    <button id="connect">连接钱包</button>
+    <span id="addr"></span>
+  </div>
+  <div class="row">
+    <button id="refresh">刷新转账记录</button>
+    <span id="status"></span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>时间</th>
+        <th>区块</th>
+        <th>交易哈希</th>
+        <th>From</th>
+        <th>To</th>
+        <th>数量</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <script src="./app.js"></script>
+</body>
+</html>
