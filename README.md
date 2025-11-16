@@ -229,7 +229,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - 基于 Viem 开发的索引链上 ERC20 转账数据项目，允许用户查询和展示指定合约地址的转账记录。详情请查看[viemIndexData/README.md](viemIndexData)
 - 位置：viemIndexData
 - 包含索引合约和前端界面，实现查询和展示转账记录功能
-- 可以学习到 Viem 库的使用方法和合约交互模式
+- 可以学习到 Viem 库的使用方法和合约交互模式,使用 Viem 的 getLogs 按 Transfer 事件索引 ERC20 转账记录
 
 ### 新增目录说明
 
