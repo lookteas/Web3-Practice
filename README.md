@@ -32,7 +32,7 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 - [21 ：实现一个 LaunchPad 平台](#21-实现一个-launchpad-平台)
 - [22 ：获取 Uniswap 中 TWAP 价格](#22-获取-uniswap-中-twap-价格)
 - [23 ：实现一个 Rebase Deflation Token (RDT)](#23-实现一个-rebase-deflation-token-rdt)
-
+- [24 ：使用 Viem 索引链上ERC20 转账数据并展示](#24-使用-viem-索引链上erc20-转账数据并展示)
 
 
 - [新增目录说明](#新增目录说明)
@@ -224,6 +224,12 @@ web3 练习 包含合约开发： EVM 、GAS 优化 ，去中心化金融（DEFI
 
 
    -------
+
+### **24 ：使用 Viem 索引链上ERC20 转账数据并展示**
+- 基于 Viem 开发的索引链上 ERC20 转账数据项目，允许用户查询和展示指定合约地址的转账记录。详情请查看[viemIndexData/README.md](viemIndexData)
+- 位置：viemIndexData
+- 包含索引合约和前端界面，实现查询和展示转账记录功能
+- 可以学习到 Viem 库的使用方法和合约交互模式
 
 ### 新增目录说明
 
