@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600" viewBox="0 0 1000 600">
+  <defs>
+    <style>
+      .box{stroke:#1f2937;stroke-width:2}
+      .frontend{fill:#dcfce7}
+      .backend{fill:#dbeafe}
+      .api{fill:#eff6ff}
+      .db{fill:#fef3c7}
+      .rpc{fill:#ede9fe}
+      .chain{fill:#fee2e2}
+      .title{font-family:system-ui,Segoe UI,Arial,sans-serif;font-size:16px;font-weight:700;fill:#111827}
+      .text{font-family:system-ui,Segoe UI,Arial,sans-serif;font-size:14px;fill:#374151}
+      .arrow{stroke:#2563eb;stroke-width:2;marker-end:url(#arrowHead)}
+      .caption{font-family:system-ui,Segoe UI,Arial,sans-serif;font-size:12px;fill:#2563eb}
+    </style>
+    <marker id="arrowHead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+    </marker>
+  </defs>
+
+  <rect x="20" y="20" width="960" height="560" fill="#f9fafb" stroke="#e5e7eb" />
+
+  <rect class="box frontend" x="40" y="60" width="220" height="90" rx="8" ry="8" />
+  <text class="title" x="60" y="85">Browser</text>
+  <text class="text" x="60" y="110">Frontend (index.html + app.js)</text>
+
+  <rect class="box backend" x="300" y="40" width="340" height="260" rx="8" ry="8" />
+  <text class="title" x="320" y="65">Backend (Express + Viem)</text>
+
+  <rect class="box api" x="315" y="80" width="310" height="70" rx="8" ry="8" />
+  <text class="title" x="330" y="105">RESTFUL API</text>
+  <text class="text" x="330" y="130">/api/transfers, /api/indexing/status</text>
+
+  <rect class="box api" x="315" y="160" width="310" height="120" rx="8" ry="8" />
+  <text class="title" x="330" y="185">Indexer (Polling)</text>
+  <text class="text" x="330" y="210">getBlockNumber → getLogs(Transfer)</text>
+  <text class="text" x="330" y="230">format args, get timestamp, write DB</text>
+
+  <rect class="box db" x="680" y="80" width="280" height="100" rx="8" ry="8" />
+  <text class="title" x="700" y="105">MySQL Database</text>
+  <text class="text" x="700" y="130">transfers, index_state</text>
+
+  <rect class="box rpc" x="680" y="220" width="280" height="100" rx="8" ry="8" />
+  <text class="title" x="700" y="245">RPC Provider</text>
+  <text class="text" x="700" y="270">Ethereum Node (HTTP)</text>
+
+  <rect class="box chain" x="680" y="360" width="280" height="120" rx="8" ry="8" />
+  <text class="title" x="700" y="385">Ethereum Network</text>
+  <text class="text" x="700" y="410">ERC20 Token Contract</text>
+
+  <line class="arrow" x1="260" y1="105" x2="300" y2="105" />
+  <text class="caption" x="265" y="95">HTTP</text>
+
+  <line class="arrow" x1="640" y1="130" x2="680" y2="130" />
+  <text class="caption" x="645" y="120">SQL</text>
+
+  <line class="arrow" x1="640" y1="220" x2="680" y2="240" />
+  <text class="caption" x="645" y="230">HTTP</text>
+
+  <line class="arrow" x1="820" y1="320" x2="820" y2="360" />
+  <text class="caption" x="830" y="340">Chain</text>
+
+  <text class="text" x="60" y="520">用户通过前端调用 REST API；后端轮询链上 Transfer 事件并写入 MySQL；前端按用户地址展示转账记录。</text>
+
+  <rect x="60" y="540" width="18" height="18" fill="#dcfce7" stroke="#1f2937" />
+  <text class="caption" x="84" y="553">Frontend</text>
+  <rect x="170" y="540" width="18" height="18" fill="#dbeafe" stroke="#1f2937" />
+  <text class="caption" x="194" y="553">Backend</text>
+  <rect x="270" y="540" width="18" height="18" fill="#eff6ff" stroke="#1f2937" />
+  <text class="caption" x="294" y="553">API/Indexer</text>
+  <rect x="400" y="540" width="18" height="18" fill="#fef3c7" stroke="#1f2937" />
+  <text class="caption" x="424" y="553">Database</text>
+  <rect x="510" y="540" width="18" height="18" fill="#ede9fe" stroke="#1f2937" />
+  <text class="caption" x="534" y="553">RPC Provider</text>
+  <rect x="640" y="540" width="18" height="18" fill="#fee2e2" stroke="#1f2937" />
+  <text class="caption" x="664" y="553">Ethereum</text>
+</svg>

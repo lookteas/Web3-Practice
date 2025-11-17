@@ -12,11 +12,18 @@
 ![](./images/1.jpg)
 
 ## 架构
+
+
+
 - 后端：Node.js、Express、Viem、MySQL（使用 `mysql2/promise`）
+
 - 前端：原生 HTML + JS（通过浏览器打开 `frontend/index.html`）
+
 - 数据库：自动创建数据库与表，保存转账记录与索引进度
 
-![](./images/2.jpg)
+  ![架构图](./images/architecture.svg)
+
+<img src="./images/2.jpg" style="zoom:80%;" />
 
 
 
@@ -38,6 +45,14 @@
   - 索引进度读写：`viemIndexData/backend/src/db.js:25`、`viemIndexData/backend/src/db.js:32`
 - 前端页面：`viemIndexData/frontend/index.html`、逻辑：`viemIndexData/frontend/app.js`
   - 后端地址：`viemIndexData/frontend/index.html:12`（默认 `http://localhost:3001`）
+
+## 架构图
+
+
+
+## 执行流程图
+
+![流程图](./images/flow.svg)
 
 ## 快速开始
 ### 前置要求
