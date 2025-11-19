@@ -1,17 +1,32 @@
 {
   "name": "eip7702-demo",
-  "version": "1.0.0",
-  "description": "EIP-7702 demonstration with viem",
+  "version": "2.0.0",
+  "description": "EIP-7702 Account Abstraction Demo with Viem - Full Implementation",
   "type": "module",
   "scripts": {
-    "dev": "python -m http.server 8000",
-    "build": "echo 'No build step required for this demo'"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "forge test -vv"
   },
   "dependencies": {
-    "viem": "^2.21.45"
+    "viem": "^2.39.0"
   },
-  "devDependencies": {},
-  "keywords": ["ethereum", "eip-7702", "viem", "web3"],
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "keywords": [
+    "ethereum",
+    "eip-7702",
+    "viem",
+    "web3",
+    "account-abstraction",
+    "smart-accounts",
+    "batch-transactions"
+  ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

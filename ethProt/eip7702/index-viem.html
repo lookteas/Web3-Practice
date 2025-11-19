@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIP-7702 账户抽象演示 - Viem 完整实现</title>
+    <script type="module" src="/app.js"></script>
+    <script>
+        // 等待模块加载完成后再允许交互
+        window.addEventListener('load', () => {
+            console.log('✅ 页面加载完成');
+        });
+    </script>
+
+    <style>
+        /* 全局重置和基础样式 */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+        }
+        
+        /* 标题样式 */
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+        
+        /* 功能区域样式 */
+        .section {
+            margin-bottom: 25px;
+            padding: 25px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            transition: all 0.3s ease;
+        }
+        
+        .section:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .section h3 {
+            margin: 0 0 20px 0;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 12px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        /* 输入组样式 */
+        .input-group {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .input-group label {
+            min-width: 140px;
+            font-weight: 500;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        /* 表单元素统一样式 */
+        input, button {
+            padding: 14px 18px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        input {
+            flex: 1;
+            background: white;
+            min-width: 200px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+            background: #fafbfc;
+        }
+        
+        input::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+        
+        /* 按钮样式 */
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            min-width: 130px;
+            white-space: nowrap;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            background: linear-gradient(135deg, #5a6fd8, #6a42a0);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2);
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        
+        /* 状态提示样式 */
+        .status {
+            margin-top: 15px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-weight: 500;
+            border-left: 4px solid;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            max-width: 100%;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+        
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+        
+        /* 特殊区域样式 */
+        .highlight {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            border-color: #e17055;
+            position: relative;
+        }
+        
+        .highlight::before {
+            content: "⭐";
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 20px;
+        }
+        
+        /* 结果显示样式 */
+        .result-display {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            font-family: 'Courier New', monospace;
+            color: #495057;
+            font-size: 13px;
+            min-width: 150px;
+            word-break: break-all;
+        }
+        
+        /* 网格布局 */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            width: 100%;
+        }
+        
+        .grid .section {
+            width: 100%;
+            min-width: 0;
+        }
+        
+        /* 使用说明样式 */
+        .section ol {
+            padding-left: 20px;
+        }
+        
+        .section ol li {
+            margin-bottom: 8px;
+            line-height: 1.7;
+        }
+        
+        .section ol li strong {
+            color: #495057;
+        }
+        
+        /* 警告提示样式 */
+        .section p[style*="background: #fff3cd"] {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7) !important;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107 !important;
+            font-size: 14px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .input-group label {
+                min-width: auto;
+                text-align: left;
+            }
+            
+            input, button {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            input, button {
+                padding: 12px 14px;
+                font-size: 13px;
+            }
+        }
+        
+        /* 可访问性改进 */
+        button:focus,
+        input:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .loading button {
+            position: relative;
+        }
+        
+        .loading button::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 排行榜样式 */
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .leaderboard-item.rank-1 {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border-left-color: #ffd700;
+        }
+        
+        .leaderboard-item.rank-2 {
+            background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+            border-left-color: #c0c0c0;
+        }
+        
+        .leaderboard-item.rank-3 {
+            background: linear-gradient(135deg, #cd7f32, #e8a87c);
+            border-left-color: #cd7f32;
+        }
+        
+        .rank-badge {
+            font-size: 24px;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .user-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+        
+        .user-address {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #495057;
+            word-break: break-all;
+        }
+        
+        .user-balance {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 EIP-7702 账户抽象演示</h1>
+        <p class="subtitle">基于 Viem 的批量操作和代理执行演示</p>
+        
+        <!-- 连接状态 -->
+        <div class="section">
+            <h3>📱 钱包连接</h3>
+            <div class="input-group">
+                <label>当前账户:</label>
+                <div class="result-display" id="currentAccount">未连接</div>
+                <button onclick="window.connectWallet()">连接 MetaMask</button>
+            </div>
+            <div id="connectionStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- 合约配置 -->
+        <div class="section">
+            <h3>⚙️ 合约配置</h3>
+            <div class="input-group">
+                <label>Delegate合约:</label>
+                <input type="text" id="delegateAddress" placeholder="输入 DelegateContract 地址" value="0xF6d71B67024c8C1c253eCC106E8Cb591d9976329" style="font-family: monospace;">
+            </div>
+            <div class="input-group">
+                <label>TokenBank合约:</label>
+                <input type="text" id="tokenBankAddress" placeholder="输入 TokenBank 地址" value="0x2D4F58E5A95D8Ce41a62ADf0eA4062852DbB1B45" style="font-family: monospace;">
+                <button onclick="window.setContractAddresses()">设置地址</button>
+            </div>
+            <div id="contractStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- EIP-7702 账户抽象授权 -->
+        <div class="section highlight">
+            <h3>🔐 EIP-7702 账户抽象授权</h3>
+            <div class="input-group">
+                <label>代理合约地址:</label>
+                <input type="text" id="delegateContract" placeholder="输入代理合约地址 (0x...)">
+                <button onclick="window.setDelegateContract()">设置代理合约</button>
+            </div>
+            <div class="input-group">
+                <label>账户代码状态:</label>
+                <div class="result-display" id="accountCodeStatus">未检查</div>
+                <button onclick="window.checkAccountCode(window.account?.address)">检查代码</button>
+            </div>
+            <div class="input-group">
+                <label>授权操作:</label>
+                <button onclick="window.sendAuthorizationTransaction()">EIP-7702 授权</button>
+            </div>
+            <p style="font-size: 12px; color: #6c757d; margin: 5px 0;">
+                💡 EIP-7702 允许 EOA 账户临时设置代码，实现账户抽象功能<br>
+                ✅ 使用 Viem 2.39.0 的原生 EIP-7702 API，完全支持 MetaMask
+            </p>
+            <div id="authStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <div class="grid">
+            <!-- 单次存款 -->
+            <div class="section">
+                <h3>💰 单次存款</h3>
+                <div class="input-group">
+                    <label>存款金额:</label>
+                    <input type="number" id="singleDepositAmount" placeholder="输入 ETH 数量" step="0.001" min="0">
+                    <button onclick="window.singleDeposit()">执行存款</button>
+                </div>
+                <div id="depositStatus" class="status" style="display:none;"></div>
+            </div>
+
+            <!-- 批量存款 -->
+            <div class="section highlight">
+                <h3>🎯 批量存款</h3>
+                <div class="input-group">
+                    <label>存款列表:</label>
+                    <input type="text" id="batchDepositAmounts" placeholder="例如: 0.1, 0.2, 0.3">
+                    <button onclick="window.batchDeposit()">批量执行</button>
+                </div>
+                <p style="font-size: 12px; color: #6c757d; margin: 5px 0;">
+                    💡 输入多个金额，用逗号分隔，将在一个交易中执行多次存款
+                </p>
+                <div id="batchStatus" class="status" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- 查询功能 -->
+        <div class="section">
+            <h3>🔍 余额查询</h3>
+            <div class="grid">
+                <div>
+                    <div class="input-group">
+                        <label>代理合约余额:</label>
+                        <div class="result-display" id="balanceResult">-</div>
+                        <button onclick="window.queryBalance()">查询余额</button>
+                    </div>
+                </div>
+                <div>
+                    <div class="input-group">
+                        <label>合约总余额:</label>
+                        <div class="result-display" id="contractBalanceResult">-</div>
+                        <button onclick="window.queryContractBalance()">查询总额</button>
+                    </div>
+                </div>
+            </div>
+            <div id="queryStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- 存款排行榜 -->
+        <div class="section">
+            <h3>🏆 存款排行榜 (Top 3)</h3>
+            <div style="text-align: center; margin-bottom: 15px;">
+                <button onclick="window.loadLeaderboard()">🔄 刷新排行榜</button>
+            </div>
+            <div id="leaderboardContent">
+                <p style="text-align: center; color: #6c757d;">点击刷新按钮加载排行榜...</p>
+            </div>
+            <div id="leaderboardStatus" class="status" style="display:none;"></div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="section">
+            <h3>📖 使用说明</h3>
+            <ol style="line-height: 1.8;">
+                <li><strong>连接钱包:</strong> 点击"连接 MetaMask"按钮，确保切换到 Sepolia 测试网</li>
+                <li><strong>设置合约:</strong> 输入部署后的 DelegateContract 和 TokenBank 合约地址</li>
+                <li><strong>单次存款:</strong> 使用 ERC-5792 的 wallet_sendCalls 执行存款操作</li>
+                <li><strong>批量存款:</strong> 在一个交易中执行多次存款，展示批量操作能力</li>
+                <li><strong>查询余额:</strong> 查看用户在 TokenBank 中的存款余额</li>
+                <li><strong>存款排行榜:</strong> 查看存款金额最高的前三名用户</li>
+            </ol>
+            <p style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">
+                <strong>⚠️ 注意:</strong> 这是一个演示项目，仅在 Sepolia 测试网上使用。请不要在主网上使用真实资金。
+            </p>
+        </div>
+    </div>
+</body>
+</html>
